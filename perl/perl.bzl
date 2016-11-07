@@ -24,7 +24,7 @@ _perl_deps_attr = attr.label_list(
 )
 
 _perl_data_attr = attr.label_list(
-    cfg = DATA_CFG,
+    cfg = "data",
     allow_files = True,
 )
 
