@@ -36,7 +36,7 @@ _perl_main_attr = attr.label(
 _perl_env_attr = attr.string_dict()
 
 def _collect_transitive_sources(ctx):
-  result = set(order="compile")
+  result = depset(order="postorder")
   for dep in ctx.attr.deps:
     result += dep.transitive_perl_sources
 
@@ -165,7 +165,7 @@ def _perl_binary_implementation(ctx):
   )
 
   return struct(
-      files = set([ctx.outputs.executable]),
+      files = depset([ctx.outputs.executable]),
       runfiles=ctx.runfiles(
           collect_data=True,
           collect_default=True,
