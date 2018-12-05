@@ -14,7 +14,7 @@
 
 """Perl rules for Bazel"""
 
-_perl_file_types = FileType([".pl", ".pm", ".t"])
+_perl_file_types = [".pl", ".pm", ".t"]
 
 _perl_srcs_attr = attr.label_list(allow_files = _perl_file_types)
 
@@ -38,11 +38,11 @@ def _collect_transitive_sources(ctx):
     for dep in ctx.attr.deps:
         result += dep.transitive_perl_sources
 
-    result += _perl_file_types.filter(ctx.files.srcs)
+    result += ctx.files.srcs
     return result
 
 def _get_main_from_sources(ctx):
-    sources = _perl_file_types.filter(ctx.files.srcs)
+    sources = ctx.files.srcs
     if len(sources) != 1:
         fail("Cannot infer main from multiple 'srcs'. Please specify 'main' attribute.", "main")
     return sources[0]
