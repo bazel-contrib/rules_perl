@@ -34,12 +34,11 @@ _perl_main_attr = attr.label(
 _perl_env_attr = attr.string_dict()
 
 def _collect_transitive_sources(ctx):
-    result = depset(order = "postorder")
-    for dep in ctx.attr.deps:
-        result += dep.transitive_perl_sources
-
-    result += ctx.files.srcs
-    return result
+    return depset(
+        ctx.files.srcs,
+        transitive = [dep.transitive_perl_sources for dep in ctx.attr.deps],
+        order = "postorder",
+    )
 
 def _get_main_from_sources(ctx):
     sources = ctx.files.srcs
@@ -173,7 +172,7 @@ def _perl_binary_implementation(ctx):
         runfiles = ctx.runfiles(
             collect_data = True,
             collect_default = True,
-            transitive_files = transitive_sources + [ctx.outputs.executable],
+            transitive_files = depset([ctx.outputs.executable], transitive = [transitive_sources]),
         ),
     )
 
