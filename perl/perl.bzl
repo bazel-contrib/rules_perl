@@ -63,7 +63,7 @@ def _is_identifier(name):
         return False
 
     # Must consist of alnum characters or '_'s.
-    for c in name:
+    for c in name.elems():
         if not (c.isalnum() or c == "_"):
             return False
     return True
@@ -167,9 +167,9 @@ def _perl_binary_implementation(ctx):
         is_executable = True,
     )
 
-    return struct(
+    return DefaultInfo(
         files = depset([ctx.outputs.executable]),
-        runfiles = ctx.runfiles(
+        default_runfiles = ctx.runfiles(
             collect_data = True,
             collect_default = True,
             transitive_files = depset([ctx.outputs.executable], transitive = [transitive_sources]),
