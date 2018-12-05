@@ -24,13 +24,11 @@ _perl_deps_attr = attr.label_list(
 )
 
 _perl_data_attr = attr.label_list(
-    cfg = "data",
     allow_files = True,
 )
 
 _perl_main_attr = attr.label(
-    allow_files = _perl_file_types,
-    single_file = True,
+    allow_single_file = _perl_file_types,
 )
 
 _perl_env_attr = attr.string_dict()
@@ -158,7 +156,7 @@ def _perl_binary_implementation(ctx):
     if main == None:
         main = _get_main_from_sources(ctx)
 
-    ctx.file_action(
+    ctx.actions.write(
         output = ctx.outputs.executable,
         content = _create_stub(
             ctx.workspace_name,
@@ -167,7 +165,7 @@ def _perl_binary_implementation(ctx):
             ctx.attr.env,
             ctx.attr.env_files,
         ),
-        executable = True,
+        is_executable = True,
     )
 
     return struct(
