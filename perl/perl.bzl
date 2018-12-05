@@ -36,41 +36,42 @@ _perl_main_attr = attr.label(
 _perl_env_attr = attr.string_dict()
 
 def _collect_transitive_sources(ctx):
-  result = depset(order="postorder")
-  for dep in ctx.attr.deps:
-    result += dep.transitive_perl_sources
+    result = depset(order = "postorder")
+    for dep in ctx.attr.deps:
+        result += dep.transitive_perl_sources
 
-  result += _perl_file_types.filter(ctx.files.srcs)
-  return result
+    result += _perl_file_types.filter(ctx.files.srcs)
+    return result
 
 def _get_main_from_sources(ctx):
-  sources = _perl_file_types.filter(ctx.files.srcs)
-  if len(sources) != 1:
-    fail("Cannot infer main from multiple 'srcs'. Please specify 'main' attribute.", "main")
-  return sources[0]
+    sources = _perl_file_types.filter(ctx.files.srcs)
+    if len(sources) != 1:
+        fail("Cannot infer main from multiple 'srcs'. Please specify 'main' attribute.", "main")
+    return sources[0]
 
 def _perl_library_implementation(ctx):
-  transitive_sources = _collect_transitive_sources(ctx)
-  return struct(
-    runfiles = ctx.runfiles(collect_data = True),
-    transitive_perl_sources = transitive_sources
-  )
+    transitive_sources = _collect_transitive_sources(ctx)
+    return struct(
+        runfiles = ctx.runfiles(collect_data = True),
+        transitive_perl_sources = transitive_sources,
+    )
 
 def _is_identifier(name):
-  # Must be non-empty.
-  if name == None or len(name) == 0:
-    return False
-  # Must start with alpha or '_'
-  if not (name[0].isalpha() or name[0] == '_'):
-    return False
-  # Must consist of alnum characters or '_'s.
-  for c in name:
-    if not (c.isalnum() or c == '_'):
-      return False
-  return True
+    # Must be non-empty.
+    if name == None or len(name) == 0:
+        return False
 
+    # Must start with alpha or '_'
+    if not (name[0].isalpha() or name[0] == "_"):
+        return False
 
-PERL_STUB_TEMPLATE="""#!/usr/bin/perl
+    # Must consist of alnum characters or '_'s.
+    for c in name:
+        if not (c.isalnum() or c == "_"):
+            return False
+    return True
+
+PERL_STUB_TEMPLATE = """#!/usr/bin/perl
 
 use strict;
 use warnings;
@@ -122,59 +123,64 @@ main()
 """
 
 def _create_stub(workspace_name, executable_name, main_path, env, env_files):
-  environment = ""
-  for name, value in env.items():
-    if not _is_identifier(name):
-      fail("%s is not a valid environment variable name." % str(name))
-    environment += ("  $ENV{{{key}}} = '{value}' " +
-                    "unless defined $ENV{{{key}}};\n").format(
-        key = name, value = value.replace("'", "\\'"))
+    environment = ""
+    for name, value in env.items():
+        if not _is_identifier(name):
+            fail("%s is not a valid environment variable name." % str(name))
+        environment += ("  $ENV{{{key}}} = '{value}' " +
+                        "unless defined $ENV{{{key}}};\n").format(
+            key = name,
+            value = value.replace("'", "\\'"),
+        )
 
-  for name, value in env_files.items():
-    if not _is_identifier(name):
-      fail("%s is not a valid environment variable name." % str(name))
-    environment += ("  $ENV{{{key}}} = realpath(catfile($module_space, " +
-                    "'{workspace_name}', '{value}')) " +
-                    "unless defined $ENV{{{key}}};\n").format(
-        key = name, value = value.replace("'", "\\'"),
-        workspace_name = workspace_name)
+    for name, value in env_files.items():
+        if not _is_identifier(name):
+            fail("%s is not a valid environment variable name." % str(name))
+        environment += ("  $ENV{{{key}}} = realpath(catfile($module_space, " +
+                        "'{workspace_name}', '{value}')) " +
+                        "unless defined $ENV{{{key}}};\n").format(
+            key = name,
+            value = value.replace("'", "\\'"),
+            workspace_name = workspace_name,
+        )
 
-  return PERL_STUB_TEMPLATE.format(
-      workspace_name = workspace_name,
-      executable_name = executable_name,
-      environment = environment,
-      main_path = main_path)
-
+    return PERL_STUB_TEMPLATE.format(
+        workspace_name = workspace_name,
+        executable_name = executable_name,
+        environment = environment,
+        main_path = main_path,
+    )
 
 def _perl_binary_implementation(ctx):
-  transitive_sources = _collect_transitive_sources(ctx)
+    transitive_sources = _collect_transitive_sources(ctx)
 
-  main = ctx.file.main
-  if main == None:
-    main = _get_main_from_sources(ctx)
+    main = ctx.file.main
+    if main == None:
+        main = _get_main_from_sources(ctx)
 
-  ctx.file_action(
-    output=ctx.outputs.executable,
-    content=_create_stub(
-        ctx.workspace_name,
-        ctx.outputs.executable.basename,
-        main.path,
-        ctx.attr.env,
-        ctx.attr.env_files),
-    executable=True
-  )
+    ctx.file_action(
+        output = ctx.outputs.executable,
+        content = _create_stub(
+            ctx.workspace_name,
+            ctx.outputs.executable.basename,
+            main.path,
+            ctx.attr.env,
+            ctx.attr.env_files,
+        ),
+        executable = True,
+    )
 
-  return struct(
-      files = depset([ctx.outputs.executable]),
-      runfiles=ctx.runfiles(
-          collect_data=True,
-          collect_default=True,
-          transitive_files=transitive_sources + [ctx.outputs.executable],
-      )
-  )
+    return struct(
+        files = depset([ctx.outputs.executable]),
+        runfiles = ctx.runfiles(
+            collect_data = True,
+            collect_default = True,
+            transitive_files = transitive_sources + [ctx.outputs.executable],
+        ),
+    )
 
 def _perl_test_implementation(ctx):
-  return _perl_binary_implementation(ctx)
+    return _perl_binary_implementation(ctx)
 
 perl_library = rule(
     attrs = {
