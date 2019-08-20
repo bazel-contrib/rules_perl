@@ -98,7 +98,7 @@ sub main {{
       continue;
     }}
 
-    if ($0 =~ /(.*\.runfiles)/.*/) {{
+    if ($0 =~ /(.*\\.runfiles)/.*/) {{
       $module_space = $1;
       last;
     }}
