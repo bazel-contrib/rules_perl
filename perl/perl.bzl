@@ -73,15 +73,17 @@ PERL_STUB_TEMPLATE = """#!/usr/bin/perl
 use strict;
 use warnings;
 use Data::Dumper qw(Dumper);
-use Cwd qw(abs_path realpath);
+use Cwd qw(abs_path getcwd realpath);
 use File::Basename;
 use File::Spec::Functions;
 
 sub main {{
   my @args = @ARGV;
+  my $stub_filename = $0;
 
-  # Follow symlinks, looking for my module space.
-  my $stub_filename = abs_path($0);
+  if ( !file_name_is_absolute($stub_filename) ) {{
+      $stub_filename = catfile(getcwd(), $0);
+  }}
 
   my $module_space = '';
   while () {{
@@ -103,10 +105,10 @@ sub main {{
       last;
     }}
 
-    print "Cannot find .runfiles directory for $0" and exit 1;
+    print STDERR "Cannot find .runfiles directory for $0" and exit 1;
   }}
 
-  print "$module_space\n";
+  print "$module_space\\n";
 
   my $main_filename = catfile($module_space, '{workspace_name}', '{main_path}');
 
