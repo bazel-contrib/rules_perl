@@ -95,7 +95,7 @@ sub main {{
     if (-l $stub_filename) {{
       # Absolutize
       $stub_filename = catfile(dirname($stub_filename), readlink $stub_filename);
-      continue;
+      next;
     }}
 
     if ($0 =~ /(.*\\.runfiles)/.*/) {{
