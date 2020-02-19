@@ -19,6 +19,8 @@ load("@bazel_skylib//lib:paths.bzl", "paths")
 load("@rules_cc//cc:toolchain_utils.bzl", "find_cpp_toolchain")
 load("@rules_cc//cc:action_names.bzl", "C_COMPILE_ACTION_NAME")
 
+PerlLibrary = provider(fields = ["transitive_perl_sources"])
+
 PERL_XS_COPTS = [
     "-fwrapv",
     "-fPIC",
@@ -27,16 +29,17 @@ PERL_XS_COPTS = [
     "-D_FILE_OFFSET_BITS=64",
 ]
 
-_perl_file_types = [".pl", ".pm", ".t"]
+_perl_file_types = [".pl", ".pm", ".t", ".so"]
 _perl_srcs_attr = attr.label_list(allow_files = _perl_file_types)
 
 _perl_deps_attr = attr.label_list(
     allow_files = False,
-    providers = ["transitive_perl_sources"],
+    providers = [PerlLibrary],
 )
 
 _perl_data_attr = attr.label_list(
     allow_files = True,
+    providers = [PerlLibrary],
 )
 
 _perl_main_attr = attr.label(
@@ -45,33 +48,72 @@ _perl_main_attr = attr.label(
 
 _perl_env_attr = attr.string_dict()
 
-def _collect_transitive_sources(ctx):
-    return depset(
-        ctx.files.srcs,
-        transitive = [dep.transitive_perl_sources for dep in ctx.attr.deps],
-        order = "postorder",
-    )
-
 def _get_main_from_sources(ctx):
     sources = ctx.files.srcs
     if len(sources) != 1:
         fail("Cannot infer main from multiple 'srcs'. Please specify 'main' attribute.", "main")
     return sources[0]
 
-def _perl_library_implementation(ctx):
-    transitive_sources = _collect_transitive_sources(ctx)
+def _transitive_srcs(deps):
     return struct(
-        runfiles = ctx.runfiles(collect_data = True),
-        transitive_perl_sources = transitive_sources,
+        srcs = [
+            d[PerlLibrary].transitive_perl_sources
+            for d in deps
+            if PerlLibrary in d
+        ],
+        data_files = [d[DefaultInfo].data_runfiles.files for d in deps],
+        default_files = [d[DefaultInfo].default_runfiles.files for d in deps],
     )
+
+def transitive_deps(ctx, extra_files = [], extra_deps = []):
+    """Calculates transitive sets of args.
+    Calculates the transitive sets for perl sources, data runfiles,
+    include flags and runtime flags from the srcs, data and deps attributes
+    in the context.
+    Also adds extra_deps to the roots of the traversal.
+    Args:
+      ctx: a ctx object for a perl_library or a perl_binary rule.
+      extra_files: a list of File objects to be added to the default_files
+      extra_deps: a list of Target objects.
+    """
+    deps = _transitive_srcs(ctx.attr.deps + extra_deps)
+    files = depset(extra_files + ctx.files.srcs)
+    default_files = ctx.runfiles(
+        files = files.to_list(),
+        transitive_files = depset(transitive = deps.default_files),
+        collect_default = True,
+    )
+    data_files = ctx.runfiles(
+        files = ctx.files.data,
+        transitive_files = depset(transitive = deps.data_files),
+        collect_data = True,
+    )
+    return struct(
+        srcs = depset(
+            direct = ctx.files.srcs,
+            transitive = deps.srcs,
+        ),
+        default_files = default_files,
+        data_files = data_files,
+    )
+
+def _perl_library_implementation(ctx):
+    transitive_sources = transitive_deps(ctx)
+    return [
+        DefaultInfo(
+            default_runfiles = transitive_sources.default_files,
+            data_runfiles = transitive_sources.data_files,
+        ),
+        PerlLibrary(
+            transitive_perl_sources = transitive_sources.srcs,
+        ),
+    ]
 
 def _perl_binary_implementation(ctx):
     toolchain = ctx.toolchains["@io_bazel_rules_perl//:toolchain_type"].perl_runtime
     interpreter = toolchain.interpreter
 
-    toolchain_files = depset(toolchain.runtime)
-    transitive_sources = _collect_transitive_sources(ctx)
-    trans_runfiles = [toolchain_files, transitive_sources]
+    transitive_sources = transitive_deps(ctx, extra_files = toolchain.runtime + [ctx.outputs.executable])
 
     main = ctx.file.main
     if main == None:
@@ -81,23 +123,48 @@ def _perl_binary_implementation(ctx):
         template = ctx.file._wrapper_template,
         output = ctx.outputs.executable,
         substitutions = {
-          "{interpreter}": interpreter.short_path,
-          "{main}": main.short_path,
-          "{workspace_name}": ctx.label.workspace_name or ctx.workspace_name,
+            "{env_vars}": _env_vars(ctx),
+            "{interpreter}": interpreter.short_path,
+            "{main}": main.short_path,
+            "{workspace_name}": ctx.label.workspace_name or ctx.workspace_name,
         },
         is_executable = True,
     )
 
     return DefaultInfo(
-        files = depset([ctx.outputs.executable]),
-        runfiles = ctx.runfiles(
-            transitive_files = depset([ctx.outputs.executable], transitive = trans_runfiles),
-        ),
+        executable = ctx.outputs.executable,
+        default_runfiles = transitive_sources.default_files,
+        data_runfiles = transitive_sources.data_files,
     )
+
+def _env_vars(ctx):
+    environment = ""
+    for name, value in ctx.attr.env.items():
+        if not _is_identifier(name):
+            fail("%s is not a valid environment variable name." % str(name))
+        environment += ("{key}='{value}' ").format(
+            key = name,
+            value = value.replace("'", "\\'"),
+        )
+    return environment
+
+def _is_identifier(name):
+    # Must be non-empty.
+    if name == None or len(name) == 0:
+        return False
+
+    # Must start with alpha or '_'
+    if not (name[0].isalpha() or name[0] == "_"):
+        return False
+
+    # Must consist of alnum characters or '_'s.
+    for c in name.elems():
+        if not (c.isalnum() or c == "_"):
+            return False
+    return True
 
 def _perl_test_implementation(ctx):
     return _perl_binary_implementation(ctx)
-
 
 def _perl_xs_cc_lib(ctx, toolchain, srcs):
     cc_toolchain = find_cpp_toolchain(ctx)
@@ -132,7 +199,7 @@ def _perl_xs_cc_lib(ctx, toolchain, srcs):
         private_hdrs = xs_headers.to_list(),
         includes = includes,
         user_compile_flags = ctx.attr.copts + PERL_XS_COPTS,
-        compilation_contexts = []
+        compilation_contexts = [],
     )
 
     (linking_context, linking_outputs) = cc_common.create_linking_context_from_compilation_outputs(
@@ -169,7 +236,7 @@ def _perl_xs_implementation(ctx):
             arguments = ["-output", out.path, src.path],
             progress_message = "Translitterating %s to %s" % (src.short_path, out.short_path),
             executable = xsubpp,
-            tools = toolchain_files
+            tools = toolchain_files,
         )
 
         gen.append(out)
@@ -180,11 +247,11 @@ def _perl_xs_implementation(ctx):
     lib = cc_info.linking_context.libraries_to_link.to_list()[0]
     dyn_lib = lib.dynamic_library
 
-    # This is a hack to make the file name of the library sane for perl
-    # TODO - Find a better way to do this _or_ canvas bazel for a
-    # TODO - `ctx.actions.rename_file` to rename the file?
-    # TODO - Also ... .so is linux / unix centric OSX is .dylib windows .dll
-    output = ctx.actions.declare_file(ctx.label.name + ".so")
+    if len(ctx.attr.output_loc):
+        output = ctx.actions.declare_file(ctx.attr.output_loc)
+    else:
+        output = ctx.actions.declare_file(ctx.label.name + ".so")
+
     ctx.actions.run_shell(
         outputs = [output],
         inputs = [dyn_lib],
@@ -196,7 +263,6 @@ def _perl_xs_implementation(ctx):
         cc_info,
         DefaultInfo(files = depset([output])),
     ]
-
 
 perl_library = rule(
     attrs = {
@@ -213,11 +279,12 @@ perl_binary = rule(
         "srcs": _perl_srcs_attr,
         "deps": _perl_deps_attr,
         "data": _perl_data_attr,
+        "env": _perl_env_attr,
         "main": _perl_main_attr,
         "_wrapper_template": attr.label(
             allow_single_file = True,
             default = "binary_wrapper.tpl",
-        )
+        ),
     },
     executable = True,
     implementation = _perl_binary_implementation,
@@ -230,10 +297,11 @@ perl_test = rule(
         "deps": _perl_deps_attr,
         "data": _perl_data_attr,
         "main": _perl_main_attr,
+        "env": _perl_env_attr,
         "_wrapper_template": attr.label(
             allow_single_file = True,
             default = "binary_wrapper.tpl",
-        )
+        ),
     },
     executable = True,
     test = True,
@@ -245,6 +313,7 @@ perl_xs = rule(
     attrs = {
         "srcs": attr.label_list(allow_files = [".xs"]),
         "textual_hdrs": attr.label_list(allow_files = True),
+        "output_loc": attr.string(),
         "defines": attr.string_list(),
         "copts": attr.string_list(),
         "deps": attr.label_list(providers = [CcInfo]),
@@ -254,6 +323,6 @@ perl_xs = rule(
     fragments = ["cpp"],
     toolchains = [
         "@io_bazel_rules_perl//:toolchain_type",
-        "@bazel_tools//tools/cpp:toolchain_type"
+        "@bazel_tools//tools/cpp:toolchain_type",
     ],
 )

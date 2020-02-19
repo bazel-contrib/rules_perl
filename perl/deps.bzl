@@ -15,7 +15,19 @@ def perl_register_toolchains():
         ]
     )
 
+    perl_download(
+        name = "perl_darwin_amd64",
+        arch = "amd64",
+        os = "darwin",
+        strip_prefix = "perl-darwin-2level",
+        sha256 = "9ede6e5200d2b69524ed8074edbcddf8c4c3e8f67a756edce133cabaa4ad2347",
+        urls = [
+            "https://github.com/skaji/relocatable-perl/releases/download/5.30.1.1/perl-darwin-2level.tar.xz",
+        ]
+    )
+
     native.register_toolchains(
+        "@perl_darwin_amd64//:toolchain",
         "@perl_linux_amd64//:toolchain",
     )
 

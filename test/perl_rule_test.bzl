@@ -16,39 +16,36 @@
 
 load(
     "//perl:perl.bzl",
-    "perl_library",
     "perl_binary",
+    "perl_library",
     "perl_test",
 )
 load("@bazel_tools//tools/build_rules:test_rules.bzl", "rule_test")
 
 def _perl_library_test(package):
-  rule_test(
-      name ="hello_lib_rule_test",
-      generates = [],
-      provides = {
-          "transitive_perl_sources": ""
-      },
-      rule = package + "/fibonacci:fibonacci",
-  )
+    rule_test(
+        name = "hello_lib_rule_test",
+        generates = [],
+        rule = package + "/fibonacci:fibonacci",
+    )
 
 def _perl_binary_test(package):
-  rule_test(
-      name = "hello_world_rule_test",
-      generates = ["hello_world"],
-      rule = package + "/hello_world:hello_world",
-  )
+    rule_test(
+        name = "hello_world_rule_test",
+        generates = ["hello_world"],
+        rule = package + "/hello_world:hello_world",
+    )
 
 def _perl_test_test(package):
-  """Issue rule tests for perl_test."""
-  rule_test(
-      name = "fibonacci_rule_test",
-      generates = ["fibonacci_test"],
-      rule = package + "/fibonacci:fibonacci_test",
-  )
+    """Issue rule tests for perl_test."""
+    rule_test(
+        name = "fibonacci_rule_test",
+        generates = ["fibonacci_test"],
+        rule = package + "/fibonacci:fibonacci_test",
+    )
 
 def perl_rule_test(package):
-  """Issue simple tests on perl rules."""
-  _perl_library_test(package)
-  _perl_binary_test(package)
-  _perl_test_test(package)
+    """Issue simple tests on perl rules."""
+    _perl_library_test(package)
+    _perl_binary_test(package)
+    _perl_test_test(package)
