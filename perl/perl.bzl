@@ -81,9 +81,10 @@ def _perl_binary_implementation(ctx):
         template = ctx.file._wrapper_template,
         output = ctx.outputs.executable,
         substitutions = {
-          "{interpreter}": interpreter.short_path,
-          "{main}": main.short_path,
-          "{workspace_name}": ctx.label.workspace_name or ctx.workspace_name,
+            "{env_vars}": _env_vars(ctx),
+            "{interpreter}": interpreter.short_path,
+            "{main}": main.short_path,
+            "{workspace_name}": ctx.label.workspace_name or ctx.workspace_name,
         },
         is_executable = True,
     )
@@ -95,9 +96,35 @@ def _perl_binary_implementation(ctx):
         ),
     )
 
+def _env_vars(ctx):
+    environment = ""
+    for name, value in ctx.attr.env.items():
+        if not _is_identifier(name):
+            fail("%s is not a valid environment variable name." % str(name))
+        environment += ("{key}='{value}' ").format(
+            key = name,
+            value = value.replace("'", "\\'"),
+        )
+    return environment
+
+
+def _is_identifier(name):
+    # Must be non-empty.
+    if name == None or len(name) == 0:
+        return False
+
+    # Must start with alpha or '_'
+    if not (name[0].isalpha() or name[0] == "_"):
+        return False
+
+    # Must consist of alnum characters or '_'s.
+    for c in name.elems():
+        if not (c.isalnum() or c == "_"):
+            return False
+    return True
+
 def _perl_test_implementation(ctx):
     return _perl_binary_implementation(ctx)
-
 
 def _perl_xs_cc_lib(ctx, toolchain, srcs):
     cc_toolchain = find_cpp_toolchain(ctx)
@@ -132,7 +159,7 @@ def _perl_xs_cc_lib(ctx, toolchain, srcs):
         private_hdrs = xs_headers.to_list(),
         includes = includes,
         user_compile_flags = ctx.attr.copts + PERL_XS_COPTS,
-        compilation_contexts = []
+        compilation_contexts = [],
     )
 
     (linking_context, linking_outputs) = cc_common.create_linking_context_from_compilation_outputs(
@@ -169,7 +196,7 @@ def _perl_xs_implementation(ctx):
             arguments = ["-output", out.path, src.path],
             progress_message = "Translitterating %s to %s" % (src.short_path, out.short_path),
             executable = xsubpp,
-            tools = toolchain_files
+            tools = toolchain_files,
         )
 
         gen.append(out)
@@ -197,7 +224,6 @@ def _perl_xs_implementation(ctx):
         DefaultInfo(files = depset([output])),
     ]
 
-
 perl_library = rule(
     attrs = {
         "srcs": _perl_srcs_attr,
@@ -213,11 +239,12 @@ perl_binary = rule(
         "srcs": _perl_srcs_attr,
         "deps": _perl_deps_attr,
         "data": _perl_data_attr,
+        "env": _perl_env_attr,
         "main": _perl_main_attr,
         "_wrapper_template": attr.label(
             allow_single_file = True,
             default = "binary_wrapper.tpl",
-        )
+        ),
     },
     executable = True,
     implementation = _perl_binary_implementation,
@@ -230,10 +257,11 @@ perl_test = rule(
         "deps": _perl_deps_attr,
         "data": _perl_data_attr,
         "main": _perl_main_attr,
+        "env": _perl_env_attr,
         "_wrapper_template": attr.label(
             allow_single_file = True,
             default = "binary_wrapper.tpl",
-        )
+        ),
     },
     executable = True,
     test = True,
@@ -254,6 +282,6 @@ perl_xs = rule(
     fragments = ["cpp"],
     toolchains = [
         "@io_bazel_rules_perl//:toolchain_type",
-        "@bazel_tools//tools/cpp:toolchain_type"
+        "@bazel_tools//tools/cpp:toolchain_type",
     ],
 )
