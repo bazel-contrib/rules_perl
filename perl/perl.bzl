@@ -244,7 +244,7 @@ def _perl_xs_implementation(ctx):
     cc_info = _perl_xs_cc_lib(ctx, toolchain, gen)
     cc_infos = [cc_info] + [dep[CcInfo] for dep in ctx.attr.deps]
     cc_info = cc_common.merge_cc_infos(cc_infos = cc_infos)
-    lib = cc_info.linking_context.libraries_to_link.to_list()[0]
+    lib = cc_info.linking_context.linker_inputs.to_list()[0].libraries[0]
     dyn_lib = lib.dynamic_library
 
     if len(ctx.attr.output_loc):
