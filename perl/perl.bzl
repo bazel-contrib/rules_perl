@@ -39,7 +39,6 @@ _perl_deps_attr = attr.label_list(
 
 _perl_data_attr = attr.label_list(
     allow_files = True,
-    providers = [PerlLibrary],
 )
 
 _perl_main_attr = attr.label(
