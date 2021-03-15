@@ -1,7 +1,7 @@
 # This template is used by perl_download to generate a build file for
 # a downloaded Perl distribution.
 
-load("@io_bazel_rules_perl//perl:toolchain.bzl", "perl_toolchain")
+load("@rules_perl//perl:toolchain.bzl", "perl_toolchain")
 package(default_visibility = ["//visibility:public"])
 
 # tools contains executable files that are part of the toolchain.
@@ -29,5 +29,5 @@ toolchain(
         {target_constraints},
     ],
     toolchain = ":toolchain_impl",
-    toolchain_type = "@io_bazel_rules_perl//:toolchain_type",
+    toolchain_type = "@rules_perl//:toolchain_type",
 )

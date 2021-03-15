@@ -61,7 +61,7 @@ perl_download = repository_rule(
             doc = "Prefix to strip from perl distr tarballs",
         ),
         "_build_tpl": attr.label(
-            default = "@io_bazel_rules_perl//perl/private:BUILD.dist.bazel.tpl",
+            default = "@rules_perl//perl/private:BUILD.dist.bazel.tpl",
         ),
     },
     doc = "Downloads a standard Perl distribution and installs a build file",

@@ -109,7 +109,7 @@ def _perl_library_implementation(ctx):
     ]
 
 def _perl_binary_implementation(ctx):
-    toolchain = ctx.toolchains["@io_bazel_rules_perl//:toolchain_type"].perl_runtime
+    toolchain = ctx.toolchains["@rules_perl//:toolchain_type"].perl_runtime
     interpreter = toolchain.interpreter
 
     transitive_sources = transitive_deps(ctx, extra_files = toolchain.runtime + [ctx.outputs.executable])
@@ -216,7 +216,7 @@ def _perl_xs_cc_lib(ctx, toolchain, srcs):
     )
 
 def _perl_xs_implementation(ctx):
-    toolchain = ctx.toolchains["@io_bazel_rules_perl//:toolchain_type"].perl_runtime
+    toolchain = ctx.toolchains["@rules_perl//:toolchain_type"].perl_runtime
     xsubpp = toolchain.xsubpp
 
     toolchain_files = depset(toolchain.runtime)
@@ -270,7 +270,7 @@ perl_library = rule(
         "data": _perl_data_attr,
     },
     implementation = _perl_library_implementation,
-    toolchains = ["@io_bazel_rules_perl//:toolchain_type"],
+    toolchains = ["@rules_perl//:toolchain_type"],
 )
 
 perl_binary = rule(
@@ -287,7 +287,7 @@ perl_binary = rule(
     },
     executable = True,
     implementation = _perl_binary_implementation,
-    toolchains = ["@io_bazel_rules_perl//:toolchain_type"],
+    toolchains = ["@rules_perl//:toolchain_type"],
 )
 
 perl_test = rule(
@@ -305,7 +305,7 @@ perl_test = rule(
     executable = True,
     test = True,
     implementation = _perl_test_implementation,
-    toolchains = ["@io_bazel_rules_perl//:toolchain_type"],
+    toolchains = ["@rules_perl//:toolchain_type"],
 )
 
 perl_xs = rule(
@@ -321,7 +321,7 @@ perl_xs = rule(
     implementation = _perl_xs_implementation,
     fragments = ["cpp"],
     toolchains = [
-        "@io_bazel_rules_perl//:toolchain_type",
+        "@rules_perl//:toolchain_type",
         "@bazel_tools//tools/cpp:toolchain_type",
     ],
 )
