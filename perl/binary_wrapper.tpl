@@ -11,4 +11,4 @@ else
   exit 1
 fi
 
-{env_vars} $PATH_PREFIX{interpreter} -I${PATH_PREFIX} {main} "$@"
+{env_vars} $PATH_PREFIX{interpreter} -I${PATH_PREFIX} ${PATH_PREFIX}{main} "$@"
