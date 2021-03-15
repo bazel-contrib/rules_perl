@@ -207,6 +207,7 @@ def _perl_xs_cc_lib(ctx, toolchain, srcs):
         feature_configuration = feature_configuration,
         cc_toolchain = cc_toolchain,
         compilation_outputs = compilation_outputs,
+        user_link_flags = ctx.attr.linkopts,
         linking_contexts = [],
     )
 
@@ -320,6 +321,7 @@ perl_xs = rule(
         "output_loc": attr.string(),
         "defines": attr.string_list(),
         "copts": attr.string_list(),
+        "linkopts": attr.string_list(),
         "deps": attr.label_list(providers = [CcInfo]),
         "_cc_toolchain": attr.label(default = Label("@bazel_tools//tools/cpp:current_cc_toolchain")),
     },
