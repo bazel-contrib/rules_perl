@@ -224,6 +224,10 @@ def _perl_xs_implementation(ctx):
 
     gen = []
     cc_infos = []
+    args_typemaps = []
+
+    for typemap in ctx.files.typemaps:
+        args_typemaps += ["-typemap", typemap.short_path]
 
     for src in ctx.files.srcs:
         out = ctx.actions.declare_file(paths.replace_extension(src.path, ".c"))
@@ -231,8 +235,8 @@ def _perl_xs_implementation(ctx):
 
         ctx.actions.run(
             outputs = [out],
-            inputs = [src],
-            arguments = ["-output", out.path, src.path],
+            inputs = [src] + ctx.files.typemaps,
+            arguments = args_typemaps + ["-output", out.path, src.path],
             progress_message = "Translitterating %s to %s" % (src.short_path, out.short_path),
             executable = xsubpp,
             tools = toolchain_files,
@@ -312,6 +316,7 @@ perl_xs = rule(
     attrs = {
         "srcs": attr.label_list(allow_files = [".xs"]),
         "textual_hdrs": attr.label_list(allow_files = True),
+        "typemaps": attr.label_list(allow_files=True),
         "output_loc": attr.string(),
         "defines": attr.string_list(),
         "copts": attr.string_list(),
