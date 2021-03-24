@@ -192,7 +192,7 @@ def _perl_xs_cc_lib(ctx, toolchain, srcs):
         name = ctx.label.name,
         feature_configuration = feature_configuration,
         cc_toolchain = cc_toolchain,
-        srcs = srcs,
+        srcs = srcs + ctx.files.cc_srcs,
         defines = ctx.attr.defines,
         additional_inputs = textual_hdrs,
         private_hdrs = xs_headers.to_list(),
@@ -316,8 +316,9 @@ perl_test = rule(
 perl_xs = rule(
     attrs = {
         "srcs": attr.label_list(allow_files = [".xs"]),
+        "cc_srcs": attr.label_list(allow_files = [".c", ".cc"]),
         "textual_hdrs": attr.label_list(allow_files = True),
-        "typemaps": attr.label_list(allow_files=True),
+        "typemaps": attr.label_list(allow_files = True),
         "output_loc": attr.string(),
         "defines": attr.string_list(),
         "copts": attr.string_list(),
