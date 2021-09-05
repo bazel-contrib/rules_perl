@@ -2,11 +2,37 @@
 
 # Perl Rules
 
-Please see example folder for how to include Perl scripts.  
-
-This section will be expanded with better documentation as I (or someone else) gets time.
-
 The Perl Toolchain utilizes the [relocatable perl](https://github.com/skaji/relocatable-perl) project.
+
+## Getting Started
+
+To import rules_perl in your project, you first need to add it to your `WORKSPACE` file:
+
+```python
+git_repository(
+    name = "rules_perl",
+    remote = "https://github.com/bazelbuild/rules_perl.git",
+    branch = "master",
+)
+
+load("@rules_perl//perl:deps.bzl", "perl_register_toolchains", "perl_rules_dependencies",)
+
+perl_rules_dependencies()
+perl_register_toolchains()
+```
+
+Once you've imported the rule set into your `WORKSPACE`, you can then load the perl rules in your `BUILD` files with:
+
+```python
+load("//perl:perl.bzl", "perl_binary")
+
+perl_binary(
+    name = "hello_world",
+    srcs = ["hello_world.pl"]
+)
+```
+
+Please see `example` folder for more examples of how to include Perl scripts.  
 
 ## Mac Support
 
