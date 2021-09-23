@@ -39,15 +39,20 @@ def _perl_toolchain_impl(ctx):
     xsubpp_cmd = _find_tool(ctx, "xsubpp")
     xs_headers = _find_xs_headers(ctx)
 
-    return [platform_common.ToolchainInfo(
-        perl_runtime = PerlRuntimeInfo(
-            interpreter = interpreter_cmd,
-            xsubpp = xsubpp_cmd,
-            xs_headers = xs_headers,
-            runtime = ctx.files.runtime,
-            perlopt = ctx.attr.perlopt,
+    return [
+        platform_common.ToolchainInfo(
+            perl_runtime = PerlRuntimeInfo(
+                interpreter = interpreter_cmd,
+                xsubpp = xsubpp_cmd,
+                xs_headers = xs_headers,
+                runtime = ctx.files.runtime,
+                perlopt = ctx.attr.perlopt,
+            ),
+            make_variables = platform_common.TemplateVariableInfo({
+                "PERL": interpreter_cmd.path,
+            }),
         ),
-    )]
+    ]
 
 perl_toolchain = rule(
     implementation = _perl_toolchain_impl,
@@ -62,4 +67,30 @@ perl_toolchain = rule(
         ),
     },
     doc = "Gathers functions and file lists needed for a Perl toolchain",
+)
+
+def _current_perl_toolchain_impl(ctx):
+    toolchain = ctx.toolchains[str(Label("//:toolchain_type"))]
+
+    return [
+        toolchain,
+        toolchain.make_variables,
+        DefaultInfo(
+            runfiles = ctx.runfiles(
+                files = toolchain.perl_runtime.runtime,
+            ),
+        ),
+    ]
+
+# This rule exists so that the current perl toolchain can be used in the `toolchains` attribute of
+# other rules, such as genrule. It allows exposing a perl_toolchain after toolchain resolution has
+# happened, to a rule which expects a concrete implementation of a toolchain, rather than a
+# toochain_type which could be resolved to that toolchain.
+#
+# See https://github.com/bazelbuild/bazel/issues/14009#issuecomment-921960766
+current_perl_toolchain = rule(
+    implementation = _current_perl_toolchain_impl,
+    toolchains = [
+        str(Label("//:toolchain_type")),
+    ],
 )
