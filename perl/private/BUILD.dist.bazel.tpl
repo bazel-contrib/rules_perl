@@ -25,9 +25,6 @@ toolchain(
     exec_compatible_with = [
         {exec_constraints},
     ],
-    target_compatible_with = [
-        {target_constraints},
-    ],
     toolchain = ":toolchain_impl",
     toolchain_type = "@rules_perl//:toolchain_type",
 )
