@@ -20,7 +20,7 @@ PerlRuntimeInfo = provider(
 def _find_tool(ctx, name):
     cmd = None
     for f in ctx.files.runtime:
-        if f.path.endswith("/bin/%s" % name) or f.path.endswith("/bin/%s.exe" % name):
+        if f.path.endswith("/bin/%s" % name) or f.path.endswith("/bin/%s.exe" % name) or f.path.endswith("/bin/%s.bat" % name):
             cmd = f
             break
     if not cmd:

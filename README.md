@@ -42,7 +42,7 @@ Modules that require compiling are not yet supported.
 
 ## Windows Support
 
-No Windows Support yet.  Maybe something for Strawberry Perl someday.
+This repository provides a hermetic [Strawberry Perl](https://strawberryperl.com/) bazel toolchain for Windows. Usage of the toolchain in `perl_` rules is not yet supported.
 
 ## Using Perl Modules
 

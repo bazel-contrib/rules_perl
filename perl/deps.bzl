@@ -26,9 +26,22 @@ def perl_register_toolchains():
         ]
     )
 
+    perl_download(
+        name = "perl_windows_amd64",
+        arch = "amd64",
+        os = "windows",
+        strip_prefix = "",
+        sha256 = "aeb973da474f14210d3e1a1f942dcf779e2ae7e71e4c535e6c53ebabe632cc98",
+        urls = [
+            "https://mirror.bazel.build/strawberryperl.com/download/5.32.1.1/strawberry-perl-5.32.1.1-64bit.zip",
+            "https://strawberryperl.com/download/5.32.1.1/strawberry-perl-5.32.1.1-64bit.zip",
+        ],
+    )    
+
     native.register_toolchains(
         "@perl_darwin_amd64//:toolchain",
         "@perl_linux_amd64//:toolchain",
+        "@perl_windows_amd64//:toolchain",
     )
 
 def perl_rules_dependencies():
