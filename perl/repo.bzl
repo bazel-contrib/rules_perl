@@ -25,7 +25,6 @@ def _perl_download_impl(ctx):
 
     substitutions = {
         "{exec_constraints}": constraint_str,
-        "{target_constraints}": constraint_str,
     }
     ctx.template(
         "BUILD.bazel",
