@@ -12,6 +12,8 @@ def _perl_download_impl(ctx):
         os_constraint = "@platforms//os:osx"
     elif ctx.attr.os == "linux":
         os_constraint = "@platforms//os:linux"
+    elif ctx.attr.os == "windows":
+        os_constraint = "@platforms//os:windows"
     else:
         fail("Unsupported OS: " + ctx.attr.os)
 
@@ -45,7 +47,7 @@ perl_download = repository_rule(
         ),
         "os": attr.string(
             mandatory = True,
-            values = ["darwin", "linux"],
+            values = ["darwin", "linux", "windows"],
             doc = "Host operating system for the Perl distribution",
         ),
         "arch": attr.string(
