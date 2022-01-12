@@ -60,8 +60,10 @@ def _transitive_srcs(deps):
             for d in deps
             if PerlLibrary in d
         ],
-        data_files = [d[DefaultInfo].data_runfiles.files for d in deps],
-        default_files = [d[DefaultInfo].default_runfiles.files for d in deps],
+        files = [
+            d[DefaultInfo].default_runfiles.files
+            for d in deps
+        ],
     )
 
 def transitive_deps(ctx, extra_files = [], extra_deps = []):
@@ -76,32 +78,24 @@ def transitive_deps(ctx, extra_files = [], extra_deps = []):
       extra_deps: a list of Target objects.
     """
     deps = _transitive_srcs(ctx.attr.deps + extra_deps)
-    files = depset(extra_files + ctx.files.srcs)
-    default_files = ctx.runfiles(
-        files = files.to_list(),
-        transitive_files = depset(transitive = deps.default_files),
+    files = ctx.runfiles(
+        files = extra_files + ctx.files.srcs + ctx.files.data,
+        transitive_files = depset(transitive = deps.files),
         collect_default = True,
-    )
-    data_files = ctx.runfiles(
-        files = ctx.files.data,
-        transitive_files = depset(transitive = deps.data_files),
-        collect_data = True,
     )
     return struct(
         srcs = depset(
             direct = ctx.files.srcs,
             transitive = deps.srcs,
         ),
-        default_files = default_files,
-        data_files = data_files,
+        files = files,
     )
 
 def _perl_library_implementation(ctx):
     transitive_sources = transitive_deps(ctx)
     return [
         DefaultInfo(
-            default_runfiles = transitive_sources.default_files,
-            data_runfiles = transitive_sources.data_files,
+            runfiles = transitive_sources.files,
         ),
         PerlLibrary(
             transitive_perl_sources = transitive_sources.srcs,
@@ -132,8 +126,7 @@ def _perl_binary_implementation(ctx):
 
     return DefaultInfo(
         executable = ctx.outputs.executable,
-        default_runfiles = transitive_sources.default_files,
-        data_runfiles = transitive_sources.data_files,
+        runfiles = transitive_sources.files,
     )
 
 def _env_vars(ctx):

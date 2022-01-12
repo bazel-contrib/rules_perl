@@ -6,8 +6,6 @@ perl_download = _perl_download
 def perl_register_toolchains():
     perl_download(
         name = "perl_linux_amd64",
-        arch = "amd64",
-        os = "linux",
         strip_prefix = "perl-x86_64-linux",
         sha256 = "2cea6d78bf29c96450a70729e94ae2ef877dbc590fdaf3ef8dad74f7fae0d7de",
         urls = [
@@ -17,8 +15,6 @@ def perl_register_toolchains():
 
     perl_download(
         name = "perl_darwin_amd64",
-        arch = "amd64",
-        os = "darwin",
         strip_prefix = "perl-darwin-2level",
         sha256 = "9ede6e5200d2b69524ed8074edbcddf8c4c3e8f67a756edce133cabaa4ad2347",
         urls = [
@@ -26,9 +22,20 @@ def perl_register_toolchains():
         ]
     )
 
+    perl_download(
+        name = "perl_windows_amd64",
+        strip_prefix = "",
+        sha256 = "aeb973da474f14210d3e1a1f942dcf779e2ae7e71e4c535e6c53ebabe632cc98",
+        urls = [
+            "https://mirror.bazel.build/strawberryperl.com/download/5.32.1.1/strawberry-perl-5.32.1.1-64bit.zip",
+            "https://strawberryperl.com/download/5.32.1.1/strawberry-perl-5.32.1.1-64bit.zip",
+        ],
+    )    
+
     native.register_toolchains(
-        "@perl_darwin_amd64//:toolchain",
-        "@perl_linux_amd64//:toolchain",
+        "@rules_perl//:darwin_toolchain",
+        "@rules_perl//:linux_toolchain",
+        "@rules_perl//:windows_toolchain"
     )
 
 def perl_rules_dependencies():
