@@ -16,3 +16,6 @@ platforms:
     - "//..."
     - "-//examples/cpan_remote:fcgi_import_test"
     - "-//examples/external_module:complex_deps"
+buildifier:
+  version: latest
+  warnings: "all"

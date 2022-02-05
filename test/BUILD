@@ -14,4 +14,6 @@
 
 load(":perl_rule_test.bzl", "perl_rule_test")
 
-perl_rule_test("//examples")
+perl_rule_test(
+    package = "//examples",
+)

@@ -1,5 +1,4 @@
-load("@rules_perl//perl:toolchain.bzl", "perl_toolchain", "current_perl_toolchain")
-
+load("@rules_perl//perl:toolchain.bzl", "current_perl_toolchain", "perl_toolchain")
 
 # toolchain_type defines a name for a kind of toolchain. Our toolchains
 # declare that they have this type. Our rules request a toolchain of this type.
@@ -26,17 +25,21 @@ toolchain_type(
             name = "{os}_toolchain".format(os = os),
             exec_compatible_with = [
                 "@platforms//os:{os}".format(os = os if os != "darwin" else "osx"),
-                "@platforms//cpu:x86_64"
+                "@platforms//cpu:x86_64",
             ],
             target_compatible_with = [
                 "@platforms//os:{os}".format(os = os if os != "darwin" else "osx"),
-                "@platforms//cpu:x86_64"
+                "@platforms//cpu:x86_64",
             ],
             toolchain = "{os}_toolchain_impl".format(os = os),
             toolchain_type = ":toolchain_type",
-        )
+        ),
     )
-    for os in ["darwin", "linux", "windows"]
+    for os in [
+        "darwin",
+        "linux",
+        "windows",
+    ]
 ]
 
 # This rule exists so that the current perl toolchain can be used in the `toolchains` attribute of

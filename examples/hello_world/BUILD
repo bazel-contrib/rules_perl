@@ -12,11 +12,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-package(default_visibility = ["//visibility:public"])
-
 load("//perl:perl.bzl", "perl_binary")
+
+package(default_visibility = ["//visibility:public"])
 
 perl_binary(
     name = "hello_world",
-    srcs = ["hello_world.pl"]
+    srcs = ["hello_world.pl"],
 )

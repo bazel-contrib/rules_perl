@@ -14,12 +14,6 @@
 
 """Tests for perl rules."""
 
-load(
-    "//perl:perl.bzl",
-    "perl_binary",
-    "perl_library",
-    "perl_test",
-)
 load("@bazel_tools//tools/build_rules:test_rules.bzl", "rule_test")
 
 def _perl_library_test(package):
