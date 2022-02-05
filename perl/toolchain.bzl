@@ -12,7 +12,7 @@ PerlRuntimeInfo = provider(
         "interpreter": "A label which points to the Perl interpreter",
         "xsubpp": "A label which points to the xsubpp command",
         "xs_headers": "The c library support code for xs modules",
-        "runtime": "A list of lavels which points to runtime libraries",
+        "runtime": "A list of labels which points to runtime libraries",
         "perlopt": "A list of strings which should be passed to the interpreter",
     },
 )
