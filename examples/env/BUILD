@@ -12,18 +12,17 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-package(default_visibility = ["//visibility:public"])
-
 load(
     "//perl:perl.bzl",
-    "perl_test"
+    "perl_test",
 )
+
+package(default_visibility = ["//visibility:public"])
 
 perl_test(
     name = "env_test",
     srcs = ["env_test.t"],
     env = {
-      "ENV_VARIABLE": "Hello",
+        "ENV_VARIABLE": "Hello",
     },
 )
-

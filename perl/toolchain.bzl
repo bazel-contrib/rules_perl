@@ -4,16 +4,14 @@ providers.bzl. toolchains and perl_toolchains are declared in the build file
 generated in perl_download in repo.bzl.
 """
 
-load("@bazel_skylib//lib:paths.bzl", "paths")
-
 PerlRuntimeInfo = provider(
     doc = "Information about a Perl interpreter, related commands and libraries",
     fields = {
         "interpreter": "A label which points to the Perl interpreter",
-        "xsubpp": "A label which points to the xsubpp command",
-        "xs_headers": "The c library support code for xs modules",
-        "runtime": "A list of labels which points to runtime libraries",
         "perlopt": "A list of strings which should be passed to the interpreter",
+        "runtime": "A list of labels which points to runtime libraries",
+        "xs_headers": "The c library support code for xs modules",
+        "xsubpp": "A label which points to the xsubpp command",
     },
 )
 
@@ -29,8 +27,11 @@ def _find_tool(ctx, name):
     return cmd
 
 def _find_xs_headers(ctx):
-    hdrs = [f for f in ctx.files.runtime
-            if "CORE" in f.path and f.path.endswith(".h")]
+    hdrs = [
+        f
+        for f in ctx.files.runtime
+        if "CORE" in f.path and f.path.endswith(".h")
+    ]
     return depset(hdrs)
 
 def _perl_toolchain_impl(ctx):
@@ -57,13 +58,13 @@ def _perl_toolchain_impl(ctx):
 perl_toolchain = rule(
     implementation = _perl_toolchain_impl,
     attrs = {
+        "perlopt": attr.string_list(
+            default = [],
+        ),
         "runtime": attr.label_list(
             mandatory = True,
             allow_files = True,
             cfg = "target",
-        ),
-        "perlopt": attr.string_list(
-            default = [],
         ),
     },
     doc = "Gathers functions and file lists needed for a Perl toolchain",

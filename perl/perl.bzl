@@ -17,9 +17,14 @@
 load("@bazel_skylib//lib:new_sets.bzl", "sets")
 load("@bazel_skylib//lib:paths.bzl", "paths")
 load("@rules_cc//cc:toolchain_utils.bzl", "find_cpp_toolchain")
-load("@rules_cc//cc:action_names.bzl", "C_COMPILE_ACTION_NAME")
 
-PerlLibrary = provider(fields = ["transitive_perl_sources"])
+# buildifier: disable=name-conventions
+PerlLibrary = provider(
+    doc = "A provider containing components of a `perl_library`",
+    fields = [
+        "transitive_perl_sources",
+    ],
+)
 
 PERL_XS_COPTS = [
     "-fwrapv",
@@ -68,14 +73,17 @@ def _transitive_srcs(deps):
 
 def transitive_deps(ctx, extra_files = [], extra_deps = []):
     """Calculates transitive sets of args.
+
     Calculates the transitive sets for perl sources, data runfiles,
     include flags and runtime flags from the srcs, data and deps attributes
     in the context.
+
     Also adds extra_deps to the roots of the traversal.
+
     Args:
-      ctx: a ctx object for a perl_library or a perl_binary rule.
-      extra_files: a list of File objects to be added to the default_files
-      extra_deps: a list of Target objects.
+        ctx: a ctx object for a perl_library or a perl_binary rule.
+        extra_files: a list of File objects to be added to the default_files
+        extra_deps: a list of Target objects.
     """
     deps = _transitive_srcs(ctx.attr.deps + extra_deps)
     files = ctx.runfiles(
@@ -263,9 +271,9 @@ def _perl_xs_implementation(ctx):
 
 perl_library = rule(
     attrs = {
-        "srcs": _perl_srcs_attr,
-        "deps": _perl_deps_attr,
         "data": _perl_data_attr,
+        "deps": _perl_deps_attr,
+        "srcs": _perl_srcs_attr,
     },
     implementation = _perl_library_implementation,
     toolchains = ["@rules_perl//:toolchain_type"],
@@ -273,11 +281,11 @@ perl_library = rule(
 
 perl_binary = rule(
     attrs = {
-        "srcs": _perl_srcs_attr,
-        "deps": _perl_deps_attr,
         "data": _perl_data_attr,
+        "deps": _perl_deps_attr,
         "env": _perl_env_attr,
         "main": _perl_main_attr,
+        "srcs": _perl_srcs_attr,
         "_wrapper_template": attr.label(
             allow_single_file = True,
             default = "binary_wrapper.tpl",
@@ -290,11 +298,11 @@ perl_binary = rule(
 
 perl_test = rule(
     attrs = {
-        "srcs": _perl_srcs_attr,
-        "deps": _perl_deps_attr,
         "data": _perl_data_attr,
-        "main": _perl_main_attr,
+        "deps": _perl_deps_attr,
         "env": _perl_env_attr,
+        "main": _perl_main_attr,
+        "srcs": _perl_srcs_attr,
         "_wrapper_template": attr.label(
             allow_single_file = True,
             default = "binary_wrapper.tpl",
@@ -308,15 +316,15 @@ perl_test = rule(
 
 perl_xs = rule(
     attrs = {
-        "srcs": attr.label_list(allow_files = [".xs"]),
         "cc_srcs": attr.label_list(allow_files = [".c", ".cc"]),
+        "copts": attr.string_list(),
+        "defines": attr.string_list(),
+        "deps": attr.label_list(providers = [CcInfo]),
+        "linkopts": attr.string_list(),
+        "output_loc": attr.string(),
+        "srcs": attr.label_list(allow_files = [".xs"]),
         "textual_hdrs": attr.label_list(allow_files = True),
         "typemaps": attr.label_list(allow_files = True),
-        "output_loc": attr.string(),
-        "defines": attr.string_list(),
-        "copts": attr.string_list(),
-        "linkopts": attr.string_list(),
-        "deps": attr.label_list(providers = [CcInfo]),
         "_cc_toolchain": attr.label(default = Label("@bazel_tools//tools/cpp:current_cc_toolchain")),
     },
     implementation = _perl_xs_implementation,

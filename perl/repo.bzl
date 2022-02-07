@@ -1,3 +1,5 @@
+"""Rules for downloading hermetic Perl binaries"""
+
 def _perl_download_impl(ctx):
     ctx.report_progress("Downloading perl")
 
@@ -16,10 +18,6 @@ def _perl_download_impl(ctx):
 perl_download = repository_rule(
     implementation = _perl_download_impl,
     attrs = {
-        "urls": attr.string_list(
-            mandatory = True,
-            doc = "List of mirror URLs where a Perl distribution archive can be downloaded",
-        ),
         "sha256": attr.string(
             mandatory = True,
             doc = "Expected SHA-256 sum of the downloaded archive",
@@ -30,8 +28,12 @@ perl_download = repository_rule(
             mandatory = True,
             doc = "Prefix to strip from perl distr tarballs",
         ),
+        "urls": attr.string_list(
+            mandatory = True,
+            doc = "List of mirror URLs where a Perl distribution archive can be downloaded",
+        ),
         "_build_tpl": attr.label(
-            default = "@rules_perl//perl/private:BUILD.dist.bazel.tpl",
+            default = Label("@rules_perl//perl/private:BUILD.dist.bazel.tpl"),
         ),
     },
     doc = "Downloads a standard Perl distribution and installs a build file",

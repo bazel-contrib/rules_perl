@@ -12,9 +12,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-package(default_visibility = ["//visibility:public"])
-
 load("//perl:perl.bzl", "perl_library", "perl_xs")
+
+package(default_visibility = ["//visibility:public"])
 
 # Simple example with bad directory
 perl_library(
