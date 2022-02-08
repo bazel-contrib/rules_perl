@@ -24,11 +24,11 @@ toolchain_type(
         toolchain(
             name = "{os}_toolchain".format(os = os),
             exec_compatible_with = [
-                "@platforms//os:{os}".format(os = os if os != "darwin" else "osx"),
+                "@platforms//os:{os}".format(os = os),
                 "@platforms//cpu:x86_64",
             ],
             target_compatible_with = [
-                "@platforms//os:{os}".format(os = os if os != "darwin" else "osx"),
+                "@platforms//os:{os}".format(os = os),
                 "@platforms//cpu:x86_64",
             ],
             toolchain = "{os}_toolchain_impl".format(os = os),
