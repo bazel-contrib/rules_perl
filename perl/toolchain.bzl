@@ -42,6 +42,7 @@ def _perl_toolchain_impl(ctx):
 
     return [
         platform_common.ToolchainInfo(
+            name = ctx.label.name,
             perl_runtime = PerlRuntimeInfo(
                 interpreter = interpreter_cmd,
                 xsubpp = xsubpp_cmd,
@@ -71,7 +72,7 @@ perl_toolchain = rule(
 )
 
 def _current_perl_toolchain_impl(ctx):
-    toolchain = ctx.toolchains[str(Label("//:toolchain_type"))]
+    toolchain = ctx.toolchains["@rules_perl//:toolchain_type"]
 
     return [
         toolchain,
@@ -80,6 +81,7 @@ def _current_perl_toolchain_impl(ctx):
             runfiles = ctx.runfiles(
                 files = toolchain.perl_runtime.runtime,
             ),
+            files = depset(toolchain.perl_runtime.runtime),
         ),
     ]
 
@@ -91,7 +93,5 @@ def _current_perl_toolchain_impl(ctx):
 # See https://github.com/bazelbuild/bazel/issues/14009#issuecomment-921960766
 current_perl_toolchain = rule(
     implementation = _current_perl_toolchain_impl,
-    toolchains = [
-        str(Label("//:toolchain_type")),
-    ],
+    toolchains = ["@rules_perl//:toolchain_type"],
 )
