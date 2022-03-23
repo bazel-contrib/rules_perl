@@ -34,7 +34,7 @@ PERL_XS_COPTS = [
     "-D_FILE_OFFSET_BITS=64",
 ]
 
-_perl_file_types = [".pl", ".pm", ".t", ".so", ".ix", ".al"]
+_perl_file_types = [".pl", ".pm", ".t", ".so", ".ix", ".al", ""]
 _perl_srcs_attr = attr.label_list(allow_files = _perl_file_types)
 
 _perl_deps_attr = attr.label_list(
