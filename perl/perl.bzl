@@ -202,7 +202,7 @@ def _perl_xs_cc_lib(ctx, toolchain, srcs):
         compilation_contexts = [],
     )
 
-    (linking_context, linking_outputs) = cc_common.create_linking_context_from_compilation_outputs(
+    (linking_context, _linking_outputs) = cc_common.create_linking_context_from_compilation_outputs(
         actions = ctx.actions,
         name = ctx.label.name,
         feature_configuration = feature_configuration,
@@ -222,7 +222,6 @@ def _perl_xs_implementation(ctx):
     xsubpp = toolchain.xsubpp
 
     toolchain_files = depset(toolchain.runtime)
-    trans_runfiles = [toolchain_files]
 
     gen = []
     cc_infos = []
@@ -233,7 +232,6 @@ def _perl_xs_implementation(ctx):
 
     for src in ctx.files.srcs:
         out = ctx.actions.declare_file(paths.replace_extension(src.path, ".c"))
-        name = "%s_c" % src.basename
 
         ctx.actions.run(
             outputs = [out],
