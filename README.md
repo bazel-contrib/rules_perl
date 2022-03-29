@@ -15,7 +15,7 @@ git_repository(
     branch = "master",
 )
 
-load("@rules_perl//perl:deps.bzl", "perl_register_toolchains", "perl_rules_dependencies",)
+load("@rules_perl//perl:deps.bzl", "perl_register_toolchains", "perl_rules_dependencies")
 
 perl_rules_dependencies()
 perl_register_toolchains()
@@ -24,7 +24,7 @@ perl_register_toolchains()
 Once you've imported the rule set into your `WORKSPACE`, you can then load the perl rules in your `BUILD` files with:
 
 ```python
-load("//perl:perl.bzl", "perl_binary")
+load("@rules_perl//perl:perl.bzl", "perl_binary")
 
 perl_binary(
     name = "hello_world",
