@@ -17,7 +17,7 @@ def perl_register_toolchains():
     )
 
     perl_download(
-        name = "perl_darwin_amd64",
+        name = "perl_darwin_2level",
         strip_prefix = "perl-darwin-2level",
         sha256 = "9ede6e5200d2b69524ed8074edbcddf8c4c3e8f67a756edce133cabaa4ad2347",
         urls = [
