@@ -24,19 +24,36 @@ toolchain_type(
         toolchain(
             name = "{os}_toolchain".format(os = os),
             exec_compatible_with = [
-                "@platforms//os:{os}".format(os = os if os != "darwin" else "osx"),
+                "@platforms//os:{os}".format(os = os),
                 "@platforms//cpu:x86_64",
             ],
-            toolchain = "{os}_toolchain_impl".format(os = os),
+            toolchain = ":{os}_toolchain_impl".format(os = os),
             toolchain_type = ":toolchain_type",
         ),
     )
     for os in [
-        "darwin",
         "linux",
         "windows",
     ]
 ]
+
+# "darwin" is special; the toolchain is a fat binary with both amd64 and arm64.
+perl_toolchain(
+    name = "darwin_toolchain_impl",
+    runtime = ["@perl_darwin_2level//:runtime"],
+)
+
+toolchain(
+    name = "darwin_toolchain",
+    exec_compatible_with = [
+        "@platforms//os:osx",
+    ],
+    target_compatible_with = [
+        "@platforms//os:osx",
+    ],
+    toolchain = ":darwin_toolchain_impl",
+    toolchain_type = ":toolchain_type",
+)
 
 # This rule exists so that the current perl toolchain can be used in the `toolchains` attribute of
 # other rules, such as genrule. It allows exposing a perl_toolchain after toolchain resolution has
