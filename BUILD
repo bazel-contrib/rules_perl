@@ -27,10 +27,6 @@ toolchain_type(
                 "@platforms//os:{os}".format(os = os),
                 "@platforms//cpu:x86_64",
             ],
-            target_compatible_with = [
-                "@platforms//os:{os}".format(os = os),
-                "@platforms//cpu:x86_64",
-            ],
             toolchain = ":{os}_toolchain_impl".format(os = os),
             toolchain_type = ":toolchain_type",
         ),
