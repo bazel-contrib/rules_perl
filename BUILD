@@ -48,9 +48,6 @@ toolchain(
     exec_compatible_with = [
         "@platforms//os:osx",
     ],
-    target_compatible_with = [
-        "@platforms//os:osx",
-    ],
     toolchain = ":darwin_toolchain_impl",
     toolchain_type = ":toolchain_type",
 )
