@@ -78,7 +78,7 @@ Moved the required file to `examples/cpan/Test-Mock-Simple-0.10/lib`
 
 Create a target for the module in your BUILD file (which resides in the `cpan` directory):
 
-```
+```python
 perl_library(
     name = "TestMockSimple",
     srcs = ["Test-Mock-Simple-0.10/lib/Test/Mock/Simple.pm"],
@@ -87,7 +87,7 @@ perl_library(
 
 Now you can specify it as a dependency to any script that requires that module:
 
-```
+```python
     env = {
         "PERL5LIB": "examples/cpan/Test-Mock-Simple-0.10/lib",
     },
