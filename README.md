@@ -12,7 +12,7 @@ To import rules_perl in your project, you first need to add it to your `WORKSPAC
 git_repository(
     name = "rules_perl",
     remote = "https://github.com/bazelbuild/rules_perl.git",
-    branch = "master",
+    branch = "main",
 )
 
 load("@rules_perl//perl:deps.bzl", "perl_register_toolchains", "perl_rules_dependencies")
@@ -32,7 +32,7 @@ perl_binary(
 )
 ```
 
-Please see `example` folder for more examples of how to include Perl scripts.  
+Please see `example` folder for more examples of how to include Perl scripts.
 
 ## Mac Support
 
@@ -78,7 +78,7 @@ Moved the required file to `examples/cpan/Test-Mock-Simple-0.10/lib`
 
 Create a target for the module in your BUILD file (which resides in the `cpan` directory):
 
-```
+```python
 perl_library(
     name = "TestMockSimple",
     srcs = ["Test-Mock-Simple-0.10/lib/Test/Mock/Simple.pm"],
@@ -87,7 +87,7 @@ perl_library(
 
 Now you can specify it as a dependency to any script that requires that module:
 
-```
+```python
     env = {
         "PERL5LIB": "examples/cpan/Test-Mock-Simple-0.10/lib",
     },
