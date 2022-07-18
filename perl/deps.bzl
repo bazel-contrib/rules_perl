@@ -7,6 +7,7 @@ perl_download = _perl_download
 
 # buildifier: disable=unnamed-macro
 def perl_register_toolchains():
+    """Register the relocatable perl toolchains."""
     perl_download(
         name = "perl_linux_arm64",
         strip_prefix = "perl-aarch64-linux",
