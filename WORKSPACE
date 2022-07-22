@@ -11,8 +11,9 @@ perl_register_toolchains()
 # doesn't seem to work unless called from a workspace other than rules_perl
 register_toolchains(
     "@rules_perl//:darwin_toolchain",
-    "@rules_perl//:linux_toolchain",
-    "@rules_perl//:windows_toolchain",
+    "@rules_perl//:linux_arm64_toolchain",
+    "@rules_perl//:linux_x86_64_toolchain",
+    "@rules_perl//:windows_x86_64_toolchain",
 )
 
 load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")

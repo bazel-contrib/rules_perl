@@ -14,26 +14,39 @@ toolchain_type(
         # toolchain_impl gathers information about the Perl toolchain.
         # See the PerlToolchain provider.
         perl_toolchain(
-            name = "{os}_toolchain_impl".format(os = os),
-            runtime = ["@perl_{os}_amd64//:runtime".format(os = os)],
+            name = "{os}_{cpu}_toolchain_impl".format(
+                cpu = cpu,
+                os = os,
+            ),
+            runtime = ["@perl_{os}_{cpu}//:runtime".format(
+                cpu = cpu,
+                os = os,
+            )],
         ),
 
         # toolchain is a Bazel toolchain that expresses execution and target
         # constraints for toolchain_impl. This target should be registered by
         # calling register_toolchains in a WORKSPACE file.
         toolchain(
-            name = "{os}_toolchain".format(os = os),
+            name = "{os}_{cpu}_toolchain".format(
+                cpu = cpu,
+                os = os,
+            ),
             exec_compatible_with = [
                 "@platforms//os:{os}".format(os = os),
-                "@platforms//cpu:x86_64",
+                "@platforms//cpu:{cpu}".format(cpu = cpu),
             ],
-            toolchain = ":{os}_toolchain_impl".format(os = os),
+            toolchain = ":{os}_{cpu}_toolchain_impl".format(
+                cpu = cpu,
+                os = os,
+            ),
             toolchain_type = ":toolchain_type",
         ),
     )
-    for os in [
-        "linux",
-        "windows",
+    for os, cpu in [
+        ("linux", "arm64"),
+        ("linux", "x86_64"),
+        ("windows", "x86_64"),
     ]
 ]
 

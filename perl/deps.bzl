@@ -7,26 +7,36 @@ perl_download = _perl_download
 
 # buildifier: disable=unnamed-macro
 def perl_register_toolchains():
+    """Register the relocatable perl toolchains."""
     perl_download(
-        name = "perl_linux_amd64",
-        strip_prefix = "perl-x86_64-linux",
-        sha256 = "2cea6d78bf29c96450a70729e94ae2ef877dbc590fdaf3ef8dad74f7fae0d7de",
+        name = "perl_linux_arm64",
+        strip_prefix = "perl-aarch64-linux",
+        sha256 = "01af07bc84fc9c162b09eda880f5868b67ccb440071f8088e5278e1ae394aefd",
         urls = [
-            "https://github.com/skaji/relocatable-perl/releases/download/5.30.1.1/perl-x86_64-linux.tar.xz",
+            "https://github.com/skaji/relocatable-perl/releases/download/5.36.0.0/perl-aarch64-linux.tar.xz",
+        ],
+    )
+
+    perl_download(
+        name = "perl_linux_x86_64",
+        strip_prefix = "perl-x86_64-linux",
+        sha256 = "77ee5dfec156bd8135be3c2e9b295a393c7f7a0c7999b8932ff83ed938f65d02",
+        urls = [
+            "https://github.com/skaji/relocatable-perl/releases/download/5.36.0.0/perl-x86_64-linux.tar.xz",
         ],
     )
 
     perl_download(
         name = "perl_darwin_2level",
         strip_prefix = "perl-darwin-2level",
-        sha256 = "9ede6e5200d2b69524ed8074edbcddf8c4c3e8f67a756edce133cabaa4ad2347",
+        sha256 = "7c2e739c9da246f22e94a394cdc9d6817eba2c15c3db7aaca60b3c8cd5fe6611",
         urls = [
-            "https://github.com/skaji/relocatable-perl/releases/download/5.30.1.1/perl-darwin-2level.tar.xz",
+            "https://github.com/skaji/relocatable-perl/releases/download/5.36.0.0/perl-darwin-2level.tar.xz",
         ],
     )
 
     perl_download(
-        name = "perl_windows_amd64",
+        name = "perl_windows_x86_64",
         strip_prefix = "",
         sha256 = "aeb973da474f14210d3e1a1f942dcf779e2ae7e71e4c535e6c53ebabe632cc98",
         urls = [
@@ -37,8 +47,9 @@ def perl_register_toolchains():
 
     native.register_toolchains(
         "@rules_perl//:darwin_toolchain",
-        "@rules_perl//:linux_toolchain",
-        "@rules_perl//:windows_toolchain",
+        "@rules_perl//:linux_arm64_toolchain",
+        "@rules_perl//:linux_x86_64_toolchain",
+        "@rules_perl//:windows_x86_64_toolchain",
     )
 
 def perl_rules_dependencies():
