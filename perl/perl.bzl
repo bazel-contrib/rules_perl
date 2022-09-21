@@ -16,7 +16,7 @@
 
 load("@bazel_skylib//lib:new_sets.bzl", "sets")
 load("@bazel_skylib//lib:paths.bzl", "paths")
-load("@rules_cc//cc:toolchain_utils.bzl", "find_cpp_toolchain")
+load("@rules_cc//cc:find_cc_toolchain.bzl", "find_cc_toolchain")
 
 # buildifier: disable=name-conventions
 PerlLibrary = provider(
@@ -167,7 +167,7 @@ def _perl_test_implementation(ctx):
     return _perl_binary_implementation(ctx)
 
 def _perl_xs_cc_lib(ctx, toolchain, srcs):
-    cc_toolchain = find_cpp_toolchain(ctx)
+    cc_toolchain = find_cc_toolchain(ctx)
     xs_headers = toolchain.xs_headers
 
     includes = [f.dirname for f in xs_headers.to_list()]
