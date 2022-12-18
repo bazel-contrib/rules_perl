@@ -1,8 +1,8 @@
 """Perl rules dependencies"""
 
 load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
-load("//perl:repo.bzl", _perl_download = "perl_download")
 load("//:platforms.bzl", "platforms")
+load("//perl:repo.bzl", _perl_download = "perl_download")
 
 perl_download = _perl_download
 

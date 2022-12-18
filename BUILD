@@ -1,5 +1,5 @@
-load("@rules_perl//perl:toolchain.bzl", "current_perl_toolchain", "perl_toolchain")
 load("@rules_perl//:platforms.bzl", "platforms")
+load("@rules_perl//perl:toolchain.bzl", "current_perl_toolchain", "perl_toolchain")
 
 # toolchain_type defines a name for a kind of toolchain. Our toolchains
 # declare that they have this type. Our rules request a toolchain of this type.
