@@ -21,7 +21,6 @@ platforms = [
         strip_prefix = "perl-darwin-arm64",
         exec_compatible_with = [
             "@platforms//os:osx",
-            "@platforms//cpu:arm64",
         ],
     ),
     struct(
