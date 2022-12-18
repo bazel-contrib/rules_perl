@@ -4,10 +4,10 @@
 platforms = [
     struct(
         os = "darwin",
-        cpu = "amd64",
-        urls = ["https://github.com/skaji/relocatable-perl/releases/download/5.36.0.1/perl-darwin-amd64.tar.xz"],
-        sha256 = "63bc5ee36f5394d71c50cca6cafdd333ee58f9eaa40bca63c85f9bd06f2c1fd6",
-        strip_prefix = "perl-darwin-amd64",
+        cpu = "arm64",
+        urls = ["https://github.com/skaji/relocatable-perl/releases/download/5.36.0.1/perl-darwin-arm64.tar.xz"],
+        sha256 = "285769f3c50c339fb59a3987b216ae3c5c573b95babe6875a1ef56fb178433da",
+        strip_prefix = "perl-darwin-arm64",
         exec_compatible_with = [
             "@platforms//os:osx",
             "@platforms//cpu:aarch64",
@@ -15,12 +15,13 @@ platforms = [
     ),
     struct(
         os = "darwin",
-        cpu = "arm64",
-        urls = ["https://github.com/skaji/relocatable-perl/releases/download/5.36.0.1/perl-darwin-arm64.tar.xz"],
-        sha256 = "285769f3c50c339fb59a3987b216ae3c5c573b95babe6875a1ef56fb178433da",
-        strip_prefix = "perl-darwin-arm64",
+        cpu = "amd64",
+        urls = ["https://github.com/skaji/relocatable-perl/releases/download/5.36.0.1/perl-darwin-amd64.tar.xz"],
+        sha256 = "63bc5ee36f5394d71c50cca6cafdd333ee58f9eaa40bca63c85f9bd06f2c1fd6",
+        strip_prefix = "perl-darwin-amd64",
         exec_compatible_with = [
             "@platforms//os:osx",
+            "@platforms//cpu:x86_64",
         ],
     ),
     struct(
