@@ -1,3 +1,4 @@
+load("@rules_perl//:platforms.bzl", "platforms")
 load("@rules_perl//perl:toolchain.bzl", "current_perl_toolchain", "perl_toolchain")
 
 # toolchain_type defines a name for a kind of toolchain. Our toolchains
@@ -14,13 +15,13 @@ toolchain_type(
         # toolchain_impl gathers information about the Perl toolchain.
         # See the PerlToolchain provider.
         perl_toolchain(
-            name = "{os}_{cpu}_toolchain_impl".format(
-                cpu = cpu,
-                os = os,
+            name = "perl_{os}_{cpu}_toolchain_impl".format(
+                cpu = platform.cpu,
+                os = platform.os,
             ),
             runtime = ["@perl_{os}_{cpu}//:runtime".format(
-                cpu = cpu,
-                os = os,
+                cpu = platform.cpu,
+                os = platform.os,
             )],
         ),
 
@@ -28,47 +29,25 @@ toolchain_type(
         # constraints for toolchain_impl. This target should be registered by
         # calling register_toolchains in a WORKSPACE file.
         toolchain(
-            name = "{os}_{cpu}_toolchain".format(
-                cpu = cpu,
-                os = os,
+            name = "perl_{os}_{cpu}_toolchain".format(
+                cpu = platform.cpu,
+                os = platform.os,
             ),
-            exec_compatible_with = [
-                "@platforms//os:{os}".format(os = os),
-                "@platforms//cpu:{cpu}".format(cpu = cpu),
-            ],
-            toolchain = ":{os}_{cpu}_toolchain_impl".format(
-                cpu = cpu,
-                os = os,
+            exec_compatible_with = platform.exec_compatible_with,
+            toolchain = ":perl_{os}_{cpu}_toolchain_impl".format(
+                cpu = platform.cpu,
+                os = platform.os,
             ),
             toolchain_type = ":toolchain_type",
         ),
     )
-    for os, cpu in [
-        ("linux", "arm64"),
-        ("linux", "x86_64"),
-        ("windows", "x86_64"),
-    ]
+    for platform in platforms
 ]
-
-# "darwin" is special; the toolchain is a fat binary with both amd64 and arm64.
-perl_toolchain(
-    name = "darwin_toolchain_impl",
-    runtime = ["@perl_darwin_2level//:runtime"],
-)
-
-toolchain(
-    name = "darwin_toolchain",
-    exec_compatible_with = [
-        "@platforms//os:osx",
-    ],
-    toolchain = ":darwin_toolchain_impl",
-    toolchain_type = ":toolchain_type",
-)
 
 # This rule exists so that the current perl toolchain can be used in the `toolchains` attribute of
 # other rules, such as genrule. It allows exposing a perl_toolchain after toolchain resolution has
 # happened, to a rule which expects a concrete implementation of a toolchain, rather than a
-# toochain_type which could be resolved to that toolchain.
+# toolchain_type which could be resolved to that toolchain.
 #
 # See https://github.com/bazelbuild/bazel/issues/14009#issuecomment-921960766
 current_perl_toolchain(
