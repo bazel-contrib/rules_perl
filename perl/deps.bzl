@@ -7,8 +7,7 @@ load("//perl:repo.bzl", _perl_download = "perl_download")
 perl_download = _perl_download
 
 # buildifier: disable=unnamed-macro
-def perl_register_toolchains():
-    """Register the relocatable perl toolchains."""
+def perl_repos():
     for platform in platforms:
         perl_download(
             name = "perl_%s_%s" % (platform.os, platform.cpu),
@@ -16,6 +15,13 @@ def perl_register_toolchains():
             sha256 = platform.sha256,
             urls = platform.urls,
         )
+
+# buildifier: disable=unnamed-macro
+def perl_register_toolchains():
+    """Register the relocatable perl toolchains."""
+    perl_repos()
+
+    for platform in platforms:
         native.register_toolchains(
             "@rules_perl//:perl_{os}_{cpu}_toolchain".format(os = platform.os, cpu = platform.cpu),
         )
