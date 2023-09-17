@@ -9,6 +9,7 @@ module(
 
 bazel_dep(name = "platforms", version = "0.0.6")
 bazel_dep(name = "bazel_skylib", version = "1.4.2")
+bazel_dep(name = "rules_cc", version = "0.0.8")
 
 repos = use_extension("@rules_perl//perl:extensions.bzl", "perl_repositories")
 use_repo(
