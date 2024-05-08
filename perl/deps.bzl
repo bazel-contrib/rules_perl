@@ -23,14 +23,17 @@ def perl_register_toolchains():
 
     for platform in platforms:
         native.register_toolchains(
-            "@rules_perl//:perl_{os}_{cpu}_toolchain".format(os = platform.os, cpu = platform.cpu),
+            "@rules_perl//perl:perl_{os}_{cpu}_toolchain".format(
+                os = platform.os,
+                cpu = platform.cpu,
+            ),
         )
 
 def perl_rules_dependencies():
-    """Declares external repositories that rules_go_simple depends on.
+    """Declares external repositories that rules_perl depends on.
 
     This function should be loaded and called from WORKSPACE of any project
-    that uses rules_go_simple.
+    that uses rules_perl.
     """
 
     # bazel_skylib is a set of libraries that are useful for writing

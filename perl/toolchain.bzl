@@ -77,7 +77,7 @@ perl_toolchain = rule(
 )
 
 def _current_perl_toolchain_impl(ctx):
-    toolchain = ctx.toolchains["@rules_perl//:toolchain_type"]
+    toolchain = ctx.toolchains["@rules_perl//perl:toolchain_type"]
 
     return [
         toolchain,
@@ -98,5 +98,5 @@ def _current_perl_toolchain_impl(ctx):
 # See https://github.com/bazelbuild/bazel/issues/14009#issuecomment-921960766
 current_perl_toolchain = rule(
     implementation = _current_perl_toolchain_impl,
-    toolchains = ["@rules_perl//:toolchain_type"],
+    toolchains = ["@rules_perl//perl:toolchain_type"],
 )
