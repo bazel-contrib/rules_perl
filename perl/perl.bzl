@@ -231,7 +231,9 @@ def _perl_xs_implementation(ctx):
         args_typemaps += ["-typemap", typemap.short_path]
 
     for src in ctx.files.srcs:
-        out = ctx.actions.declare_file(paths.replace_extension(src.path, ".c"))
+        c_execpath = paths.replace_extension(src.path, ".c")
+        o_packagepath = paths.join("_objs/execroot/", c_execpath)
+        out = ctx.actions.declare_file(o_packagepath)
 
         ctx.actions.run(
             outputs = [out],
