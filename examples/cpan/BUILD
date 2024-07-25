@@ -49,7 +49,7 @@ perl_xs(
     name = "IOTtyXS",
     srcs = ["auto/IO/Tty/Tty.xs"],
     defines = [
-        "HAVE_DEV_PTMX",
+        # "HAVE_DEV_PTMX",
         "HAVE_GETPT",
         "HAVE_GRANTPT",
         "HAVE_POSIX_OPENPT",

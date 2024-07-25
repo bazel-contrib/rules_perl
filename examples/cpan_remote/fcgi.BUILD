@@ -20,6 +20,10 @@ perl_library(
         "lib/FCGI.pm",
         ":FCGIXS",
     ],
+    perl5lib_paths = [
+        "arch",
+        "lib",
+    ],
     visibility = ["//visibility:public"],
 )
 

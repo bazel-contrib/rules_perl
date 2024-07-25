@@ -22,17 +22,11 @@ package(default_visibility = ["//visibility:public"])
 perl_test(
     name = "pure_perl",
     srcs = ["pure_perl.t"],
-    env = {
-        "PERL5LIB": "examples/cpan/Test-Mock-Simple-0.10/lib",
-    },
     deps = ["//examples/cpan:TestMockSimple"],
 )
 
 perl_test(
     name = "complex_deps",
     srcs = ["complex_deps.t"],
-    env = {
-        "PERL5LIB": "examples/cpan",
-    },
     deps = ["//examples/cpan:IOTty"],
 )

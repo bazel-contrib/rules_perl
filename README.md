@@ -95,3 +95,9 @@ Now you can specify it as a dependency to any script that requires that module:
 ```
 
 **NOTE**: at this time you need to provide the directory that Perl needs to add to @INC.
+
+### Automatic PERL5LIB
+
+`perl_binary` (and `perl_test`) sets up the `PERL5LIB` environment variable with values for `perl_library` dependencies.
+By default this will be each perl_library's "lib" directory if present in source paths, otherwise the package dir.
+You can override this with the `perl5lib_paths` attribute.

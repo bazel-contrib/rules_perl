@@ -11,4 +11,6 @@ else
   exit 1
 fi
 
+export PERL5LIB="$PERL5LIB{PERL5LIB}"
+
 {env_vars} $PATH_PREFIX{interpreter} -I${PATH_PREFIX} ${PATH_PREFIX}{main} "$@"
