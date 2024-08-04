@@ -124,7 +124,10 @@ def _perl5lib_paths(ctx):
         if not libdir_for_src:
             libdir_for_src = (ctx.label.workspace_root or ".") + "/" + ctx.label.package
         perl5lib_paths.append(libdir_for_src)
-    return depset(direct = perl5lib_paths).to_list()
+    for dep in ctx.attr.deps:
+        perl5lib_paths.extend(dep[PerlLibrary].perl5lib_paths)
+    perl5lib_paths = depset(direct = perl5lib_paths).to_list()
+    return perl5lib_paths
 
 def _perl_library_implementation(ctx):
     transitive_sources = transitive_deps(ctx)
