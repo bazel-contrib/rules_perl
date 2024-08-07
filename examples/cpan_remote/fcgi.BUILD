@@ -20,7 +20,7 @@ perl_library(
         "lib/FCGI.pm",
         ":FCGIXS",
     ],
-    perl5lib_paths = [
+    includes = [
         "arch",
         "lib",
     ],

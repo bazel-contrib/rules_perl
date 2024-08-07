@@ -23,7 +23,7 @@ PerlLibrary = provider(
     doc = "A provider containing components of a `perl_library`",
     fields = [
         "transitive_perl_sources",
-        "perl5lib_paths",
+        "includes",
     ],
 )
 
@@ -100,34 +100,15 @@ def transitive_deps(ctx, extra_files = [], extra_deps = []):
         files = files,
     )
 
-def _perl5lib_paths(ctx):
-    """Calculate the PERL5LIB paths for a perl_library rule's srcs.
-
-    Examples for perl5lib_paths ["lib"] (=default) (srcs -> perl5lib_paths):
-    * ["lib/Foo/Bar.pm", "lib/Foo/lib/Baz.pm"] -> ["lib"]
-    * ["Module-1.0/lib/Foo/Bar.pm"] -> ["Module-1.0/lib"]
-    * ["src/Foo.pm","Bar.pm"] -> ["."]
-    * ["src/Foo.pm","bar/lib/Bar.pm"] -> [".", "bar/lib"]
-    * ["@cpan_foo"] -> ["external/cpan_foo"] (WORKSPACE)
-    * ["@cpan_foo"] -> ["external/lcov~~_repo_rules~cpan_foo"] (Bzlmod)
-    * ["@cpan_foo//:lib/Foo.pm"] -> ["external/cpan_foo/lib"] (WORKSPACE)
-    * ["@cpan_foo//:lib/Foo.pm"] -> ["external/lcov~~_repo_rules~cpan_foo/lib"] (Bzlmod)
-    """
-    perl5lib_paths = []
-    for path in [src.short_path for src in ctx.files.srcs]:
-        libdir_for_src = None
-        for libdir in ctx.attr.perl5lib_paths:
-            path_parts = path.split("/")
-            if libdir in path_parts:
-                libdir_for_src = "/".join(path_parts[:path_parts.index(libdir) + 1])
-                break
-        if not libdir_for_src:
-            libdir_for_src = (ctx.label.workspace_root or ".") + "/" + ctx.label.package
-        perl5lib_paths.append(libdir_for_src)
+def _include_paths(ctx):
+    """Calculate the PERL5LIB paths for a perl_library rule's includes."""
+    package_root = (ctx.label.workspace_root + "/" + ctx.label.package).strip("/") or "."
+    include_paths = [package_root] if "." in ctx.attr.includes else []
+    include_paths.extend([package_root + "/" + include for include in ctx.attr.includes if include != "."])
     for dep in ctx.attr.deps:
-        perl5lib_paths.extend(dep[PerlLibrary].perl5lib_paths)
-    perl5lib_paths = depset(direct = perl5lib_paths).to_list()
-    return perl5lib_paths
+        include_paths.extend(dep[PerlLibrary].includes)
+    include_paths = depset(direct = include_paths).to_list()
+    return include_paths
 
 def _perl_library_implementation(ctx):
     transitive_sources = transitive_deps(ctx)
@@ -137,7 +118,7 @@ def _perl_library_implementation(ctx):
         ),
         PerlLibrary(
             transitive_perl_sources = transitive_sources.srcs,
-            perl5lib_paths = _perl5lib_paths(ctx),
+            includes = _include_paths(ctx),
         ),
     ]
 
@@ -157,14 +138,14 @@ def _perl_binary_implementation(ctx):
     if main == None:
         main = _get_main_from_sources(ctx)
 
-    perl5lib_paths = sum([dep[PerlLibrary].perl5lib_paths for dep in ctx.attr.deps], [])
-    perl5lib_paths_str = ":" + ":".join(perl5lib_paths) if perl5lib_paths else ""
+    include_paths = sum([dep[PerlLibrary].includes for dep in ctx.attr.deps], [])
+    perl5lib = ":" + ":".join(include_paths) if include_paths else ""
 
     ctx.actions.expand_template(
         template = ctx.file._wrapper_template,
         output = ctx.outputs.executable,
         substitutions = {
-            "{PERL5LIB}": perl5lib_paths_str,
+            "{PERL5LIB}": perl5lib,
             "{env_vars}": _env_vars(ctx),
             "{interpreter}": interpreter.short_path,
             "{main}": main.short_path,
@@ -314,7 +295,7 @@ perl_library = rule(
     attrs = {
         "data": _perl_data_attr,
         "deps": _perl_deps_attr,
-        "perl5lib_paths": attr.string_list(default = ["lib"]),
+        "includes": attr.string_list(default = [".", "lib"]),
         "srcs": _perl_srcs_attr,
     },
     implementation = _perl_library_implementation,
