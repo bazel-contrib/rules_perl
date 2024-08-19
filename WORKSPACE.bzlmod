@@ -1,0 +1,4 @@
+# Testing only, do not add to your WORKSPACE
+load("@rules_perl//perl:deps.bzl", "perl_rules_dev_dependencies")
+
+perl_rules_dev_dependencies()
