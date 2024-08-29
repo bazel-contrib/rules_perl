@@ -23,6 +23,7 @@ PerlLibrary = provider(
     doc = "A provider containing components of a `perl_library`",
     fields = [
         "transitive_perl_sources",
+        "includes",
     ],
 )
 
@@ -99,6 +100,16 @@ def transitive_deps(ctx, extra_files = [], extra_deps = []):
         files = files,
     )
 
+def _include_paths(ctx):
+    """Calculate the PERL5LIB paths for a perl_library rule's includes."""
+    package_root = (ctx.label.workspace_root + "/" + ctx.label.package).strip("/") or "."
+    include_paths = [package_root] if "." in ctx.attr.includes else []
+    include_paths.extend([package_root + "/" + include for include in ctx.attr.includes if include != "."])
+    for dep in ctx.attr.deps:
+        include_paths.extend(dep[PerlLibrary].includes)
+    include_paths = depset(direct = include_paths).to_list()
+    return include_paths
+
 def _perl_library_implementation(ctx):
     transitive_sources = transitive_deps(ctx)
     return [
@@ -107,8 +118,15 @@ def _perl_library_implementation(ctx):
         ),
         PerlLibrary(
             transitive_perl_sources = transitive_sources.srcs,
+            includes = _include_paths(ctx),
         ),
     ]
+
+def sum(items, initial):
+    result = initial
+    for item in items:
+        result += item
+    return result
 
 def _perl_binary_implementation(ctx):
     toolchain = ctx.toolchains["@rules_perl//perl:toolchain_type"].perl_runtime
@@ -120,10 +138,14 @@ def _perl_binary_implementation(ctx):
     if main == None:
         main = _get_main_from_sources(ctx)
 
+    include_paths = sum([dep[PerlLibrary].includes for dep in ctx.attr.deps], [])
+    perl5lib = ":" + ":".join(include_paths) if include_paths else ""
+
     ctx.actions.expand_template(
         template = ctx.file._wrapper_template,
         output = ctx.outputs.executable,
         substitutions = {
+            "{PERL5LIB}": perl5lib,
             "{env_vars}": _env_vars(ctx),
             "{interpreter}": interpreter.short_path,
             "{main}": main.short_path,
@@ -273,6 +295,7 @@ perl_library = rule(
     attrs = {
         "data": _perl_data_attr,
         "deps": _perl_deps_attr,
+        "includes": attr.string_list(default = [".", "lib"]),
         "srcs": _perl_srcs_attr,
     },
     implementation = _perl_library_implementation,

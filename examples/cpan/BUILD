@@ -20,6 +20,7 @@ package(default_visibility = ["//visibility:public"])
 perl_library(
     name = "TestMockSimple",
     srcs = ["Test-Mock-Simple-0.10/lib/Test/Mock/Simple.pm"],
+    includes = ["Test-Mock-Simple-0.10/lib"],
 )
 
 # Better example of module placement with dependence
@@ -49,7 +50,7 @@ perl_xs(
     name = "IOTtyXS",
     srcs = ["auto/IO/Tty/Tty.xs"],
     defines = [
-        "HAVE_DEV_PTMX",
+        # "HAVE_DEV_PTMX",
         "HAVE_GETPT",
         "HAVE_GRANTPT",
         "HAVE_POSIX_OPENPT",
