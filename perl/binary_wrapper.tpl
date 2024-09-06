@@ -7,8 +7,7 @@ elif [ -s `dirname $0`/../../MANIFEST ]; then
 elif [ -d $0.runfiles ]; then
   PATH_PREFIX=`cd $0.runfiles; pwd`/{workspace_name}/
 else
-  echo "WARNING: it does not look to be at the .runfiles directory" >&2
-  exit 1
+  PATH_PREFIX=./
 fi
 
 export PERL5LIB="$PERL5LIB{PERL5LIB}"
