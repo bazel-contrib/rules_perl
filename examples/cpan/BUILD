@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-load("//perl:perl.bzl", "perl_library", "perl_xs")
+load("//perl:perl.bzl", "perl_library")
 
 package(default_visibility = ["//visibility:public"])
 
