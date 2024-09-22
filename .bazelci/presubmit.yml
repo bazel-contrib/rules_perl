@@ -8,12 +8,8 @@ platforms:
   macos_arm64:
     build_targets:
     - "//..."
-    - "-//examples/cpan:IOTty"
-    - "-//examples/cpan:IOTtyXS"
-    - "-//examples/cpan_remote:fcgi_import_test"
     test_targets:
     - "//..."
-    - "-//examples/cpan_remote:fcgi_import_test"
 buildifier:
   version: latest
   warnings: "all"
