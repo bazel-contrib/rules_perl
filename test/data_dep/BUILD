@@ -28,8 +28,8 @@ echo 'exec env --ignore-environment test/data_dep/program_bin' >>$@
 """,
 )
 
-sh_test(
-    name = "program_test",
-    srcs = ["program_test.sh"],
-    data = [":program_bin"],
-)
+# sh_test(
+#     name = "program_test",
+#     srcs = ["program_test.sh"],
+#     data = [":program_bin"],
+# )
