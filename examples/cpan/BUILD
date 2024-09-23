@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-load("//perl:perl.bzl", "perl_library", "perl_xs")
+load("//perl:perl.bzl", "perl_library")
 
 package(default_visibility = ["//visibility:public"])
 
@@ -21,49 +21,4 @@ perl_library(
     name = "TestMockSimple",
     srcs = ["Test-Mock-Simple-0.10/lib/Test/Mock/Simple.pm"],
     includes = ["Test-Mock-Simple-0.10/lib"],
-)
-
-# Better example of module placement with dependence
-perl_library(
-    name = "IOPty",
-    srcs = ["IO/Pty.pm"],
-)
-
-perl_library(
-    name = "IOTty",
-    srcs = [
-        "IO/Tty.pm",
-        ":IOTtyXS",
-    ],
-    deps = [
-        "IOPty",
-        "IOTtyConstant",
-    ],
-)
-
-perl_library(
-    name = "IOTtyConstant",
-    srcs = ["IO/Tty/Constant.pm"],
-)
-
-perl_xs(
-    name = "IOTtyXS",
-    srcs = ["auto/IO/Tty/Tty.xs"],
-    defines = [
-        # "HAVE_DEV_PTMX",
-        "HAVE_GETPT",
-        "HAVE_GRANTPT",
-        "HAVE_POSIX_OPENPT",
-        "HAVE_PTSNAME",
-        "HAVE_PTSNAME_R",
-        "HAVE_PTY_H",
-        "HAVE_SIGACTION",
-        "HAVE_SYS_STROPTS_H",
-        "HAVE_TERMIOS_H",
-        "HAVE_TERMIO_H",
-        "HAVE_TTYNAME",
-        "HAVE_UNLOCKP",
-    ],
-    output_loc = "auto/IO/Tty/Tty.so",
-    textual_hdrs = ["auto/IO/Tty/xssubs.c"],
 )

@@ -24,9 +24,3 @@ perl_test(
     srcs = ["pure_perl.t"],
     deps = ["//examples/cpan:TestMockSimple"],
 )
-
-perl_test(
-    name = "complex_deps",
-    srcs = ["complex_deps.t"],
-    deps = ["//examples/cpan:IOTty"],
-)
