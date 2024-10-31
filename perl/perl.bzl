@@ -102,9 +102,11 @@ def transitive_deps(ctx, extra_files = [], extra_deps = []):
 
 def _include_paths(ctx):
     """Calculate the PERL5LIB paths for a perl_library rule's includes."""
-    workspace_root = ctx.label.workspace_root
-    if workspace_root.startswith("external/"):
-        workspace_root = "../" + workspace_root[9:]
+    workspace_name = ctx.label.workspace_name
+    if workspace_name:
+        workspace_root = "../" + workspace_name
+    else:
+        workspace_root = ""
     package_root = (workspace_root + "/" + ctx.label.package).strip("/") or "."
     include_paths = [package_root] if "." in ctx.attr.includes else []
     include_paths.extend([package_root + "/" + include for include in ctx.attr.includes if include != "."])
