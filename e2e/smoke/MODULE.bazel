@@ -1,0 +1,10 @@
+module(
+    name = "rules_perl_example",
+    version = "0.0.0",
+)
+
+bazel_dep(name = "rules_perl", version = "0.2.4")
+local_path_override(
+    module_name = "rules_perl",
+    path = "../..",
+)

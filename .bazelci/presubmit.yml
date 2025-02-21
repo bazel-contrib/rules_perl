@@ -1,5 +1,6 @@
 ---
-platforms:
+tasks:
+
   ubuntu2204:
     build_targets:
     - "//..."
@@ -10,6 +11,14 @@ platforms:
     - "//..."
     test_targets:
     - "//..."
+
+  e2e_ubuntu2204:
+    platform: ubuntu2204
+    shell_commands:
+    - cd e2e/smoke
+    build_targets:
+    - "//..."
+
 buildifier:
   version: latest
   warnings: "all"

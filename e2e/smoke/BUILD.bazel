@@ -1,0 +1,6 @@
+load("@rules_perl//perl:perl.bzl", "perl_binary")
+
+perl_binary(
+    name = "hello_world",
+    srcs = ["hello_world.pl"],
+)
