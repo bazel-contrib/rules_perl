@@ -169,6 +169,7 @@ def _env_vars(ctx):
     for name, value in ctx.attr.env.items():
         if not _is_identifier(name):
             fail("%s is not a valid environment variable name." % str(name))
+        value = ctx.expand_location(value, targets = ctx.attr.data)
         environment += ("{key}='{value}' ").format(
             key = name,
             value = value.replace("'", "\\'"),
