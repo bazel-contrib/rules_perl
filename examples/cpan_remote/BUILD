@@ -19,5 +19,8 @@ package(default_visibility = ["//visibility:public"])
 perl_test(
     name = "fcgi_import_test",
     srcs = ["fcgi_import_test.t"],
+    target_compatible_with = [
+        "@platforms//os:linux",
+    ],
     deps = ["@fcgi//:FCGI"],
 )
