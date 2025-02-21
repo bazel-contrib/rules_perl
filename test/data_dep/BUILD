@@ -1,3 +1,5 @@
+load("@rules_shell//shell:sh_binary.bzl", "sh_binary")
+
 genrule(
     name = "gen_program_sh",
     srcs = ["@genhtml//:genhtml_bin"],
