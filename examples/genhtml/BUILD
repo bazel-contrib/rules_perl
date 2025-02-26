@@ -22,5 +22,8 @@ perl_test(
         "genhtml_test.t",
         "@genhtml//:genhtml_bin",
     ],
+    env = {
+        "GENHTML_BIN": "$(rlocationpath @genhtml//:genhtml_bin)",
+    },
     visibility = ["//visibility:public"],
 )

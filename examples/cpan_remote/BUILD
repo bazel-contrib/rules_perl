@@ -12,12 +12,15 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# load("//perl:perl.bzl", "perl_test")
+load("//perl:perl.bzl", "perl_test")
 
-# package(default_visibility = ["//visibility:public"])
+package(default_visibility = ["//visibility:public"])
 
-# perl_test(
-#     name = "fcgi_import_test",
-#     srcs = ["fcgi_import_test.t"],
-#     deps = ["@fcgi//:FCGI"],
-# )
+perl_test(
+    name = "fcgi_import_test",
+    srcs = ["fcgi_import_test.t"],
+    target_compatible_with = [
+        "@platforms//os:linux",
+    ],
+    deps = ["@fcgi//:FCGI"],
+)

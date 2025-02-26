@@ -17,6 +17,5 @@ use warnings;
 
 use Test::More tests => 1;
 
-`../genhtml/genhtml_bin -o $ENV{TEST_UNDECLARED_OUTPUTS_DIR} examples/genhtml/coverage.dat`;
+`../$ENV{GENHTML_BIN} -o $ENV{TEST_UNDECLARED_OUTPUTS_DIR} examples/genhtml/coverage.dat`;
 ok(-e "$ENV{TEST_UNDECLARED_OUTPUTS_DIR}/index.html", 'genhtml generated index.html');
-
