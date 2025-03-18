@@ -52,10 +52,10 @@ platforms = [
         os = "windows",
         cpu = "x86_64",
         urls = [
-            "https://mirror.bazel.build/strawberryperl.com/download/5.32.1.1/strawberry-perl-5.32.1.1-64bit.zip",
-            "https://strawberryperl.com/download/5.32.1.1/strawberry-perl-5.32.1.1-64bit.zip",
+            "https://github.com/StrawberryPerl/Perl-Dist-Strawberry/releases/download/SP_54001_64bit_UCRT/strawberry-perl-5.40.0.1-64bit-portable.zip",
+            "https://mirror.bazel.build/github.com/StrawberryPerl/Perl-Dist-Strawberry/releases/download/SP_54001_64bit_UCRT/strawberry-perl-5.40.0.1-64bit-portable.zip",
         ],
-        sha256 = "aeb973da474f14210d3e1a1f942dcf779e2ae7e71e4c535e6c53ebabe632cc98",
+        sha256 = "754f3e2a8e473dc68d1540c7802fb166a025f35ef18960c4564a31f8b5933907",
         strip_prefix = "",
         exec_compatible_with = [
             "@platforms//os:windows",
