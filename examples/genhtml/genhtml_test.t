@@ -14,8 +14,17 @@
 
 use strict;
 use warnings;
+use Test::More;
 
-use Test::More tests => 1;
+my $file = $ENV{'COVERAGE_INDEX_HTML'};
+ok(defined $file, 'COVERAGE_INDEX_HTML is set');
 
-`../$ENV{GENHTML_BIN} -o $ENV{TEST_UNDECLARED_OUTPUTS_DIR} examples/genhtml/coverage.dat`;
-ok(-e "$ENV{TEST_UNDECLARED_OUTPUTS_DIR}/index.html", 'genhtml generated index.html');
+if (defined $file) {
+    open my $fh, '<', $file or die "Could not open file '$file': $!\n";
+    my $content = do { local $/; <$fh> };
+    close $fh;
+
+    like($content, qr{<title>LCOV - coverage\.dat</title>}, 'Expected <title> tag found');
+}
+
+done_testing;

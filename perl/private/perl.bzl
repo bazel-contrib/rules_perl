@@ -35,6 +35,9 @@ _EXECUTABLE_PERL_ATTRS = _COMMON_PERL_ATTRS | {
         doc = "The name of the source file that is the main entry point of the application.",
         allow_single_file = _PERL_FILE_TYPES,
     ),
+    "_windows_constraint": attr.label(
+        default = Label("@platforms//os:windows"),
+    ),
     "_wrapper_template": attr.label(
         allow_single_file = True,
         default = Label("//perl/private:binary_wrapper.tpl"),
@@ -136,13 +139,16 @@ def _is_identifier(name):
             return False
     return True
 
-def _env_vars(ctx):
+def _env_vars(ctx, is_windows):
     environment = ""
+    template = "{key}='{value}' "
+    if is_windows:
+        template = "set {key}={value}\n"
     for name, value in ctx.attr.env.items():
         if not _is_identifier(name):
             fail("%s is not a valid environment variable name." % str(name))
         value = ctx.expand_location(value, targets = ctx.attr.data)
-        environment += ("{key}='{value}' ").format(
+        environment += template.format(
             key = name,
             value = value.replace("'", "\\'"),
         )
@@ -152,35 +158,54 @@ def _perl_binary_implementation(ctx):
     toolchain = ctx.toolchains["@rules_perl//perl:toolchain_type"].perl_runtime
     interpreter = toolchain.interpreter
 
-    transitive_sources = _transitive_deps(
-        ctx,
-        extra_files = toolchain.runtime + [ctx.outputs.executable],
-    )
-
     main = ctx.file.main
     if main == None:
         main = _get_main_from_sources(ctx)
 
-    include_paths = []
+    extension = ""
+    path_sep = ":"
+    path_prefix = "${PATH_PREFIX}"
+    interpreter_path = interpreter.short_path
+    main_path = main.short_path
+    workspace_name = ctx.label.workspace_name
+    if not workspace_name:
+        workspace_name = ctx.workspace_name
+    if not workspace_name:
+        workspace_name = "_main"
+
+    include_paths = [""]
     for dep in ctx.attr.deps:
         include_paths.extend(dep[PerlInfo].includes)
-    perl5lib = ":" + ":".join(include_paths) if include_paths else ""
+
+    is_windows = ctx.target_platform_has_constraint(ctx.attr._windows_constraint[platform_common.ConstraintValueInfo])
+    if is_windows:
+        path_sep = ";"
+        path_prefix = "%PATH_PREFIX%"
+        extension = ".bat"
+        interpreter_path = interpreter_path.replace("/", "\\")
+        main_path = main_path.replace("/", "\\")
+        include_paths = [p.replace("/", "\\") for p in include_paths]
+
+    perl5lib = path_sep + path_sep.join(["{}{}".format(path_prefix, p) for p in include_paths]) if include_paths else ""
+
+    output = ctx.actions.declare_file("{}{}".format(ctx.label.name, extension))
+    transitive_sources = _transitive_deps(ctx, extra_files = toolchain.runtime + [output])
 
     ctx.actions.expand_template(
         template = ctx.file._wrapper_template,
-        output = ctx.outputs.executable,
+        output = output,
         substitutions = {
             "{PERL5LIB}": perl5lib,
-            "{env_vars}": _env_vars(ctx),
-            "{interpreter}": interpreter.short_path,
-            "{main}": main.short_path,
-            "{workspace_name}": ctx.label.workspace_name or ctx.workspace_name,
+            "{env_vars}": _env_vars(ctx, is_windows),
+            "{interpreter}": interpreter_path,
+            "{main}": main_path,
+            "{workspace_name}": workspace_name,
         },
         is_executable = True,
     )
 
     return DefaultInfo(
-        executable = ctx.outputs.executable,
+        executable = output,
         runfiles = transitive_sources.files,
     )
 

@@ -11,6 +11,11 @@ tasks:
     - "//..."
     test_targets:
     - "//..."
+  windows:
+    build_targets:
+    - "//..."
+    test_targets:
+    - "//..."
 
   e2e_ubuntu2204:
     platform: ubuntu2204

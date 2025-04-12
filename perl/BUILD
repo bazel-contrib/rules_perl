@@ -1,7 +1,11 @@
 load("//:platforms.bzl", "platforms")
 load(":toolchain.bzl", "current_perl_toolchain", "perl_toolchain")
 
-exports_files(["binary_wrapper.tpl"])
+alias(
+    name = "binary_wrapper.tpl",
+    actual = "//perl/private:binary_wrapper.tpl",
+    visibility = ["//visibility:public"],
+)
 
 # toolchain_type defines a name for a kind of toolchain. Our toolchains
 # declare that they have this type. Our rules request a toolchain of this type.
