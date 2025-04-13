@@ -1,6 +1,7 @@
 exports_files([
     "binary_wrapper.bat.tpl",
     "binary_wrapper.sh.tpl",
+    "entrypoint.pl",
 ])
 
 alias(

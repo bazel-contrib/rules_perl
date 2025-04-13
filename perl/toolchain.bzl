@@ -7,38 +7,54 @@ generated in perl_download in repo.bzl.
 PerlRuntimeInfo = provider(
     doc = "Information about a Perl interpreter, related commands and libraries",
     fields = {
-        "interpreter": "A label which points to the Perl interpreter",
-        "perlopt": "A list of strings which should be passed to the interpreter",
-        "runtime": "A list of labels which points to runtime libraries",
-        "xs_headers": "The c library support code for xs modules",
-        "xsubpp": "A label which points to the xsubpp command",
+        "interpreter": "File: A label which points to the Perl interpreter",
+        "perlopt": "list[str]: A list of strings which should be passed to the interpreter",
+        "runtime": "depset[File]: A list of labels which points to runtime libraries",
+        "xs_headers": "depset[File]: The c library support code for xs modules",
+        "xsubpp": "File: A label which points to the xsubpp command",
     },
 )
 
-def _find_tool(ctx, name):
-    cmd = None
-    for f in ctx.files.runtime:
-        if f.path.endswith("/bin/%s" % name) or f.path.endswith("/bin/%s.exe" % name) or f.path.endswith("/bin/%s.bat" % name):
-            cmd = f
-            break
-    if not cmd:
-        fail("could not locate perl tool `%s`" % name)
+def _is_tool(src, name):
+    endings = (
+        "/bin/%s" % name,
+        "/bin/%s.exe" % name,
+        "/bin/%s.bat" % name,
+    )
+    if src.path.endswith(endings):
+        return True
 
-    return cmd
+    return False
 
-def _find_xs_headers(ctx):
-    hdrs = [
-        f
-        for f in ctx.files.runtime
-        if "CORE" in f.path and f.path.endswith(".h")
-    ]
-    return depset(hdrs)
+def _is_xs_header(src):
+    if "CORE" in src.path and src.path.endswith(".h"):
+        return True
+
+    return False
 
 def _perl_toolchain_impl(ctx):
     # Find important files and paths.
-    interpreter_cmd = _find_tool(ctx, "perl")
-    xsubpp_cmd = _find_tool(ctx, "xsubpp")
-    xs_headers = _find_xs_headers(ctx)
+    interpreter_cmd = None
+    xsubpp_cmd = None
+    xs_headers = []
+    for file in ctx.files.runtime:
+        if interpreter_cmd == None and _is_tool(file, "perl"):
+            interpreter_cmd = file
+            continue
+
+        if xsubpp_cmd == None and _is_tool(file, "xsubpp"):
+            xsubpp_cmd = file
+            continue
+
+        if _is_xs_header(file):
+            xs_headers.append(file)
+            continue
+
+    if interpreter_cmd == None:
+        fail("Failed to find perl interpreter.")
+
+    if xsubpp_cmd == None:
+        fail("Failed to find perl xsubpp.")
 
     interpreter_cmd_path = interpreter_cmd.path
     if ctx.target_platform_has_constraint(ctx.attr._windows_constraint[platform_common.ConstraintValueInfo]):
@@ -50,8 +66,8 @@ def _perl_toolchain_impl(ctx):
             perl_runtime = PerlRuntimeInfo(
                 interpreter = interpreter_cmd,
                 xsubpp = xsubpp_cmd,
-                xs_headers = xs_headers,
-                runtime = ctx.files.runtime,
+                xs_headers = depset(xs_headers),
+                runtime = depset(ctx.files.runtime),
                 perlopt = ctx.attr.perlopt,
             ),
             make_variables = platform_common.TemplateVariableInfo({
@@ -84,9 +100,10 @@ def _current_perl_toolchain_impl(ctx):
         toolchain.make_variables,
         DefaultInfo(
             runfiles = ctx.runfiles(
-                files = toolchain.perl_runtime.runtime,
+                [],
+                transitive_files = toolchain.perl_runtime.runtime,
             ),
-            files = depset(toolchain.perl_runtime.runtime),
+            files = toolchain.perl_runtime.runtime,
         ),
     ]
 

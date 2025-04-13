@@ -36,5 +36,11 @@ perl_test(
     env = {
         "COVERAGE_INDEX_HTML": "$(rootpath :index.html)",
     },
+    # TODO: A runfiles API should be implemented to find the `index.html` file for this test.
+    # For more details see: https://github.com/bazel-contrib/rules_perl/issues/85
+    target_compatible_with = select({
+        "@platforms//os:windows": ["@platforms//:incompatible"],
+        "//conditions:default": [],
+    }),
     visibility = ["//visibility:public"],
 )

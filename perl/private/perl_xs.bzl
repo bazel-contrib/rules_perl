@@ -68,7 +68,7 @@ def _perl_xs_implementation(ctx):
     toolchain = ctx.toolchains["@rules_perl//perl:toolchain_type"].perl_runtime
     xsubpp = toolchain.xsubpp
 
-    toolchain_files = depset(toolchain.runtime)
+    toolchain_files = toolchain.runtime
 
     gen = []
     cc_infos = []

@@ -1,15 +1,30 @@
-#!/bin/sh
+#!/usr/bin/env bash
 
-if [ -n "${RUNFILES_DIR+x}" ]; then
-  PATH_PREFIX=$RUNFILES_DIR/{workspace_name}/
-elif [ -s `dirname $0`/../../MANIFEST ]; then
-  PATH_PREFIX=`cd $(dirname $0); pwd`/
-elif [ -d $0.runfiles ]; then
-  PATH_PREFIX=`cd $0.runfiles; pwd`/{workspace_name}/
-else
-  PATH_PREFIX=./
-fi
+# --- begin runfiles.bash initialization v3 ---
+# Copy-pasted from the Bazel Bash runfiles library v3.
+set -uo pipefail; set +e; f=bazel_tools/tools/bash/runfiles/runfiles.bash
+# shellcheck disable=SC1090
+source "${RUNFILES_DIR:-/dev/null}/$f" 2>/dev/null || \
+  source "$(grep -sm1 "^$f " "${RUNFILES_MANIFEST_FILE:-/dev/null}" | cut -f2- -d' ')" 2>/dev/null || \
+  source "$0.runfiles/$f" 2>/dev/null || \
+  source "$(grep -sm1 "^$f " "$0.runfiles_manifest" | cut -f2- -d' ')" 2>/dev/null || \
+  source "$(grep -sm1 "^$f " "$0.exe.runfiles_manifest" | cut -f2- -d' ')" 2>/dev/null || \
+  { echo>&2 "ERROR: cannot find $f"; exit 1; }; f=; set -e
+# --- end runfiles.bash initialization v3 ---
 
-export PERL5LIB="$PERL5LIB{PERL5LIB}"
+set -euo pipefail
 
-{env_vars} $PATH_PREFIX{interpreter} -I${PATH_PREFIX} ${PATH_PREFIX}{main} "$@"
+INTERPRETER="$(rlocation "{interpreter}")"
+ENTRYPOINT="$(rlocation "{entrypoint}")"
+CONFIG="$(rlocation "{config}")"
+MAIN="$(rlocation "{main}")"
+
+runfiles_export_envvars
+
+exec \
+    "${INTERPRETER}" \
+    "${ENTRYPOINT}" \
+    "${CONFIG}" \
+    "${MAIN}" \
+    -- \
+    "$@"
