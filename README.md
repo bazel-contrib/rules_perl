@@ -8,6 +8,9 @@ The Perl Toolchain utilizes the [relocatable perl](https://github.com/skaji/relo
 
 To import rules_perl in your project, you first need to add it to your `WORKSPACE` file:
 
+
+If you are still using `WORKSPACE` to manage your dependencies:
+
 ```python
 git_repository(
     name = "rules_perl",
@@ -46,7 +49,7 @@ This repository provides a hermetic [Strawberry Perl](https://strawberryperl.com
 
 ## Using Perl Modules
 
-This is the first stab at getting a more mature set of Perl rules for Bazel.  Currenlty it is a manual process and, hopefully, it will be a map for automation later on.
+This is the first stab at getting a more mature set of Perl rules for Bazel.  Currently, it is a manual process and, hopefully, it will be a map for automation later on.
 
 ### Current Steps
 
