@@ -14,16 +14,33 @@
 
 load("@rules_perl//perl:perl.bzl", "perl_test")
 
+genrule(
+    name = "generated_html",
+    srcs = [
+        "coverage.dat",
+        "genhtml_test.t",
+    ],
+    outs = ["index.html"],
+    cmd = "$(execpath @genhtml//:genhtml_bin) --quiet --output-directory $$(dirname $(execpath index.html)) $(execpath coverage.dat)",
+    tools = [
+        "@genhtml//:genhtml_bin",
+    ],
+)
+
 perl_test(
     name = "genhtml_test",
     srcs = ["genhtml_test.t"],
     data = [
-        "coverage.dat",
-        "genhtml_test.t",
-        "@genhtml//:genhtml_bin",
+        ":index.html",
     ],
     env = {
-        "GENHTML_BIN": "$(rlocationpath @genhtml//:genhtml_bin)",
+        "COVERAGE_INDEX_HTML": "$(rootpath :index.html)",
     },
+    # TODO: A runfiles API should be implemented to find the `index.html` file for this test.
+    # For more details see: https://github.com/bazel-contrib/rules_perl/issues/85
+    target_compatible_with = select({
+        "@platforms//os:windows": ["@platforms//:incompatible"],
+        "//conditions:default": [],
+    }),
     visibility = ["//visibility:public"],
 )

@@ -26,7 +26,10 @@ def _perl_library_test(package):
 def _perl_binary_test(package):
     rule_test(
         name = "hello_world_rule_test",
-        generates = ["hello_world"],
+        generates = select({
+            "@platforms//os:windows": ["hello_world.bat"],
+            "//conditions:default": ["hello_world"],
+        }),
         rule = package + "/hello_world:hello_world",
     )
 
@@ -34,7 +37,10 @@ def _perl_test_test(package):
     """Issue rule tests for perl_test."""
     rule_test(
         name = "fibonacci_rule_test",
-        generates = ["fibonacci_test"],
+        generates = select({
+            "@platforms//os:windows": ["fibonacci_test.bat"],
+            "//conditions:default": ["fibonacci_test"],
+        }),
         rule = package + "/fibonacci:fibonacci_test",
     )
 

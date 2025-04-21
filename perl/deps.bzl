@@ -48,6 +48,14 @@ def perl_rules_dependencies():
         sha256 = "97e70364e9249702246c0e9444bccdc4b847bed1eb03c5a3ece4f83dfe6abc44",
     )
 
+    _maybe(
+        http_archive,
+        name = "rules_shell",
+        sha256 = "3e114424a5c7e4fd43e0133cc6ecdfe54e45ae8affa14fadd839f29901424043",
+        strip_prefix = "rules_shell-0.4.0",
+        url = "https://github.com/bazelbuild/rules_shell/releases/download/v0.4.0/rules_shell-v0.4.0.tar.gz",
+    )
+
 def _maybe(rule, name, **kwargs):
     """Declares an external repository if it hasn't been declared already."""
     if name not in native.existing_rules():

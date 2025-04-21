@@ -1,5 +1,6 @@
 """Perl rules for Bazel"""
 
+load("@bazel_skylib//lib:paths.bzl", "paths")
 load(":providers.bzl", "PerlInfo")
 
 _PERL_FILE_TYPES = [".pl", ".pm", ".t", ".so", ".ix", ".al", ""]
@@ -34,6 +35,19 @@ _EXECUTABLE_PERL_ATTRS = _COMMON_PERL_ATTRS | {
     "main": attr.label(
         doc = "The name of the source file that is the main entry point of the application.",
         allow_single_file = _PERL_FILE_TYPES,
+    ),
+    "_bash_runfiles": attr.label(
+        cfg = "target",
+        allow_single_file = True,
+        default = Label("@bazel_tools//tools/bash/runfiles"),
+    ),
+    "_entrypoint": attr.label(
+        doc = "The executable entrypoint.",
+        allow_single_file = True,
+        default = Label("//perl/private:entrypoint.pl"),
+    ),
+    "_windows_constraint": attr.label(
+        default = Label("@platforms//os:windows"),
     ),
     "_wrapper_template": attr.label(
         allow_single_file = True,
@@ -82,30 +96,50 @@ def _transitive_deps(ctx, extra_files = [], extra_deps = []):
         files = files,
     )
 
-def _include_paths(ctx):
-    """Calculate the PERL5LIB paths for a perl_library rule's includes."""
+def _include_paths(ctx, includes, transitive_includes):
+    """Determine the include paths from a target's `includes` attribute.
+
+    Args:
+        ctx (ctx): The rule's context object.
+        includes (list): A list of include paths.
+        transitive_includes (depset): Resolved includes form transitive dependencies.
+
+    Returns:
+        depset: A set of the resolved include paths.
+    """
     workspace_name = ctx.label.workspace_name
-    if workspace_name:
-        workspace_root = "../" + workspace_name
-    else:
-        workspace_root = ""
-    package_root = (workspace_root + "/" + ctx.label.package).strip("/") or "."
-    include_paths = [package_root] if "." in ctx.attr.includes else []
-    include_paths.extend([package_root + "/" + include for include in ctx.attr.includes if include != "."])
-    for dep in ctx.attr.deps:
-        include_paths.extend(dep[PerlInfo].includes)
-    include_paths = depset(direct = include_paths).to_list()
-    return include_paths
+    if not workspace_name:
+        workspace_name = ctx.workspace_name
+
+    include_root = "{}/{}".format(workspace_name, ctx.label.package).rstrip("/")
+
+    result = [workspace_name]
+    for include_str in includes:
+        include_str = ctx.expand_make_variables("includes", include_str, {})
+        if include_str.startswith("/"):
+            continue
+
+        # To prevent "escaping" out of the runfiles tree, we normalize
+        # the path and ensure it doesn't have up-level references.
+        include_path = paths.normalize("{}/{}".format(include_root, include_str))
+        if include_path.startswith("../") or include_path == "..":
+            fail("Path '{}' references a path above the execution root".format(
+                include_str,
+            ))
+        result.append(include_path)
+
+    return depset(result, transitive = [transitive_includes])
 
 def _perl_library_implementation(ctx):
     transitive_sources = _transitive_deps(ctx)
+    transitive_includes = depset(transitive = [dep[PerlInfo].includes for dep in ctx.attr.deps])
     return [
         DefaultInfo(
             runfiles = transitive_sources.files,
         ),
         PerlInfo(
             transitive_perl_sources = transitive_sources.srcs,
-            includes = _include_paths(ctx),
+            includes = _include_paths(ctx, ctx.attr.includes, transitive_includes),
         ),
     ]
 
@@ -121,68 +155,81 @@ def _get_main_from_sources(ctx):
         fail("Cannot infer main from multiple 'srcs'. Please specify 'main' attribute.", "main")
     return sources[0]
 
-def _is_identifier(name):
-    # Must be non-empty.
-    if name == None or len(name) == 0:
-        return False
-
-    # Must start with alpha or '_'
-    if not (name[0].isalpha() or name[0] == "_"):
-        return False
-
-    # Must consist of alnum characters or '_'s.
-    for c in name.elems():
-        if not (c.isalnum() or c == "_"):
-            return False
-    return True
-
 def _env_vars(ctx):
-    environment = ""
+    environment = {}
     for name, value in ctx.attr.env.items():
-        if not _is_identifier(name):
-            fail("%s is not a valid environment variable name." % str(name))
-        value = ctx.expand_location(value, targets = ctx.attr.data)
-        environment += ("{key}='{value}' ").format(
-            key = name,
-            value = value.replace("'", "\\'"),
-        )
+        environment[name] = ctx.expand_location(value, targets = ctx.attr.data)
     return environment
+
+def _rlocationpath(file, workspace_name):
+    if file.short_path.startswith("../"):
+        return file.short_path[len("../"):]
+
+    return "{}/{}".format(workspace_name, file.short_path)
 
 def _perl_binary_implementation(ctx):
     toolchain = ctx.toolchains["@rules_perl//perl:toolchain_type"].perl_runtime
     interpreter = toolchain.interpreter
 
-    transitive_sources = _transitive_deps(
-        ctx,
-        extra_files = toolchain.runtime + [ctx.outputs.executable],
-    )
-
     main = ctx.file.main
     if main == None:
         main = _get_main_from_sources(ctx)
 
-    include_paths = []
-    for dep in ctx.attr.deps:
-        include_paths.extend(dep[PerlInfo].includes)
-    perl5lib = ":" + ":".join(include_paths) if include_paths else ""
+    extension = ""
+    workspace_name = ctx.label.workspace_name
+    if not workspace_name:
+        workspace_name = ctx.workspace_name
+    if not workspace_name:
+        workspace_name = "_main"
+
+    include_paths = depset([workspace_name], transitive = [dep[PerlInfo].includes for dep in ctx.attr.deps])
+
+    is_windows = ctx.target_platform_has_constraint(ctx.attr._windows_constraint[platform_common.ConstraintValueInfo])
+    if is_windows:
+        extension = ".bat"
+
+    output = ctx.actions.declare_file("{}{}".format(ctx.label.name, extension))
+    config = ctx.actions.declare_file("{}.config.json".format(ctx.label.name))
+    transitive_sources = _transitive_deps(ctx, extra_files = toolchain.runtime.to_list() + [
+        ctx.file._bash_runfiles,
+        ctx.file._entrypoint,
+        output,
+        config,
+    ])
+
+    ctx.actions.write(
+        output = config,
+        content = json.encode_indent({
+            "includes": include_paths.to_list(),
+            "runfiles": [
+                _rlocationpath(src, ctx.workspace_name)
+                for src in depset(transitive = [transitive_sources.srcs, toolchain.runtime]).to_list()
+            ],
+        }),
+    )
 
     ctx.actions.expand_template(
         template = ctx.file._wrapper_template,
-        output = ctx.outputs.executable,
+        output = output,
         substitutions = {
-            "{PERL5LIB}": perl5lib,
-            "{env_vars}": _env_vars(ctx),
-            "{interpreter}": interpreter.short_path,
-            "{main}": main.short_path,
-            "{workspace_name}": ctx.label.workspace_name or ctx.workspace_name,
+            "{config}": _rlocationpath(config, ctx.workspace_name),
+            "{entrypoint}": _rlocationpath(ctx.file._entrypoint, ctx.workspace_name),
+            "{interpreter}": _rlocationpath(interpreter, ctx.workspace_name),
+            "{main}": _rlocationpath(main, ctx.workspace_name),
         },
         is_executable = True,
     )
 
-    return DefaultInfo(
-        executable = ctx.outputs.executable,
-        runfiles = transitive_sources.files,
-    )
+    return [
+        DefaultInfo(
+            executable = output,
+            files = depset([output]),
+            runfiles = transitive_sources.files,
+        ),
+        RunEnvironmentInfo(
+            environment = _env_vars(ctx),
+        ),
+    ]
 
 def _perl_test_implementation(ctx):
     return _perl_binary_implementation(ctx)
