@@ -1,0 +1,206 @@
+{
+   "CPAN-Common-Index" : {
+      "dependencies" : [
+         "CPAN-DistnameInfo",
+         "Class-Tiny",
+         "Tie-Handle-Offset",
+         "URI"
+      ],
+      "sha256" : "c43ddbb22fd42b06118fe6357f53700fbd77f531ba3c427faafbf303cbf4eaf0",
+      "strip_prefix" : "CPAN-Common-Index-0.010",
+      "url" : "https://cpan.metacpan.org/authors/id/D/DA/DAGOLDEN/CPAN-Common-Index-0.010.tar.gz"
+   },
+   "CPAN-DistnameInfo" : {
+      "dependencies" : [],
+      "sha256" : "2f24fbe9f7eeacbc269d35fc61618322fc17be499ee0cd9018f370934a9f2435",
+      "strip_prefix" : "CPAN-DistnameInfo-0.12",
+      "url" : "https://cpan.metacpan.org/authors/id/G/GB/GBARR/CPAN-DistnameInfo-0.12.tar.gz"
+   },
+   "CPAN-Meta-Check" : {
+      "dependencies" : [],
+      "sha256" : "f619d2df5ea0fd91c8cf83eb54acccb5e43d9e6ec1a3f727b3d0ac15d0cf378a",
+      "strip_prefix" : "CPAN-Meta-Check-0.018",
+      "url" : "https://cpan.metacpan.org/authors/id/L/LE/LEONT/CPAN-Meta-Check-0.018.tar.gz"
+   },
+   "Capture-Tiny" : {
+      "dependencies" : [],
+      "sha256" : "ca6e8d7ce7471c2be54e1009f64c367d7ee233a2894cacf52ebe6f53b04e81e5",
+      "strip_prefix" : "Capture-Tiny-0.50",
+      "url" : "https://cpan.metacpan.org/authors/id/D/DA/DAGOLDEN/Capture-Tiny-0.50.tar.gz"
+   },
+   "Carton" : {
+      "dependencies" : [
+         "Class-Tiny",
+         "Menlo-Legacy",
+         "Module-CPANfile",
+         "Path-Tiny",
+         "Try-Tiny"
+      ],
+      "sha256" : "9c4558ca97cd08b69fdfb52b28c3ddc2043ef52f0627b90e53d05a4087344175",
+      "strip_prefix" : "Carton-v1.0.35",
+      "url" : "https://cpan.metacpan.org/authors/id/M/MI/MIYAGAWA/Carton-v1.0.35.tar.gz"
+   },
+   "Class-Tiny" : {
+      "dependencies" : [],
+      "sha256" : "ee058a63912fa1fcb9a72498f56ca421a2056dc7f9f4b67837446d6421815615",
+      "strip_prefix" : "Class-Tiny-1.008",
+      "url" : "https://cpan.metacpan.org/authors/id/D/DA/DAGOLDEN/Class-Tiny-1.008.tar.gz"
+   },
+   "ExtUtils-Config" : {
+      "dependencies" : [],
+      "sha256" : "82e7e4e90cbe380e152f5de6e3e403746982d502dd30197a123652e46610c66d",
+      "strip_prefix" : "ExtUtils-Config-0.010",
+      "url" : "https://cpan.metacpan.org/authors/id/L/LE/LEONT/ExtUtils-Config-0.010.tar.gz"
+   },
+   "ExtUtils-Helpers" : {
+      "dependencies" : [],
+      "sha256" : "c8574875cce073e7dc5345a7b06d502e52044d68894f9160203fcaab379514fe",
+      "strip_prefix" : "ExtUtils-Helpers-0.028",
+      "url" : "https://cpan.metacpan.org/authors/id/L/LE/LEONT/ExtUtils-Helpers-0.028.tar.gz"
+   },
+   "ExtUtils-InstallPaths" : {
+      "dependencies" : [
+         "ExtUtils-Config"
+      ],
+      "sha256" : "ae65d20cc3c7e14b3cd790915c84510f82dfb37a4c9b88aa74b2e843af417d01",
+      "strip_prefix" : "ExtUtils-InstallPaths-0.014",
+      "url" : "https://cpan.metacpan.org/authors/id/L/LE/LEONT/ExtUtils-InstallPaths-0.014.tar.gz"
+   },
+   "ExtUtils-MakeMaker-CPANfile" : {
+      "dependencies" : [
+         "Module-CPANfile"
+      ],
+      "sha256" : "2c077607d4b0a108569074dff76e8168659062ada3a6af78b30cca0d40f8e275",
+      "strip_prefix" : "ExtUtils-MakeMaker-CPANfile-0.09",
+      "url" : "https://cpan.metacpan.org/authors/id/I/IS/ISHIGAKI/ExtUtils-MakeMaker-CPANfile-0.09.tar.gz"
+   },
+   "File-Slurp" : {
+      "dependencies" : [],
+      "sha256" : "4c3c21992a9d42be3a79dd74a3c83d27d38057269d65509a2f555ea0fb2bc5b0",
+      "strip_prefix" : "File-Slurp-9999.32",
+      "url" : "https://cpan.metacpan.org/authors/id/C/CA/CAPOEIRAB/File-Slurp-9999.32.tar.gz"
+   },
+   "File-Which" : {
+      "dependencies" : [],
+      "sha256" : "3201f1a60e3f16484082e6045c896842261fc345de9fb2e620fd2a2c7af3a93a",
+      "strip_prefix" : "File-Which-1.27",
+      "url" : "https://cpan.metacpan.org/authors/id/P/PL/PLICEASE/File-Which-1.27.tar.gz"
+   },
+   "File-pushd" : {
+      "dependencies" : [],
+      "sha256" : "d73a7f09442983b098260df3df7a832a5f660773a313ca273fa8b56665f97cdc",
+      "strip_prefix" : "File-pushd-1.016",
+      "url" : "https://cpan.metacpan.org/authors/id/D/DA/DAGOLDEN/File-pushd-1.016.tar.gz"
+   },
+   "HTTP-Tinyish" : {
+      "dependencies" : [
+         "File-Which",
+         "IPC-Run3"
+      ],
+      "sha256" : "e9ce94a9913f9275d312ded4ddb34f76baf011b6b8d6029ff2871d5bd7bae468",
+      "strip_prefix" : "HTTP-Tinyish-0.19",
+      "url" : "https://cpan.metacpan.org/authors/id/M/MI/MIYAGAWA/HTTP-Tinyish-0.19.tar.gz"
+   },
+   "IPC-Run3" : {
+      "dependencies" : [],
+      "sha256" : "9d048ae7b9ae63871bae976ba01e081d887392d904e5d48b04e22d35ed22011a",
+      "strip_prefix" : "IPC-Run3-0.049",
+      "url" : "https://cpan.metacpan.org/authors/id/R/RJ/RJBS/IPC-Run3-0.049.tar.gz"
+   },
+   "MIME-Base32" : {
+      "dependencies" : [],
+      "sha256" : "ab21fa99130e33a0aff6cdb596f647e5e565d207d634ba2ef06bdbef50424e99",
+      "strip_prefix" : "MIME-Base32-1.303",
+      "url" : "https://cpan.metacpan.org/authors/id/R/RE/REHSACK/MIME-Base32-1.303.tar.gz"
+   },
+   "Menlo" : {
+      "dependencies" : [
+         "CPAN-Common-Index",
+         "CPAN-DistnameInfo",
+         "CPAN-Meta-Check",
+         "Capture-Tiny",
+         "Class-Tiny",
+         "ExtUtils-Config",
+         "ExtUtils-Helpers",
+         "ExtUtils-InstallPaths",
+         "File-Which",
+         "File-pushd",
+         "HTTP-Tinyish",
+         "Module-CPANfile",
+         "Parse-PMFile",
+         "String-ShellQuote",
+         "URI",
+         "Win32-ShellQuote",
+         "local-lib"
+      ],
+      "sha256" : "3b573f68e7b3a36a87c860be258599330fac248b518854dfb5657ac483dca565",
+      "strip_prefix" : "Menlo-1.9019",
+      "url" : "https://cpan.metacpan.org/authors/id/M/MI/MIYAGAWA/Menlo-1.9019.tar.gz"
+   },
+   "Menlo-Legacy" : {
+      "dependencies" : [
+         "Menlo"
+      ],
+      "sha256" : "a6acac3fee318a804b439de54acbc7c27f0b44cfdad8551bbc9cd45986abc201",
+      "strip_prefix" : "Menlo-Legacy-1.9022",
+      "url" : "https://cpan.metacpan.org/authors/id/M/MI/MIYAGAWA/Menlo-Legacy-1.9022.tar.gz"
+   },
+   "Module-CPANfile" : {
+      "dependencies" : [],
+      "sha256" : "88efbe2e9a642dceaa186430fedfcf999aaf0e06f6cced28a714b8e56b514921",
+      "strip_prefix" : "Module-CPANfile-1.1004",
+      "url" : "https://cpan.metacpan.org/authors/id/M/MI/MIYAGAWA/Module-CPANfile-1.1004.tar.gz"
+   },
+   "Parse-PMFile" : {
+      "dependencies" : [
+         "ExtUtils-MakeMaker-CPANfile"
+      ],
+      "sha256" : "26817cf3d72e245452375dcff9e923a061ee0a40bbf060d3a08ebe60a334aaae",
+      "strip_prefix" : "Parse-PMFile-0.47",
+      "url" : "https://cpan.metacpan.org/authors/id/I/IS/ISHIGAKI/Parse-PMFile-0.47.tar.gz"
+   },
+   "Path-Tiny" : {
+      "dependencies" : [],
+      "sha256" : "818aed754b74f399e42c238bea738e20a52af89a6e3feb58bec9d0130eea4746",
+      "strip_prefix" : "Path-Tiny-0.148",
+      "url" : "https://cpan.metacpan.org/authors/id/D/DA/DAGOLDEN/Path-Tiny-0.148.tar.gz"
+   },
+   "String-ShellQuote" : {
+      "dependencies" : [],
+      "sha256" : "e606365038ce20d646d255c805effdd32f86475f18d43ca75455b00e4d86dd35",
+      "strip_prefix" : "String-ShellQuote-1.04",
+      "url" : "https://cpan.metacpan.org/authors/id/R/RO/ROSCH/String-ShellQuote-1.04.tar.gz"
+   },
+   "Tie-Handle-Offset" : {
+      "dependencies" : [],
+      "sha256" : "ee9f39055dc695aa244a252f56ffd37f8be07209b337ad387824721206d2a89e",
+      "strip_prefix" : "Tie-Handle-Offset-0.004",
+      "url" : "https://cpan.metacpan.org/authors/id/D/DA/DAGOLDEN/Tie-Handle-Offset-0.004.tar.gz"
+   },
+   "Try-Tiny" : {
+      "dependencies" : [],
+      "sha256" : "ef2d6cab0bad18e3ab1c4e6125cc5f695c7e459899f512451c8fa3ef83fa7fc0",
+      "strip_prefix" : "Try-Tiny-0.32",
+      "url" : "https://cpan.metacpan.org/authors/id/E/ET/ETHER/Try-Tiny-0.32.tar.gz"
+   },
+   "URI" : {
+      "dependencies" : [
+         "MIME-Base32"
+      ],
+      "sha256" : "b9c4d58b2614b8611ae03a95a6d60ed996f4b311ef3cd5a937b92f1825ecc564",
+      "strip_prefix" : "URI-5.31",
+      "url" : "https://cpan.metacpan.org/authors/id/O/OA/OALDERS/URI-5.31.tar.gz"
+   },
+   "Win32-ShellQuote" : {
+      "dependencies" : [],
+      "sha256" : "aa74b0e3dc2d41cd63f62f853e521ffd76b8d823479a2619e22edb4049b4c0dc",
+      "strip_prefix" : "Win32-ShellQuote-0.003001",
+      "url" : "https://cpan.metacpan.org/authors/id/H/HA/HAARG/Win32-ShellQuote-0.003001.tar.gz"
+   },
+   "local-lib" : {
+      "dependencies" : [],
+      "sha256" : "8df87a10c14c8e909c5b47c5701e4b8187d519e5251e87c80709b02bb33efdd7",
+      "strip_prefix" : "local-lib-2.000029",
+      "url" : "https://cpan.metacpan.org/authors/id/H/HA/HAARG/local-lib-2.000029.tar.gz"
+   }
+}

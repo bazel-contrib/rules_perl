@@ -1,0 +1,11 @@
+load("//perl:perl_binary.bzl", "perl_binary")
+
+perl_binary(
+    name = "carton_compiler",
+    srcs = ["carton_compiler.pl"],
+    visibility = ["//visibility:public"],
+    deps = [
+        "@rules_perl_deps//:Carton",
+        "@rules_perl_deps//:File-Slurp",
+    ],
+)

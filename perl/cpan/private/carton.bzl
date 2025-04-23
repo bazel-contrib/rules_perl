@@ -1,0 +1,199 @@
+"""Bazel tools for interfacing with Carton"""
+
+_HUB_BUILD_FILE = """\
+load("@rules_perl//perl:perl_library.bzl", "perl_library")
+
+package(default_visibility = ["//visibility:public"])
+
+DEPENDENCIES = {dependencies}
+
+perl_library(
+    name = "{name}",
+    deps = [
+        "@{name}__" + dep
+        for dep in DEPENDENCIES
+    ],
+    includes = [],
+)
+
+[
+    alias(
+        name = dep,
+        actual = "@{name}__" + dep,
+    )
+    for dep in DEPENDENCIES
+]
+"""
+
+def _perl_cpan_hub_impl(repository_ctx):
+    repository_ctx.file("WORKSPACE.bazel", """workspace(name = "{}")""".format(
+        repository_ctx.name,
+    ))
+
+    repository_ctx.file("BUILD.bazel", _HUB_BUILD_FILE.format(
+        name = repository_ctx.attr.hub_name,
+        dependencies = json.encode_indent(repository_ctx.attr.modules, indent = " " * 4),
+    ))
+
+perl_cpan_hub = repository_rule(
+    doc = "A hub repository that exposes all CPAN dependencies from a `cpanfile`.",
+    implementation = _perl_cpan_hub_impl,
+    attrs = {
+        "hub_name": attr.string(
+            doc = "The name of the hub.",
+            mandatory = True,
+        ),
+        "modules": attr.string_list(
+            doc = "Dependencies to add to the hub.",
+            mandatory = True,
+        ),
+    },
+)
+
+_CPAN_MODULE_BUILD_FILE = """\
+load("@rules_perl//perl:perl_library.bzl", "perl_library")
+
+DEPENDENCIES = {dependencies}
+
+perl_library(
+    name = "{name}",
+    srcs = glob(
+        include = ["{output}**/*"],
+        exclude = [
+            "BUILD",
+            "WORKSPACE",
+            "*.bazel",
+            "{output}t/**/*",
+            "{output}xt/**/*",
+        ],
+    ),
+    includes = {includes},
+    deps = [
+        "@{hub_name}__" + dep
+        for dep in DEPENDENCIES
+    ],
+    visibility = ["//visibility:public"],
+)
+
+alias(
+    name = "{repo_name}",
+    actual = "{name}",
+    visibility = ["//visibility:public"],
+)
+"""
+
+def _perl_cpan_archive_impl(repository_ctx):
+    results = repository_ctx.download_and_extract(
+        repository_ctx.attr.urls,
+        sha256 = repository_ctx.attr.sha256,
+        stripPrefix = repository_ctx.attr.strip_prefix,
+    )
+
+    output = ""
+    includes = []
+    lib_path = repository_ctx.path("lib")
+    if lib_path.exists:
+        includes = ["lib"]
+    else:
+        # In the event a lib directory doesn't exist, the module will need to be
+        # extracted to a subdirectory.
+        repository_ctx.delete(repository_ctx.path("."))
+        output = ""
+        split = repository_ctx.attr.distribution.split("-")
+        if len(split) > 1:
+            output = split[0]
+
+        repository_ctx.download_and_extract(
+            repository_ctx.attr.urls,
+            sha256 = results.sha256,
+            stripPrefix = repository_ctx.attr.strip_prefix,
+            output = output,
+        )
+
+        includes = ["."]
+
+    repository_ctx.file("WORKSPACE.bazel", """workspace(name = "{}")""".format(
+        repository_ctx.name,
+    ))
+
+    repository_ctx.file("BUILD.bazel", _CPAN_MODULE_BUILD_FILE.format(
+        name = repository_ctx.attr.distribution,
+        hub_name = repository_ctx.attr.hub_name,
+        repo_name = "{}__{}".format(repository_ctx.attr.hub_name, repository_ctx.attr.distribution),
+        dependencies = json.encode_indent(repository_ctx.attr.dependencies, indent = " " * 4),
+        output = "{}/".format(output).lstrip("/"),
+        includes = json.encode(includes),
+    ))
+
+    return {
+        "dependencies": repository_ctx.attr.dependencies,
+        "distribution": repository_ctx.attr.distribution,
+        "hub_name": repository_ctx.attr.hub_name,
+        "name": repository_ctx.name,
+        "sha256": results.sha256,
+        "strip_prefix": repository_ctx.attr.strip_prefix,
+        "urls": repository_ctx.attr.urls,
+    }
+
+perl_cpan_archive = repository_rule(
+    doc = "A repository rule for fetching Perl modules from CPAN and instantiating a target for it.",
+    implementation = _perl_cpan_archive_impl,
+    attrs = {
+        "dependencies": attr.string_list(
+            doc = "The dependencies of the current module.",
+            mandatory = True,
+        ),
+        "distribution": attr.string(
+            doc = "The distribution of the module as described in the CPAN Metadata.",
+            mandatory = True,
+        ),
+        "hub_name": attr.string(
+            doc = "The name of the bzlmod hub repository.",
+            mandatory = True,
+        ),
+        "sha256": attr.string(
+            doc = "The expected SHA-256 of the file downloaded.",
+        ),
+        "strip_prefix": attr.string(
+            doc = "A directory prefix to strip from the extracted files.",
+        ),
+        "urls": attr.string_list(
+            doc = "A list of URLs to a file that will be made available to Bazel.",
+            mandatory = True,
+        ),
+    },
+)
+
+def install(*, module_ctx, attrs):
+    """Instantiate the cpan module for the given `install` tag_class attributes.
+
+    Args:
+        module_ctx (module_ctx): The current module context.
+        attrs (struct): The attributes from the `install` tag class.
+
+    Returns:
+        str: The name of the hub repository for the current tag_class.
+    """
+    lock_file = module_ctx.path(attrs.lock)
+    module_ctx.watch(lock_file)
+    lockfile = json.decode(module_ctx.read(lock_file))
+
+    for module in lockfile:
+        repo_name = "{}__{}".format(attrs.name, module)
+        perl_cpan_archive(
+            name = repo_name,
+            urls = [lockfile[module]["url"]],
+            strip_prefix = lockfile[module]["strip_prefix"],
+            sha256 = lockfile[module]["sha256"],
+            hub_name = attrs.name,
+            distribution = module,
+            dependencies = lockfile[module]["dependencies"],
+        )
+
+    perl_cpan_hub(
+        name = attrs.name,
+        hub_name = attrs.name,
+        modules = lockfile.keys(),
+    )
+
+    return attrs.name

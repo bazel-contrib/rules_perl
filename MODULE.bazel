@@ -30,6 +30,16 @@ register_toolchains(
     "@rules_perl//perl:perl_windows_x86_64_toolchain",
 )
 
+cpan = use_extension("@rules_perl//perl/cpan:extensions.bzl", "perl_cpan")
+cpan.install(
+    name = "rules_perl_deps",
+    lock = "//perl/cpan/3rdparty:cpanfile.snapshot.lock.json",
+)
+use_repo(
+    cpan,
+    "rules_perl_deps",
+)
+
 dev_repos = use_extension("@rules_perl//perl:extensions.bzl", "perl_dev_repositories", dev_dependency = True)
 use_repo(
     dev_repos,

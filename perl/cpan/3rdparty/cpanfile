@@ -1,0 +1,3 @@
+requires 'Carton';
+requires 'File::Slurp';
+requires 'JSON::PP';
