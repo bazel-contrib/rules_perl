@@ -187,7 +187,7 @@ sub main {
 
     my $json = JSON::PP->new->canonical->pretty->encode(\%lockfile);
     write_file($args{lockfile}, $json);
-    print "Lockfile written to: $args{lockfile}"
+    print "Lockfile written to: $args{lockfile}\n"
 }
 
 main();

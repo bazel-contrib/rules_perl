@@ -33,21 +33,25 @@ def _perl_cpan_compiler_impl(ctx):
     ]
 
 perl_cpan_compiler = rule(
-    doc = "TODO",
+    doc = """\
+A rule for compiling a Bazel-compatible lock file from [cpanfile](https://metacpan.org/dist/Module-CPANfile/view/lib/cpanfile.pod)
+
+Note that when setting this target up for the first time, an empty file will need to be generated at the label passed
+to the `lockfile` attribute.
+""",
     implementation = _perl_cpan_compiler_impl,
     attrs = {
         "cpanfile": attr.label(
-            doc = "TODO",
+            doc = "The `cpanfile` describing dependencies.",
             allow_single_file = ["cpanfile"],
             mandatory = True,
         ),
         "lockfile": attr.label(
-            doc = "TODO",
+            doc = "The location of the Bazel lock file.",
             allow_single_file = [".json"],
             mandatory = True,
         ),
         "_compiler": attr.label(
-            doc = "TODO",
             executable = True,
             cfg = "target",
             default = Label("//perl/cpan/private:carton_compiler"),
