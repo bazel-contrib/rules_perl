@@ -30,7 +30,7 @@ register_toolchains(
     "@rules_perl//perl:perl_windows_x86_64_toolchain",
 )
 
-cpan = use_extension("@rules_perl//perl/cpan/private:perl_cpan_extension.bzl", "perl_cpan_internal")
+cpan = use_extension("@rules_perl//perl/cpan:extensions.bzl", "perl_cpan")
 cpan.install(
     name = "rules_perl_deps",
     lock = "//perl/cpan/3rdparty:cpanfile.snapshot.lock.json",
