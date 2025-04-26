@@ -1,4 +1,4 @@
-load("//:platforms.bzl", "platforms")
+load(":platforms.bzl", "PLATFORMS")
 load(":toolchain.bzl", "current_perl_toolchain", "perl_toolchain")
 
 alias(
@@ -49,7 +49,7 @@ toolchain_type(
             visibility = ["//visibility:public"],
         ),
     )
-    for platform in platforms
+    for platform in PLATFORMS
 ]
 
 # This rule exists so that the current perl toolchain can be used in the `toolchains` attribute of
