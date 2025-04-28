@@ -5,8 +5,6 @@ _HUB_BUILD_FILE = """\
 
 load("@rules_perl//perl:perl_library.bzl", "perl_library")
 
-package(default_visibility = ["//visibility:public"])
-
 DEPENDENCIES = {dependencies}
 
 perl_library(
@@ -16,12 +14,14 @@ perl_library(
         for dep in DEPENDENCIES
     ],
     includes = [],
+    visibility = ["//visibility:public"],
 )
 
 [
     alias(
         name = dep,
         actual = "@{name}__" + dep,
+        visibility = ["//visibility:public"],
     )
     for dep in DEPENDENCIES
 ]
