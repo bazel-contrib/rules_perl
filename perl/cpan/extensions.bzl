@@ -16,7 +16,7 @@ _install_tag = tag_class(
     },
 )
 
-def _perl_cpan_impl(module_ctx):
+def _cpan_impl(module_ctx):
     root_module_direct_deps = []
     for mod in module_ctx.modules:
         for attrs in mod.tags.install:
@@ -33,9 +33,9 @@ def _perl_cpan_impl(module_ctx):
         root_module_direct_dev_deps = [],
     )
 
-perl_cpan = module_extension(
-    doc = "A module for defining Perl dependencies.",
-    implementation = _perl_cpan_impl,
+cpan = module_extension(
+    doc = "A module for defining Perl dependencies from [CPAN](https://www.cpan.org/).",
+    implementation = _cpan_impl,
     tag_classes = {
         "install": _install_tag,
     },
