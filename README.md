@@ -89,6 +89,8 @@ conjunction with the `cpan` module extension.
 Once the `cpan` module extension is defined, dependencies will be available through the name given to the module.
 Using the example in the steps above, dependencies can be accessed through `@cpan//...`. (e.g. `@cpan//:DateTime`).
 
+Note that `xs` dependencies are currently not supported by the `cpan` extension module.
+
 ### Simple Pure Perl Example
 
 Downloaded and unpacked: [Test::Mock::Simple](https://metacpan.org/pod/Test::Mock::Simple)
