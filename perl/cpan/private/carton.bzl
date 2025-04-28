@@ -162,7 +162,7 @@ cpan_distribution_archive = repository_rule(
             doc = "A directory prefix to strip from the extracted files.",
         ),
         "urls": attr.string_list(
-            doc = "A list of URLs to a file that will be made available to Bazel.",
+            doc = "List of mirror URLs referencing the same file to download.",
             mandatory = True,
         ),
     },
