@@ -3,6 +3,7 @@ load("//perl/cpan:perl_cpan_compiler.bzl", "perl_cpan_compiler")
 exports_files([
     "cpanfile",
     "cpanfile.snapshot",
+    "cpanfile.snapshot.lock.json",
 ])
 
 perl_cpan_compiler(
