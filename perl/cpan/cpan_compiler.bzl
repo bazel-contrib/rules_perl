@@ -1,6 +1,6 @@
 """Rules for generating CPAN lock files"""
 
-def _perl_cpan_compiler_impl(ctx):
+def _cpan_compiler_impl(ctx):
     cpanfile = ctx.file.cpanfile
     lockfile = ctx.file.lockfile
 
@@ -32,14 +32,14 @@ def _perl_cpan_compiler_impl(ctx):
         ),
     ]
 
-perl_cpan_compiler = rule(
+cpan_compiler = rule(
     doc = """\
 A rule for compiling a Bazel-compatible lock file from [cpanfile](https://metacpan.org/dist/Module-CPANfile/view/lib/cpanfile.pod)
 
 Note that when setting this target up for the first time, an empty file will need to be generated at the label passed
 to the `lockfile` attribute.
 """,
-    implementation = _perl_cpan_compiler_impl,
+    implementation = _cpan_compiler_impl,
     attrs = {
         "cpanfile": attr.label(
             doc = "The `cpanfile` describing dependencies.",

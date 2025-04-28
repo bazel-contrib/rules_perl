@@ -1,4 +1,4 @@
-load("//perl/cpan:perl_cpan_compiler.bzl", "perl_cpan_compiler")
+load("//perl/cpan:cpan_compiler.bzl", "cpan_compiler")
 
 exports_files([
     "cpanfile",
@@ -6,7 +6,7 @@ exports_files([
     "cpanfile.snapshot.lock.json",
 ])
 
-perl_cpan_compiler(
+cpan_compiler(
     name = "compiler",
     cpanfile = "cpanfile",
     lockfile = "cpanfile.snapshot.lock.json",

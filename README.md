@@ -49,19 +49,19 @@ This repository provides a hermetic [Strawberry Perl](https://strawberryperl.com
 
 ## Using Perl Modules
 
-Perl modules from [CPAN](https://www.cpan.org/) can be generated using the `perl_cpan_compiler` rule in
+Perl modules from [CPAN](https://www.cpan.org/) can be generated using the `cpan_compiler` rule in
 conjunction with the `cpan` module extension.
 
 ### Current Steps
 
 1. Create a `cpanfile` per the [Carton](https://metacpan.org/pod/Carton) documentation.
 2. Create an empty `*.json` will need to be created for Bazel to use a lockfile (e.g. `cpanfile.snapshot.lock.json`)
-3. Define a `perl_cpan_compiler` target:
+3. Define a `cpan_compiler` target:
 
   ```python
-  load("//perl/cpan:perl_cpan_compiler.bzl", "perl_cpan_compiler")
+  load("//perl/cpan:cpan_compiler.bzl", "cpan_compiler")
 
-  perl_cpan_compiler(
+  cpan_compiler(
       name = "compiler",
       cpanfile = "cpanfile",
       lockfile = "cpanfile.snapshot.lock.json",
