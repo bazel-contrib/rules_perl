@@ -148,7 +148,7 @@ perl_cpan_archive = repository_rule(
             mandatory = True,
         ),
         "distribution": attr.string(
-            doc = "The distribution of the module as described in the CPAN Metadata.",
+            doc = "The distribution of the module as described in the CPAN Metadata, e.g. `Capture-Tiny-0.48`",
             mandatory = True,
         ),
         "hub_name": attr.string(
