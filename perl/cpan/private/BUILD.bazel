@@ -5,7 +5,7 @@ perl_binary(
     srcs = ["carton_compiler.pl"],
     visibility = ["//visibility:public"],
     deps = [
-        "@rules_perl_deps//:Carton",
-        "@rules_perl_deps//:File-Slurp",
+        "@cpan_compiler_deps//:Carton",
+        "@cpan_compiler_deps//:File-Slurp",
     ],
 )
