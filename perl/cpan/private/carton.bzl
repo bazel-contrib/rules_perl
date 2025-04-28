@@ -27,7 +27,7 @@ perl_library(
 ]
 """
 
-def _perl_cpan_hub_impl(repository_ctx):
+def _cpan_hub_impl(repository_ctx):
     repository_ctx.file("WORKSPACE.bazel", """workspace(name = "{}")""".format(
         repository_ctx.name,
     ))
@@ -37,9 +37,9 @@ def _perl_cpan_hub_impl(repository_ctx):
         dependencies = json.encode_indent(repository_ctx.attr.modules, indent = " " * 4),
     ))
 
-perl_cpan_hub = repository_rule(
+cpan_hub = repository_rule(
     doc = "A hub repository that exposes all CPAN dependencies from a `cpanfile`.",
-    implementation = _perl_cpan_hub_impl,
+    implementation = _cpan_hub_impl,
     attrs = {
         "hub_name": attr.string(
             doc = "The name of the hub.",
@@ -86,7 +86,7 @@ alias(
 )
 """
 
-def _perl_cpan_archive_impl(repository_ctx):
+def _cpan_distribution_archive_impl(repository_ctx):
     results = repository_ctx.download_and_extract(
         repository_ctx.attr.urls,
         sha256 = repository_ctx.attr.sha256,
@@ -139,9 +139,9 @@ def _perl_cpan_archive_impl(repository_ctx):
         "urls": repository_ctx.attr.urls,
     }
 
-perl_cpan_archive = repository_rule(
+cpan_distribution_archive = repository_rule(
     doc = "A repository rule for fetching Perl modules from CPAN and instantiating a target for it.",
-    implementation = _perl_cpan_archive_impl,
+    implementation = _cpan_distribution_archive_impl,
     attrs = {
         "dependencies": attr.string_list(
             doc = "The dependencies of the current module.",
@@ -184,7 +184,7 @@ def install(*, module_ctx, attrs):
 
     for module in lockfile:
         repo_name = "{}__{}".format(attrs.name, module)
-        perl_cpan_archive(
+        cpan_distribution_archive(
             name = repo_name,
             urls = [lockfile[module]["url"]],
             strip_prefix = lockfile[module]["strip_prefix"],
@@ -194,7 +194,7 @@ def install(*, module_ctx, attrs):
             dependencies = lockfile[module]["dependencies"],
         )
 
-    perl_cpan_hub(
+    cpan_hub(
         name = attrs.name,
         hub_name = attrs.name,
         modules = lockfile.keys(),
