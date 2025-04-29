@@ -1,7 +1,7 @@
 workspace(name = "rules_perl")
 
 load("@rules_perl//perl:deps.bzl", "perl_register_toolchains", "perl_rules_dependencies", "perl_rules_dev_dependencies")
-load("//:platforms.bzl", "platforms")
+load("//perl:platforms.bzl", "PLATFORMS")
 
 perl_rules_dependencies()
 
@@ -14,12 +14,12 @@ perl_register_toolchains()
 # other than rules_perl.
 [
     register_toolchains(
-        "@rules_perl//:perl_{os}_{cpu}_toolchain".format(
+        "@rules_perl//perl:perl_{os}_{cpu}_toolchain".format(
             cpu = platform.cpu,
             os = platform.os,
         ),
     )
-    for platform in platforms
+    for platform in PLATFORMS
 ]
 
 # Testing only, do not add to your WORKSPACE

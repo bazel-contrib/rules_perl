@@ -1,14 +1,14 @@
 """Perl rules dependencies"""
 
 load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
-load("//:platforms.bzl", "platforms")
 load("//perl:repo.bzl", _perl_download = "perl_download")
+load(":platforms.bzl", "PLATFORMS")
 
 perl_download = _perl_download
 
 # buildifier: disable=unnamed-macro
 def perl_repos():
-    for platform in platforms:
+    for platform in PLATFORMS:
         perl_download(
             name = "perl_%s_%s" % (platform.os, platform.cpu),
             strip_prefix = platform.strip_prefix,
@@ -21,7 +21,7 @@ def perl_register_toolchains():
     """Register the relocatable perl toolchains."""
     perl_repos()
 
-    for platform in platforms:
+    for platform in PLATFORMS:
         native.register_toolchains(
             "@rules_perl//perl:perl_{os}_{cpu}_toolchain".format(
                 os = platform.os,
@@ -69,7 +69,7 @@ def perl_rules_dev_dependencies():
     _maybe(
         http_archive,
         name = "fcgi",
-        build_file = "//:examples/cpan_remote/fcgi.BUILD",
+        build_file = "//:examples/cpan_remote/BUILD.fcgi.bazel",
         sha256 = "8cfa4e1b14fb8d5acaa22ced672c6af68c0a8e25dc2a9697a0ed7f4a4efb34e4",
         strip_prefix = "FCGI-0.79",
         url = "https://cpan.metacpan.org/authors/id/E/ET/ETHER/FCGI-0.79.tar.gz",
@@ -81,7 +81,7 @@ def perl_rules_dev_dependencies():
     _maybe(
         http_archive,
         name = "genhtml",
-        build_file = "//:examples/genhtml/genhtml.BUILD",
+        build_file = "//:examples/genhtml/BUILD.genhtml.bazel",
         sha256 = "d88b0718f59815862785ac379aed56974b9edd8037567347ae70081cd4a3542a",
         strip_prefix = "lcov-1.15/bin",
         url = "https://github.com/linux-test-project/lcov/archive/refs/tags/v1.15.tar.gz",
