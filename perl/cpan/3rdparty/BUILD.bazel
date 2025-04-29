@@ -1,0 +1,14 @@
+load("//perl/cpan:cpan_compiler.bzl", "cpan_compiler")
+
+exports_files([
+    "cpanfile",
+    "cpanfile.snapshot",
+    "cpanfile.snapshot.lock.json",
+])
+
+cpan_compiler(
+    name = "compiler",
+    cpanfile = "cpanfile",
+    lockfile = "cpanfile.snapshot.lock.json",
+    visibility = ["//visibility:public"],
+)

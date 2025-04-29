@@ -17,6 +17,24 @@ tasks:
     test_targets:
     - "//..."
 
+  cpan_compile_ubuntu2204:
+    name: CPAN Compile
+    platform: ubuntu2204
+    run_targets:
+    # Two compilations are performed to ensure the
+    # results of the first are usable by the second.
+    - "//perl/cpan/3rdparty:compiler"
+    - "//perl/cpan/3rdparty:compiler"
+
+  cpan_compile_macos:
+    name: CPAN Compile
+    platform: macos_arm64
+    run_targets:
+    # Two compilations are performed to ensure the
+    # results of the first are usable by the second.
+    - "//perl/cpan/3rdparty:compiler"
+    - "//perl/cpan/3rdparty:compiler"
+
   e2e_ubuntu2204:
     platform: ubuntu2204
     shell_commands:

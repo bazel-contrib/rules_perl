@@ -49,25 +49,47 @@ This repository provides a hermetic [Strawberry Perl](https://strawberryperl.com
 
 ## Using Perl Modules
 
-This is the first stab at getting a more mature set of Perl rules for Bazel.  Currently, it is a manual process and, hopefully, it will be a map for automation later on.
+Perl modules from [CPAN](https://www.cpan.org/) can be generated using the `cpan_compiler` rule in
+conjunction with the `cpan` module extension.
 
 ### Current Steps
 
-* Manually download the module that you want to use.
-* Add the actual files that you need to your repository.
-  * Highly recommended that you place the files in the directory structure that each Perl file is unpacked into (you may need to run `perl Makefile.PL; make` to see the final paths)
-  * Recommended to create a 'cpan' directory and place the files (in their required path) there.
-  * Test::Mock::Simple does **NOT** follow this pattern as it is being used as a practical example - please see 'Simple Pure Perl Example' section.
-* Add the new module's information to the BUILD file in the root directory of all your modules.
-  * the target in the `deps` attribute
-    * At this time compiled files (result of XS) will be put in the `srcs` attribute
-  * the directory where the module lives in the `env` attribute for the `PERL5LIB` variable
+1. Create a `cpanfile` per the [Carton](https://metacpan.org/pod/Carton) documentation.
+2. Create an empty `*.json` will need to be created for Bazel to use a lockfile (e.g. `cpanfile.snapshot.lock.json`)
+3. Define a `cpan_compiler` target:
 
-#### Dependencies
+  ```python
+  load("//perl/cpan:cpan_compiler.bzl", "cpan_compiler")
 
-The process needs to be repeated for any dependencies that the module needs.
+  cpan_compiler(
+      name = "compiler",
+      cpanfile = "cpanfile",
+      lockfile = "cpanfile.snapshot.lock.json",
+      visibility = ["//visibility:public"],
+  )
+  ```
 
-Eventually, this should be an automated process.
+4. `bazel run` the new target.
+5. Define a new module in `MODULE.bazel` pointing to the Bazel `*.json` lock file:
+
+  ```python
+  cpan = use_extension("@rules_perl//perl/cpan:extensions.bzl", "cpan")
+  cpan.install(
+      name = "cpan",
+      lock = "//perl/cpan/3rdparty:cpanfile.snapshot.lock.json",
+  )
+  use_repo(
+      cpan,
+      "cpan",
+  )
+  ```
+
+### Dependencies
+
+Once the `cpan` module extension is defined, dependencies will be available through the name given to the module.
+Using the example in the steps above, dependencies can be accessed through `@cpan//...`. (e.g. `@cpan//:DateTime`).
+
+Note that [`xs`](https://perldoc.perl.org/perlxs) dependencies are currently not supported by the `cpan` extension module.
 
 ### Simple Pure Perl Example
 
