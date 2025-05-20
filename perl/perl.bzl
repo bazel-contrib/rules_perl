@@ -22,6 +22,7 @@ load(
 )
 load(
     "//perl/private:perl_xs.bzl",
+    _perl_system_headers = "perl_system_headers",
     _perl_xs = "perl_xs",
 )
 load(
@@ -32,6 +33,7 @@ load(
 PerlInfo = _PerlInfo
 perl_binary = _perl_binary
 perl_library = _perl_library
+perl_system_headers = _perl_system_headers
 perl_test = _perl_test
 perl_xs = _perl_xs
 

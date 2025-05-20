@@ -12,7 +12,13 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-load("@rules_perl//perl:perl.bzl", "perl_library", "perl_xs")
+load("@rules_perl//perl:perl.bzl", "perl_library", "perl_system_headers", "perl_xs")
+
+# Use the helper function to create a cc_library for system Perl headers
+perl_system_headers(
+    name = "perl_headers",
+    visibility = ["//visibility:private"],
+)
 
 perl_library(
     name = "FCGI",
@@ -52,6 +58,7 @@ perl_xs(
         "VERSION=\"0.79\"",
         "XS_VERSION=\"0.79\"",
     ],
+    deps = [":perl_headers"],  # Add the Perl headers as a dependency
     output_loc = "arch/auto/FCGI/FCGI.so",
     textual_hdrs = [
         "fastcgi.h",

@@ -2,7 +2,7 @@
 
 load("@bazel_skylib//lib:new_sets.bzl", "sets")
 load("@bazel_skylib//lib:paths.bzl", "paths")
-load("@rules_cc//cc:defs.bzl", "CcInfo", "cc_common")
+load("@rules_cc//cc:defs.bzl", "CcInfo", "cc_common", "cc_library")
 load("@rules_cc//cc:find_cc_toolchain.bzl", "find_cc_toolchain")
 
 _PERL_XS_COPTS = [
@@ -12,6 +12,31 @@ _PERL_XS_COPTS = [
     "-D_LARGEFILE_SOURCE",
     "-D_FILE_OFFSET_BITS=64",
 ]
+
+def perl_system_headers(name, visibility = None):
+    """Creates a cc_library with common system Perl header include paths.
+    
+    This is useful when building XS modules that need to find Perl headers
+    on the system rather than in the hermetic toolchain.
+    
+    Args:
+        name: A unique name for this target.
+        visibility: The visibility of this target.
+    
+    Returns:
+        The name of the created cc_library target.
+    """
+    cc_library(
+        name = name,
+        includes = [
+            "/usr/lib64/perl5/CORE",  # Common path on many Linux systems
+            "/usr/include/perl5",     # Alternative path on some systems
+            "/usr/lib/perl5/CORE",    # Another common path
+            "/usr/local/include/perl5",  # Common path on BSD systems
+        ],
+        visibility = visibility,
+    )
+    return name
 
 def _perl_xs_cc_lib(ctx, toolchain, srcs):
     cc_toolchain = find_cc_toolchain(ctx)

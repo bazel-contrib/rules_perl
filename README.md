@@ -125,3 +125,40 @@ Now you can specify it as a dependency to any script that requires that module:
 
 `perl_binary` (and `perl_test`) sets up the `PERL5LIB` environment variable with values for all `perl_library` dep's `includes`.
 The default includes are `[".", "lib"]`.
+
+## XS Modules and System Perl Headers
+
+When building Perl XS modules (modules with C/C++ code), you may encounter issues where the build cannot find Perl header files like `EXTERN.h`. This typically happens when:
+
+1. You're using a system-installed Perl rather than the hermetic toolchain
+2. You're building XS modules from CPAN that need to find these headers
+
+### Using perl_system_headers
+
+The `perl_system_headers` function creates a `cc_library` with common system Perl header include paths. This can be used as a dependency for XS modules:
+
+```starlark
+load("@rules_perl//perl:perl.bzl", "perl_library", "perl_system_headers", "perl_xs")
+
+# Create a cc_library with common system Perl header paths
+perl_system_headers(
+    name = "perl_headers",
+    visibility = ["//visibility:private"],
+)
+
+# Use it as a dependency in your perl_xs rule
+perl_xs(
+    name = "MyXSModule",
+    srcs = ["MyModule.xs"],
+    deps = [":perl_headers"],  # Add the Perl headers as a dependency
+    # ... other attributes
+)
+```
+
+This helper includes common paths where Perl headers are typically installed on various systems:
+- `/usr/lib64/perl5/CORE` (common on many Linux systems)
+- `/usr/include/perl5` (alternative path on some systems)
+- `/usr/lib/perl5/CORE` (another common path)
+- `/usr/local/include/perl5` (common on BSD systems)
+
+See the `examples/cpan_remote` directory for a complete example of building an XS module (FCGI) with system Perl headers.
