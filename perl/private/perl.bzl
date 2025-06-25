@@ -38,7 +38,6 @@ _EXECUTABLE_PERL_ATTRS = _COMMON_PERL_ATTRS | {
     ),
     "_bash_runfiles": attr.label(
         cfg = "target",
-        allow_single_file = True,
         default = Label("@bazel_tools//tools/bash/runfiles"),
     ),
     "_entrypoint": attr.label(
@@ -88,6 +87,8 @@ def _transitive_deps(ctx, extra_files = [], extra_deps = []):
         transitive_files = depset(transitive = deps.files),
         collect_default = True,
     )
+    if hasattr(ctx.attr, "_bash_runfiles"):
+        files = files.merge(ctx.attr._bash_runfiles.default_runfiles)
     return struct(
         srcs = depset(
             direct = ctx.files.srcs,
@@ -190,12 +191,14 @@ def _perl_binary_implementation(ctx):
 
     output = ctx.actions.declare_file("{}{}".format(ctx.label.name, extension))
     config = ctx.actions.declare_file("{}.config.json".format(ctx.label.name))
-    transitive_sources = _transitive_deps(ctx, extra_files = toolchain.runtime.to_list() + [
-        ctx.file._bash_runfiles,
-        ctx.file._entrypoint,
-        output,
-        config,
-    ])
+    transitive_sources = _transitive_deps(
+        ctx,
+        extra_files = toolchain.runtime.to_list() + [
+            ctx.file._entrypoint,
+            output,
+            config,
+        ],
+    )
 
     ctx.actions.write(
         output = config,
