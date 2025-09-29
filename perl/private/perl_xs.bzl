@@ -72,20 +72,24 @@ def _perl_xs_implementation(ctx):
 
     gen = []
     cc_infos = []
-    args_typemaps = []
-
-    for typemap in ctx.files.typemaps:
-        args_typemaps += ["-typemap", typemap.short_path]
 
     for src in ctx.files.srcs:
         c_execpath = paths.replace_extension(src.path, ".c")
         o_packagepath = paths.join("_objs/execroot/", c_execpath)
         out = ctx.actions.declare_file(o_packagepath)
 
+        # typemap paths are resolved relative to their src.
+        src_dir = paths.dirname(src.path)
+        args_typemaps_relative = []
+        for typemap in ctx.files.typemaps:
+            # Calculate the relative path from the src directory to the typemap path
+            relative_typemap_path = paths.relativize(typemap.path, src_dir)
+            args_typemaps_relative += ["-typemap", relative_typemap_path]
+
         ctx.actions.run(
             outputs = [out],
             inputs = [src] + ctx.files.typemaps,
-            arguments = args_typemaps + ["-output", out.path, src.path],
+            arguments = args_typemaps_relative + ["-output", out.path, src.path],
             progress_message = "Translitterating %s to %s" % (src.short_path, out.short_path),
             executable = xsubpp,
             tools = toolchain_files,
