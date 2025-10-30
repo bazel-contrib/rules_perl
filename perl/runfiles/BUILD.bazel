@@ -1,0 +1,7 @@
+load("//perl:perl_library.bzl", "perl_library")
+
+perl_library(
+    name = "runfiles",
+    srcs = ["Runfiles.pm"],
+    visibility = ["//visibility:public"],
+)
