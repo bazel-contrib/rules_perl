@@ -32,6 +32,11 @@ def _is_xs_header(src):
 
     return False
 
+def _rlocationpath(file, workspace_name):
+    if file.short_path.startswith("../"):
+        return file.short_path[len("../"):]
+    return "{}/{}".format(workspace_name, file.short_path)
+
 def _perl_toolchain_impl(ctx):
     # Find important files and paths.
     interpreter_cmd = None
@@ -72,6 +77,7 @@ def _perl_toolchain_impl(ctx):
             ),
             make_variables = platform_common.TemplateVariableInfo({
                 "PERL": interpreter_cmd_path,
+                "PERL_RLOCATIONPATH": _rlocationpath(interpreter_cmd, ctx.workspace_name),
             }),
         ),
     ]

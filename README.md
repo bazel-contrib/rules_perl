@@ -45,7 +45,7 @@ Modules that require compiling are not yet supported.
 
 ## Windows Support
 
-This repository provides a hermetic [Strawberry Perl](https://strawberryperl.com/) bazel toolchain for Windows. Usage of the toolchain in `perl_` rules is not yet supported.
+This repository provides a hermetic [Strawberry Perl](https://strawberryperl.com/) bazel toolchain for Windows. Usage of the toolchain in `perl_xs` rules is not yet supported.
 
 ## Using Perl Modules
 

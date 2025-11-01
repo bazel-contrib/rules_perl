@@ -1,0 +1,9 @@
+load("//perl:perl_test.bzl", "perl_test")
+
+perl_test(
+    name = "runfiles_test",
+    srcs = ["runfiles_test.t"],
+    data = ["data.txt"],
+    env = {"DATA_FILE": "$(rlocationpath data.txt)"},
+    deps = ["//perl/runfiles"],
+)
