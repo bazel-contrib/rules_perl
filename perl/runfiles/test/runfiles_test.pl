@@ -1,4 +1,3 @@
-#!/usr/bin/env perl
 use strict;
 use warnings;
 
@@ -23,6 +22,12 @@ close $fh;
 
 is($content, "Hello, Perl\n", 'data file content matches');
 
+# Regression test: create() should work when called on an instance
+my $r1 = Runfiles->create();
+ok(defined $r1, 'create() works as class method');
+
+my $r2 = $r1->create();
+ok(defined $r2, 'create() works when called on an instance');
+ok(ref($r2) eq 'Runfiles', 'instance method returns correct class');
+
 done_testing();
-
-

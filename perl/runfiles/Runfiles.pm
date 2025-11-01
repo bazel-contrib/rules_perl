@@ -66,7 +66,8 @@ file cannot be located.
 =cut
 
 sub create {
-    my ($class) = @_;
+    my $package = shift;
+    my $class = ref($package) || $package;
 
     my $self = {
         runfiles_dir     => undef,
