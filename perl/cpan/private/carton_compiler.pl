@@ -173,7 +173,7 @@ sub main {
             }
         }
 
-        my ($author) = $data->{pathname} =~ m|/([^/]+)/[^/]+$|;
+        my ($author) = $data->{pathname} =~ m|^(?:[^\/]*\/){2}([^\/]+)/|;
         my $release = get_release($author, $module);
         my $key = sanitize_name($release->{name});
 
