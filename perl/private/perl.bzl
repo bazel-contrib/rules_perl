@@ -36,6 +36,10 @@ _EXECUTABLE_PERL_ATTRS = _COMMON_PERL_ATTRS | {
         doc = "The name of the source file that is the main entry point of the application.",
         allow_single_file = _PERL_FILE_TYPES,
     ),
+    "perlopt": attr.string_list(
+        doc = "List of arguments to pass to the Perl interpreter (e.g., ['-T'] for taint mode) in addition to the arguments passed by the toolchain.",
+        default = [],
+    ),
     "_bash_runfiles": attr.label(
         cfg = "target",
         default = Label("@bazel_tools//tools/bash/runfiles"),
@@ -204,6 +208,7 @@ def _perl_binary_implementation(ctx):
         output = config,
         content = json.encode_indent({
             "includes": include_paths.to_list(),
+            "perlopt": toolchain.perlopt + ctx.attr.perlopt,
             "runfiles": [
                 _rlocationpath(src, ctx.workspace_name)
                 for src in depset(transitive = [transitive_sources.srcs, toolchain.runtime]).to_list()

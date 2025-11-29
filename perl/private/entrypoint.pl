@@ -31,6 +31,7 @@ close $fh;
 
 my $config = decode_json($json_text);
 my $includes = $config->{includes} // [];
+my $perlopt = $config->{perlopt} // [];
 
 # Create RUNFILES_DIR if not set
 my $runfiles = $ENV{RUNFILES_DIR};
@@ -82,7 +83,7 @@ my $perl = abs_path($^X);
 my @inc_flags = map { ('-I', $_) } @include_paths;
 
 # Build the full command array
-my @cmd = ($perl, @inc_flags, $main_path, @extra_args);
+my @cmd = ($perl, @$perlopt, @inc_flags, $main_path, @extra_args);
 
 # Debug output if RULES_PERL_DEBUG is set
 if (defined $ENV{RULES_PERL_DEBUG}) {
