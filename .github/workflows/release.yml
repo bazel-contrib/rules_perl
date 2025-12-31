@@ -1,0 +1,60 @@
+name: Release
+
+on:
+  release:
+    types: [created]
+
+permissions:
+  contents: write
+
+jobs:
+  build-release-artifact:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Create release archive
+        run: |
+          # Get the tag name (e.g., v0.6.0 -> 0.6.0)
+          VERSION="${GITHUB_REF#refs/tags/}"
+          
+          # Create archive with proper structure for Bazel
+          # The prefix should match what users will use in strip_prefix
+          git archive --format=tar.gz --prefix=rules_perl-${VERSION}/ -o rules_perl-${VERSION}.tar.gz HEAD
+          
+          # Calculate SHA256 for documentation
+          SHA256=$(shasum -a 256 rules_perl-${VERSION}.tar.gz | awk '{print $1}')
+          
+          # Create a file with instructions for users
+          cat > release-notes.txt << EOF
+          Release Artifact for rules_perl ${VERSION}
+          
+          To use this release in your Bazel WORKSPACE:
+          
+          load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
+          
+          http_archive(
+              name = "rules_perl",
+              sha256 = "${SHA256}",
+              strip_prefix = "rules_perl-${VERSION}",
+              urls = ["https://github.com/bazel-contrib/rules_perl/releases/download/${VERSION}/rules_perl-${VERSION}.tar.gz"],
+          )
+          
+          load("@rules_perl//perl:deps.bzl", "perl_register_toolchains", "perl_rules_dependencies")
+          
+          perl_rules_dependencies()
+          perl_register_toolchains()
+          EOF
+          
+          echo "Created rules_perl-${VERSION}.tar.gz with SHA256: ${SHA256}"
+          cat release-notes.txt
+
+      - name: Upload release archive
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            rules_perl-*.tar.gz
+            release-notes.txt
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
