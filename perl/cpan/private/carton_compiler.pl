@@ -173,7 +173,8 @@ sub main {
             }
         }
 
-        my ($author) = $data->{pathname} =~ m|/([^/]+)/[^/]+$|;
+        my ($author) = ($data->{pathname} =~ m|^\w/\w\w/([^\/]+)/|) or die "Failed to extract author from pathname: $data->{pathname}\n";
+
         my $release = get_release($author, $module);
         my $key = sanitize_name($release->{name});
 
