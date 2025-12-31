@@ -4,6 +4,26 @@ load("//perl/cpan/private:carton.bzl", "install")
 
 _install_tag = tag_class(
     attrs = {
+        "add_deps": attr.string_list_dict(
+            doc = """
+                Add dependencies to perl_* targets. Keys are packages, values are packages.
+
+                Example:
+
+                    add_deps = {"App-cloc": ["Parallel-ForkManager"]},
+                """,
+            default = {},
+        ),
+        "bins": attr.string_list_dict(
+            doc = """
+                Perl binary targets. Keys are packages, values are lists of bin paths.
+
+                Example:
+
+                    bins = {"App-cloc": ["bin/cloc"]},
+                """,
+            default = {},
+        ),
         "lock": attr.label(
             doc = "The Bazel generated lockfile associated with `cpanfile.snapshot`.",
             allow_files = True,
