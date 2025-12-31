@@ -6,15 +6,38 @@ The Perl Toolchain utilizes the [relocatable perl](https://github.com/skaji/relo
 
 ## Getting Started
 
-To import rules_perl in your project, you first need to add it to your `WORKSPACE` file:
+To import rules_perl in your project, you first need to add it to your `WORKSPACE` file.
 
+### Using a Release (Recommended)
 
-If you are still using `WORKSPACE` to manage your dependencies:
+If you are using `WORKSPACE` to manage your dependencies, use `http_archive` to fetch a release artifact:
+
+```python
+load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
+
+http_archive(
+    name = "rules_perl",
+    sha256 = "INSERT_SHA256_HERE",
+    strip_prefix = "rules_perl-VERSION",
+    urls = ["https://github.com/bazel-contrib/rules_perl/releases/download/VERSION/rules_perl-VERSION.tar.gz"],
+)
+
+load("@rules_perl//perl:deps.bzl", "perl_register_toolchains", "perl_rules_dependencies")
+
+perl_rules_dependencies()
+perl_register_toolchains()
+```
+
+Replace `VERSION` with the desired release version (e.g., `0.6.0`) and `INSERT_SHA256_HERE` with the SHA256 checksum from the release notes.
+
+### Using Git (Not Recommended)
+
+Alternatively, you can use `git_repository` to fetch from the main branch, though this requires git in your execution environment and cannot be cached:
 
 ```python
 git_repository(
     name = "rules_perl",
-    remote = "https://github.com/bazelbuild/rules_perl.git",
+    remote = "https://github.com/bazel-contrib/rules_perl.git",
     branch = "main",
 )
 
