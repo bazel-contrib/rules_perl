@@ -22,7 +22,7 @@ perl_register_toolchains()
             cpu = platform.cpu,
             os = platform.os,
         ),
-    ),
+    )
     for platform in PLATFORMS
 ]
 
