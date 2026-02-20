@@ -151,7 +151,6 @@ def _perl_library_implementation(ctx):
 perl_library = rule(
     attrs = _LIBRARY_PERL_ATTRS,
     implementation = _perl_library_implementation,
-    toolchains = ["@rules_perl//perl:toolchain_type"],
 )
 
 def _get_main_from_sources(ctx):
@@ -173,7 +172,7 @@ def _rlocationpath(file, workspace_name):
     return "{}/{}".format(workspace_name, file.short_path)
 
 def _perl_binary_implementation(ctx):
-    toolchain = ctx.toolchains["@rules_perl//perl:toolchain_type"].perl_runtime
+    toolchain = ctx.toolchains["@rules_perl//perl:target_toolchain_type"].perl_runtime
     interpreter = toolchain.interpreter
 
     main = ctx.file.main
@@ -246,7 +245,7 @@ perl_binary = rule(
     attrs = _EXECUTABLE_PERL_ATTRS,
     executable = True,
     implementation = _perl_binary_implementation,
-    toolchains = ["@rules_perl//perl:toolchain_type"],
+    toolchains = ["@rules_perl//perl:target_toolchain_type"],
 )
 
 perl_test = rule(
@@ -254,5 +253,5 @@ perl_test = rule(
     executable = True,
     test = True,
     implementation = _perl_test_implementation,
-    toolchains = ["@rules_perl//perl:toolchain_type"],
+    toolchains = ["@rules_perl//perl:target_toolchain_type"],
 )
