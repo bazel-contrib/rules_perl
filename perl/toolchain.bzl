@@ -113,10 +113,9 @@ def _current_perl_toolchain_impl(ctx):
         ),
     ]
 
-# This rule exists so that the current exec perl toolchain can be used in the
-# `toolchains` attribute of other rules, such as genrule. It allows exposing a
-# perl_toolchain after toolchain resolution has happened, to a rule which
-# expects a concrete implementation of a toolchain, rather than a
+# This rule exists so that the current exec perl toolchain can be used in the `toolchains` attribute
+# of other rules, such as genrule. It allows exposing a perl_toolchain after toolchain resolution
+# has happened, to a rule which expects a concrete implementation of a toolchain, rather than a
 # toolchain_type which could be resolved to that toolchain.
 #
 # See https://github.com/bazelbuild/bazel/issues/14009#issuecomment-921960766

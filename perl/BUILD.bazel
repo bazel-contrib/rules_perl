@@ -7,19 +7,16 @@ alias(
     visibility = ["//visibility:public"],
 )
 
-# toolchain_type is the execution-platform toolchain type. Rules that
-# only need Perl at build time (perl_xs, genrule, etc.) resolve this toolchain
-# based on the *execution* platform. This is also the original toolchain_type
-# name, preserved for backward compatibility.
+# toolchain_type is the execution-platform toolchain type. Rules that only need Perl at build time
+# (perl_xs, genrule, etc.) resolve this toolchain based on the *execution* platform.
 toolchain_type(
     name = "toolchain_type",
     visibility = ["//visibility:public"],
 )
 
-# target_toolchain_type is the target-platform toolchain type. Rules that
-# bundle a Perl interpreter into the final output (perl_binary, perl_test)
-# resolve this toolchain based on the *target* platform so that the correct
-# interpreter is included for the platform the binary will run on.
+# target_toolchain_type is the target-platform toolchain type. Rules that bundle a Perl interpreter
+# into the final output (perl_binary, perl_test) resolve this toolchain based on the *target*
+# platform so that the correct interpreter is included for the platform the binary will run on.
 toolchain_type(
     name = "target_toolchain_type",
     visibility = ["//visibility:public"],
@@ -77,10 +74,9 @@ toolchain_type(
     for platform in PLATFORMS
 ]
 
-# This rule exists so that the current exec perl toolchain can be used in the
-# `toolchains` attribute of other rules, such as genrule. It allows exposing a
-# perl_toolchain after toolchain resolution has happened, to a rule which
-# expects a concrete implementation of a toolchain, rather than a
+# This rule exists so that the current exec perl toolchain can be used in the `toolchains` attribute
+# of other rules, such as genrule. It allows exposing a perl_toolchain after toolchain resolution
+# has happened, to a rule which expects a concrete implementation of a toolchain, rather than a
 # toolchain_type which could be resolved to that toolchain.
 #
 # See https://github.com/bazelbuild/bazel/issues/14009#issuecomment-921960766
