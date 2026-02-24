@@ -1,5 +1,5 @@
 load(":platforms.bzl", "PLATFORMS")
-load(":toolchain.bzl", "current_perl_toolchain", "perl_toolchain")
+load(":toolchain.bzl", "current_exec_perl_toolchain", "current_perl_toolchain", "perl_toolchain")
 
 alias(
     name = "binary_wrapper.tpl",
@@ -60,5 +60,10 @@ toolchain_type(
 # See https://github.com/bazelbuild/bazel/issues/14009#issuecomment-921960766
 current_perl_toolchain(
     name = "current_toolchain",
+    visibility = ["//visibility:public"],
+)
+
+current_exec_perl_toolchain(
+    name = "current_exec_toolchain",
     visibility = ["//visibility:public"],
 )

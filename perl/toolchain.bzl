@@ -113,13 +113,41 @@ def _current_perl_toolchain_impl(ctx):
         ),
     ]
 
-# This rule exists so that the current perl toolchain can be used in the `toolchains` attribute of
-# other rules, such as genrule. It allows exposing a perl_toolchain after toolchain resolution has
-# happened, to a rule which expects a concrete implementation of a toolchain, rather than a
-# toochain_type which could be resolved to that toolchain.
-#
-# See https://github.com/bazelbuild/bazel/issues/14009#issuecomment-921960766
 current_perl_toolchain = rule(
+    doc = """\
+This rule exists so that the current perl toolchain can be used in the `toolchains` attribute of
+other rules, such as genrule. It allows exposing a perl_toolchain after toolchain resolution has
+happened, to a rule which expects a concrete implementation of a toolchain, rather than a
+toochain_type which could be resolved to that toolchain.
+
+See https://github.com/bazelbuild/bazel/issues/14009#issuecomment-921960766
+""",
     implementation = _current_perl_toolchain_impl,
     toolchains = ["@rules_perl//perl:toolchain_type"],
+)
+
+def _current_exec_perl_toolchain_impl(ctx):
+    toolchain = ctx.attr._current_perl_toolchain[platform_common.ToolchainInfo]
+
+    return [
+        toolchain,
+        toolchain.make_variables,
+        DefaultInfo(
+            runfiles = ctx.runfiles(
+                [],
+                transitive_files = toolchain.perl_runtime.runtime,
+            ),
+            files = toolchain.perl_runtime.runtime,
+        ),
+    ]
+
+current_exec_perl_toolchain = rule(
+    doc = "Similar to `current_perl_toolchain` but always provides the toolchain for the exec configuration.",
+    implementation = _current_exec_perl_toolchain_impl,
+    attrs = {
+        "_current_perl_toolchain": attr.label(
+            cfg = "exec",
+            default = Label("//perl:current_toolchain"),
+        ),
+    },
 )
