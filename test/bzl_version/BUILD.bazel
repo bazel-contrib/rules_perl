@@ -1,0 +1,17 @@
+load("//perl:perl_test.bzl", "perl_test")
+
+perl_test(
+    name = "bzl_version_test",
+    srcs = [
+        "bzl_version_test.t",
+    ],
+    data = [
+        "//:MODULE.bazel",
+        "//:version.bzl",
+    ],
+    env = {
+        "MODULE_BAZEL": "$(rlocationpath //:MODULE.bazel)",
+        "VERSION_BZL": "$(rlocationpath //:version.bzl)",
+    },
+    deps = ["//perl/runfiles"],
+)

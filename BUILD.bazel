@@ -1,3 +1,9 @@
+exports_files([
+    "LICENSE.txt",
+    "MODULE.bazel",
+    "version.bzl",
+])
+
 [
     alias(
         name = name,
