@@ -151,7 +151,6 @@ def _perl_library_implementation(ctx):
 perl_library = rule(
     attrs = _LIBRARY_PERL_ATTRS,
     implementation = _perl_library_implementation,
-    toolchains = ["@rules_perl//perl:toolchain_type"],
 )
 
 def _get_main_from_sources(ctx):
