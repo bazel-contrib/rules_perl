@@ -36,8 +36,8 @@ jobs:
       # Ensure this does not exclude the module used for the .bcr presubmit job.
       - name: Create release artifact
         run: |
-          tar -czf ${{ github.workspace }}/.github/rules_perl.tar.gz --exclude=".git" --exclude=".github" -C ${{ github.workspace }} .
-          sha256_base64="$(shasum --algorithm 256 ${{ github.workspace }}/.github/rules_perl.tar.gz | awk '{ print $1 }' | xxd -r -p | base64)"
+          tar -czf ${{ github.workspace }}/.github/rules_perl-${{ env.RELEASE_VERSION }}.tar.gz --exclude=".git" --exclude=".github" -C ${{ github.workspace }} .
+          sha256_base64="$(shasum --algorithm 256 ${{ github.workspace }}/.github/rules_perl-${{ env.RELEASE_VERSION }}.tar.gz | awk '{ print $1 }' | xxd -r -p | base64)"
           echo "ARCHIVE_SHA256_BASE64=${sha256_base64}" >> "${GITHUB_ENV}"
       - name: Generate release notes
         run: |
@@ -53,7 +53,7 @@ jobs:
           tag_name: ${{ env.RELEASE_VERSION }}
           body_path: ${{ github.workspace }}/.github/release_notes.txt
           target_commitish: ${{ github.base_ref }}
-          files: ${{ github.workspace }}/.github/rules_perl.tar.gz
+          files: ${{ github.workspace }}/.github/rules_perl-${{ env.RELEASE_VERSION }}.tar.gz
 
   bcr-publish:
     needs: [release]
