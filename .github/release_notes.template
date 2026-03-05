@@ -1,0 +1,24 @@
+## Using Bzlmod (MODULE.bazel)
+
+```starlark
+bazel_dep(name = "rules_perl", version = "{version}")
+```
+
+## Using WORKSPACE.bazel
+
+```starlark
+load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
+
+http_archive(
+    name = "rules_perl",
+    sha256 = "{sha256_base64}",
+    strip_prefix = "rules_perl-{version}",
+    url = "https://github.com/bazelbuild/rules_perl/releases/download/{version}/rules_perl-{version}.tar.gz",
+)
+
+load("@rules_perl//perl:deps.bzl", "perl_register_toolchains", "perl_rules_dependencies")
+
+perl_rules_dependencies()
+
+perl_register_toolchains()
+```
