@@ -27,6 +27,10 @@ def perl_register_toolchains():
                 os = platform.os,
                 cpu = platform.cpu,
             ),
+            "@rules_perl//perl:perl_{os}_{cpu}_target_toolchain".format(
+                os = platform.os,
+                cpu = platform.cpu,
+            ),
         )
 
 def perl_rules_dependencies():
