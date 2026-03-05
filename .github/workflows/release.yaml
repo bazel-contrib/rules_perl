@@ -24,7 +24,7 @@ jobs:
       release_version: ${{ steps.version.outputs.release_version }}
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v6
         with:
           ref: main
       - name: Detect the current version
