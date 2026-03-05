@@ -40,7 +40,7 @@ toolchain_type(
                 cpu = platform.cpu,
                 os = platform.os,
             ),
-            exec_compatible_with = platform.exec_compatible_with,
+            target_compatible_with = platform.target_compatible_with,
             toolchain = ":perl_{os}_{cpu}_toolchain_impl".format(
                 cpu = platform.cpu,
                 os = platform.os,
