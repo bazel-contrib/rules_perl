@@ -66,7 +66,9 @@ jobs:
   bcr-publish:
     needs: [release]
     permissions:
+      attestations: write
       contents: write
+      id-token: write
     uses: ./.github/workflows/bcr-publish.yaml
     with:
       release_version: ${{ needs.release.outputs.release_version }}
