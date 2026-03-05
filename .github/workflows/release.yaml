@@ -46,22 +46,14 @@ jobs:
           | sed 's#{sha256_base64}#${{ env.ARCHIVE_SHA256_BASE64 }}#g' \
           > ${{ github.workspace }}/.github/release_notes.txt
       - name: Release
-        uses: softprops/action-gh-release@v1
+        uses: softprops/action-gh-release@v2
         id: rules_release
         with:
           generate_release_notes: true
           tag_name: ${{ env.RELEASE_VERSION }}
           body_path: ${{ github.workspace }}/.github/release_notes.txt
           target_commitish: ${{ github.base_ref }}
-      - name: "Upload the rules archive"
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ steps.rules_release.outputs.upload_url }}
-          asset_name: rules_perl-${{ env.RELEASE_VERSION }}.tar.gz
-          asset_path: ${{ github.workspace }}/.github/rules_perl.tar.gz
-          asset_content_type: application/gzip
+          files: ${{ github.workspace }}/.github/rules_perl.tar.gz
 
   bcr-publish:
     needs: [release]
