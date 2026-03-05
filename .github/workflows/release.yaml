@@ -71,6 +71,6 @@ jobs:
       id-token: write
     uses: ./.github/workflows/bcr-publish.yaml
     with:
-      release_version: ${{ needs.release.outputs.release_version }}
+      tag_name: ${{ needs.release.outputs.release_version }}
     secrets:
       BCR_PUBLISH_TOKEN: ${{ secrets.BCR_PUBLISH_TOKEN }}
