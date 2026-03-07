@@ -28,6 +28,7 @@ jobs:
       registry_fork: bazel-contrib/bazel-central-registry
       author_name: skeletonkey
       author_email: 1487600+skeletonkey@users.noreply.github.com
+      attest: true
       draft: false
     permissions:
       attestations: write

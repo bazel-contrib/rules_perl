@@ -20,6 +20,7 @@ jobs:
       contents: write
       actions: write
       attestations: write
+      id-token: write
     outputs:
       release_version: ${{ steps.version.outputs.release_version }}
     runs-on: ubuntu-latest
@@ -45,6 +46,11 @@ jobs:
           sed 's/{version}/${{env.RELEASE_VERSION}}/g' ${{ github.workspace }}/.github/release_notes.template \
           | sed 's#{sha256_base64}#${{ env.ARCHIVE_SHA256_BASE64 }}#g' \
           > ${{ github.workspace }}/.github/release_notes.txt
+      - name: Generate attestation
+        uses: actions/attest-build-provenance@v2
+        id: attest
+        with:
+          subject-path: ${{ github.workspace }}/.github/rules_perl-${{ env.RELEASE_VERSION }}.tar.gz
       - name: Release
         uses: softprops/action-gh-release@v2
         id: rules_release
