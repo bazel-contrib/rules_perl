@@ -28,7 +28,10 @@ jobs:
       registry_fork: bazel-contrib/bazel-central-registry
       author_name: skeletonkey
       author_email: 1487600+skeletonkey@users.noreply.github.com
-      attest: true
+      # Using our own release.yaml workflow for attestation, not the shared release_ruleset.yaml
+      # Per publish-to-bcr docs: "If you are not using the reusable release workflow from
+      # release_ruleset.yaml to produce attestations, you may want to skip this."
+      attest: false
       draft: false
     permissions:
       attestations: write
