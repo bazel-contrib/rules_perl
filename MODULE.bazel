@@ -4,7 +4,7 @@ Perl rules
 
 module(
     name = "rules_perl",
-    version = "0.6.6",
+    version = "0.6.7",
 )
 
 bazel_dep(name = "platforms", version = "1.0.0")

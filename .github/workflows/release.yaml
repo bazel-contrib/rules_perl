@@ -51,6 +51,8 @@ jobs:
         id: attest
         with:
           subject-path: ${{ github.workspace }}/.github/rules_perl-${{ env.RELEASE_VERSION }}.tar.gz
+      - name: Rename attestation bundle
+        run: mv "${{ steps.attest.outputs.bundle-path }}" "${{ github.workspace }}/.github/rules_perl-${{ env.RELEASE_VERSION }}.tar.gz.intoto.jsonl"
       - name: Release
         uses: softprops/action-gh-release@v2
         id: rules_release
@@ -59,7 +61,9 @@ jobs:
           tag_name: ${{ env.RELEASE_VERSION }}
           body_path: ${{ github.workspace }}/.github/release_notes.txt
           target_commitish: ${{ github.base_ref }}
-          files: ${{ github.workspace }}/.github/rules_perl-${{ env.RELEASE_VERSION }}.tar.gz
+          files: |
+            ${{ github.workspace }}/.github/rules_perl-${{ env.RELEASE_VERSION }}.tar.gz
+            ${{ github.workspace }}/.github/rules_perl-${{ env.RELEASE_VERSION }}.tar.gz.intoto.jsonl
 
   bcr-publish:
     needs: [release]
