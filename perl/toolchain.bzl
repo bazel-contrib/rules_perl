@@ -127,7 +127,7 @@ See https://github.com/bazelbuild/bazel/issues/14009#issuecomment-921960766
 )
 
 def _current_exec_perl_toolchain_impl(ctx):
-    toolchain = ctx.attr._current_perl_toolchain[platform_common.ToolchainInfo]
+    toolchain = ctx.toolchains["@rules_perl//perl:exec_toolchain_type"]
 
     return [
         toolchain,
@@ -144,10 +144,5 @@ def _current_exec_perl_toolchain_impl(ctx):
 current_exec_perl_toolchain = rule(
     doc = "Similar to `current_perl_toolchain` but always provides the toolchain for the exec configuration.",
     implementation = _current_exec_perl_toolchain_impl,
-    attrs = {
-        "_current_perl_toolchain": attr.label(
-            cfg = "exec",
-            default = Label("//perl:current_toolchain"),
-        ),
-    },
+    toolchains = ["@rules_perl//perl:exec_toolchain_type"],
 )

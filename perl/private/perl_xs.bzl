@@ -66,7 +66,7 @@ def _perl_xs_cc_lib(ctx, toolchain, srcs):
 
 def _perl_xs_implementation(ctx):
     toolchain = ctx.toolchains["@rules_perl//perl:toolchain_type"].perl_runtime
-    exec_toolchain = ctx.attr._perl_toolchain[platform_common.ToolchainInfo].perl_runtime
+    exec_toolchain = ctx.toolchains["@rules_perl//perl:exec_toolchain_type"].perl_runtime
     xsubpp = exec_toolchain.xsubpp
 
     toolchain_files = toolchain.runtime
@@ -168,14 +168,11 @@ perl_xs = rule(
             doc = "Typemap files used by xsubpp when translating XS. Paths are resolved relative to each .xs file's directory.",
             allow_files = True,
         ),
-        "_perl_toolchain": attr.label(
-            cfg = "exec",
-            default = Label("//perl:current_toolchain"),
-        ),
     },
     implementation = _perl_xs_implementation,
     fragments = ["cpp"],
     toolchains = [
+        "@rules_perl//perl:exec_toolchain_type",
         "@rules_perl//perl:toolchain_type",
         "@bazel_tools//tools/cpp:toolchain_type",
     ],

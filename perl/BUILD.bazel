@@ -16,6 +16,11 @@ toolchain_type(
     visibility = ["//visibility:public"],
 )
 
+toolchain_type(
+    name = "exec_toolchain_type",
+    visibility = ["//visibility:public"],
+)
+
 [
     (
         # toolchain_impl gathers information about the Perl toolchain.
@@ -46,6 +51,19 @@ toolchain_type(
                 os = platform.os,
             ),
             toolchain_type = ":toolchain_type",
+            visibility = ["//visibility:public"],
+        ),
+        toolchain(
+            name = "perl_{os}_{cpu}_toolchain_exec".format(
+                cpu = platform.cpu,
+                os = platform.os,
+            ),
+            exec_compatible_with = platform.target_compatible_with,
+            toolchain = ":perl_{os}_{cpu}_toolchain_impl".format(
+                cpu = platform.cpu,
+                os = platform.os,
+            ),
+            toolchain_type = ":exec_toolchain_type",
             visibility = ["//visibility:public"],
         ),
     )
