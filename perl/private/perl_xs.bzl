@@ -66,7 +66,8 @@ def _perl_xs_cc_lib(ctx, toolchain, srcs):
 
 def _perl_xs_implementation(ctx):
     toolchain = ctx.toolchains["@rules_perl//perl:toolchain_type"].perl_runtime
-    xsubpp = toolchain.xsubpp
+    exec_toolchain = ctx.attr._perl_toolchain[platform_common.ToolchainInfo].perl_runtime
+    xsubpp = exec_toolchain.xsubpp
 
     toolchain_files = toolchain.runtime
 
@@ -109,11 +110,17 @@ def _perl_xs_implementation(ctx):
     else:
         output = ctx.actions.declare_file(ctx.label.name + ".so")
 
-    ctx.actions.run_shell(
+    ctx.actions.run(
         outputs = [output],
         inputs = [dyn_lib],
-        arguments = [dyn_lib.path, output.path],
-        command = "cp $1 $2",
+        executable = exec_toolchain.interpreter,
+        arguments = [
+            "-e",
+            "use File::Copy qw(copy); copy($ARGV[0], $ARGV[1]) or die $!;",
+            dyn_lib.path,
+            output.path,
+        ],
+        mnemonic = "PerlCopySo",
     )
 
     return [
@@ -161,8 +168,9 @@ perl_xs = rule(
             doc = "Typemap files used by xsubpp when translating XS. Paths are resolved relative to each .xs file's directory.",
             allow_files = True,
         ),
-        "_cc_toolchain": attr.label(
-            default = Label("@bazel_tools//tools/cpp:current_cc_toolchain"),
+        "_perl_toolchain": attr.label(
+            cfg = "exec",
+            default = Label("//perl:current_toolchain"),
         ),
     },
     implementation = _perl_xs_implementation,
