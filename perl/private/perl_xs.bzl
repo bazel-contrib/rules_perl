@@ -87,6 +87,7 @@ def _perl_xs_implementation(ctx):
             args_typemaps_relative += ["-typemap", relative_typemap_path]
 
         ctx.actions.run(
+            mnemonic = "PerlTranslitterate",
             outputs = [out],
             inputs = [src] + ctx.files.typemaps,
             arguments = args_typemaps_relative + ["-output", out.path, src.path],
@@ -121,17 +122,48 @@ def _perl_xs_implementation(ctx):
     ]
 
 perl_xs = rule(
+    doc = """Builds a Perl XS extension as a shared library (.so).
+
+    Translates `.xs` sources to C via xsubpp, compiles and links them (with optional
+    extra C/C++ sources and typemaps), and produces a single shared library suitable
+    for loading with `DynaLoader` / `use` from Perl.
+    """,
     attrs = {
-        "cc_srcs": attr.label_list(allow_files = [".c", ".cc"]),
-        "copts": attr.string_list(),
-        "defines": attr.string_list(),
-        "deps": attr.label_list(providers = [CcInfo]),
-        "linkopts": attr.string_list(),
-        "output_loc": attr.string(),
-        "srcs": attr.label_list(allow_files = [".xs"]),
-        "textual_hdrs": attr.label_list(allow_files = True),
-        "typemaps": attr.label_list(allow_files = True),
-        "_cc_toolchain": attr.label(default = Label("@bazel_tools//tools/cpp:current_cc_toolchain")),
+        "cc_srcs": attr.label_list(
+            doc = "Additional C or C++ source files compiled and linked into the extension.",
+            allow_files = [".c", ".cc"],
+        ),
+        "copts": attr.string_list(
+            doc = "Extra compiler flags passed to the C/C++ compilation.",
+        ),
+        "defines": attr.string_list(
+            doc = "Preprocessor defines (e.g. -DNAME or -DNAME=value) for compilation.",
+        ),
+        "deps": attr.label_list(
+            doc = "Targets providing CcInfo (e.g. cc_library) to link with the extension.",
+            providers = [CcInfo],
+        ),
+        "linkopts": attr.string_list(
+            doc = "Extra linker flags passed when linking the shared library.",
+        ),
+        "output_loc": attr.string(
+            doc = "Optional output path for the shared library. If empty, defaults to <target_name>.so.",
+        ),
+        "srcs": attr.label_list(
+            doc = "Perl XS (.xs) source files. Each is translated to C by xsubpp and then compiled.",
+            allow_files = [".xs"],
+        ),
+        "textual_hdrs": attr.label_list(
+            doc = "Header files included in the build. Their directories are added to the include path.",
+            allow_files = True,
+        ),
+        "typemaps": attr.label_list(
+            doc = "Typemap files used by xsubpp when translating XS. Paths are resolved relative to each .xs file's directory.",
+            allow_files = True,
+        ),
+        "_cc_toolchain": attr.label(
+            default = Label("@bazel_tools//tools/cpp:current_cc_toolchain"),
+        ),
     },
     implementation = _perl_xs_implementation,
     fragments = ["cpp"],
