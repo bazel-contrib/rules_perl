@@ -18,10 +18,6 @@ perl_register_toolchains()
             cpu = platform.cpu,
             os = platform.os,
         ),
-        "@rules_perl//perl:perl_{os}_{cpu}_target_toolchain".format(
-            cpu = platform.cpu,
-            os = platform.os,
-        ),
     )
     for platform in PLATFORMS
 ]

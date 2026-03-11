@@ -113,19 +113,21 @@ def _current_perl_toolchain_impl(ctx):
         ),
     ]
 
-# This rule exists so that the current exec perl toolchain can be used in the `toolchains` attribute
-# of other rules, such as genrule. It allows exposing a perl_toolchain after toolchain resolution
-# has happened, to a rule which expects a concrete implementation of a toolchain, rather than a
-# toolchain_type which could be resolved to that toolchain.
-#
-# See https://github.com/bazelbuild/bazel/issues/14009#issuecomment-921960766
 current_perl_toolchain = rule(
+    doc = """\
+This rule exists so that the current perl toolchain can be used in the `toolchains` attribute of
+other rules, such as genrule. It allows exposing a perl_toolchain after toolchain resolution has
+happened, to a rule which expects a concrete implementation of a toolchain, rather than a
+toochain_type which could be resolved to that toolchain.
+
+See https://github.com/bazelbuild/bazel/issues/14009#issuecomment-921960766
+""",
     implementation = _current_perl_toolchain_impl,
     toolchains = ["@rules_perl//perl:toolchain_type"],
 )
 
-def _current_perl_target_toolchain_impl(ctx):
-    toolchain = ctx.toolchains["@rules_perl//perl:target_toolchain_type"]
+def _current_exec_perl_toolchain_impl(ctx):
+    toolchain = ctx.toolchains["@rules_perl//perl:exec_toolchain_type"]
 
     return [
         toolchain,
@@ -139,8 +141,8 @@ def _current_perl_target_toolchain_impl(ctx):
         ),
     ]
 
-# Same as current_perl_toolchain but resolves based on the target platform.
-current_perl_target_toolchain = rule(
-    implementation = _current_perl_target_toolchain_impl,
-    toolchains = ["@rules_perl//perl:target_toolchain_type"],
+current_exec_perl_toolchain = rule(
+    doc = "Similar to `current_perl_toolchain` but always provides the toolchain for the exec configuration.",
+    implementation = _current_exec_perl_toolchain_impl,
+    toolchains = ["@rules_perl//perl:exec_toolchain_type"],
 )
