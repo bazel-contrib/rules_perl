@@ -1,3 +1,3 @@
 """rules_perl version"""
 
-VERSION = "0.6.7"
+VERSION = "1.0.0"
