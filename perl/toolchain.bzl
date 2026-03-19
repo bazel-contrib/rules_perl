@@ -65,6 +65,11 @@ def _perl_toolchain_impl(ctx):
     if ctx.target_platform_has_constraint(ctx.attr._windows_constraint[platform_common.ConstraintValueInfo]):
         interpreter_cmd_path = interpreter_cmd.path.replace("/", "\\")
 
+    template_variable_info = platform_common.TemplateVariableInfo({
+        "PERL": interpreter_cmd_path,
+        "PERL_RLOCATIONPATH": _rlocationpath(interpreter_cmd, ctx.workspace_name),
+    })
+
     return [
         platform_common.ToolchainInfo(
             name = ctx.label.name,
@@ -75,11 +80,9 @@ def _perl_toolchain_impl(ctx):
                 runtime = depset(ctx.files.runtime),
                 perlopt = ctx.attr.perlopt,
             ),
-            make_variables = platform_common.TemplateVariableInfo({
-                "PERL": interpreter_cmd_path,
-                "PERL_RLOCATIONPATH": _rlocationpath(interpreter_cmd, ctx.workspace_name),
-            }),
+            make_variables = template_variable_info,
         ),
+        template_variable_info,
     ]
 
 perl_toolchain = rule(
