@@ -13,6 +13,11 @@ _PERL_XS_COPTS = [
     "-D_FILE_OFFSET_BITS=64",
 ]
 
+_MACOS_LINKOPTS = [
+    "-undefined",
+    "dynamic_lookup",
+]
+
 def _perl_xs_cc_lib(ctx, toolchain, srcs):
     cc_toolchain = find_cc_toolchain(ctx)
     xs_headers = toolchain.xs_headers
@@ -49,13 +54,19 @@ def _perl_xs_cc_lib(ctx, toolchain, srcs):
         compilation_contexts = [],
     )
 
+    linkopts = list(ctx.attr.linkopts)
+    if ctx.target_platform_has_constraint(
+        ctx.attr._macos_constraint[platform_common.ConstraintValueInfo],
+    ):
+        linkopts.extend(_MACOS_LINKOPTS)
+
     (linking_context, _linking_outputs) = cc_common.create_linking_context_from_compilation_outputs(
         actions = ctx.actions,
         name = ctx.label.name,
         feature_configuration = feature_configuration,
         cc_toolchain = cc_toolchain,
         compilation_outputs = compilation_outputs,
-        user_link_flags = ctx.attr.linkopts,
+        user_link_flags = linkopts,
         linking_contexts = [],
     )
 
@@ -105,10 +116,17 @@ def _perl_xs_implementation(ctx):
     lib = cc_info.linking_context.linker_inputs.to_list()[0].libraries[0]
     dyn_lib = lib.dynamic_library
 
-    if len(ctx.attr.output_loc):
-        output = ctx.actions.declare_file(ctx.attr.output_loc)
+    is_macos = ctx.target_platform_has_constraint(
+        ctx.attr._macos_constraint[platform_common.ConstraintValueInfo],
+    )
+    ext = ".bundle" if is_macos else ".so"
+    if ctx.attr.output_loc:
+        output_loc = ctx.attr.output_loc
+        if "." not in paths.basename(output_loc):
+            output_loc = output_loc + ext
+        output = ctx.actions.declare_file(output_loc)
     else:
-        output = ctx.actions.declare_file(ctx.label.name + ".so")
+        output = ctx.actions.declare_file(ctx.label.name + ext)
 
     ctx.actions.run(
         outputs = [output],
@@ -129,7 +147,7 @@ def _perl_xs_implementation(ctx):
     ]
 
 perl_xs = rule(
-    doc = """Builds a Perl XS extension as a shared library (.so).
+    doc = """Builds a Perl XS extension as a loadable shared object.
 
     Translates `.xs` sources to C via xsubpp, compiles and links them (with optional
     extra C/C++ sources and typemaps), and produces a single shared library suitable
@@ -154,7 +172,10 @@ perl_xs = rule(
             doc = "Extra linker flags passed when linking the shared library.",
         ),
         "output_loc": attr.string(
-            doc = "Optional output path for the shared library. If empty, defaults to <target_name>.so.",
+            doc = "Optional output path for the shared library. If the basename contains " +
+                  "no `.`, the platform extension (`.so` on Linux, `.bundle` on macOS) is " +
+                  "appended automatically. Defaults to `<target_name>.so` on Linux or " +
+                  "`<target_name>.bundle` on macOS.",
         ),
         "srcs": attr.label_list(
             doc = "Perl XS (.xs) source files. Each is translated to C by xsubpp and then compiled.",
@@ -167,6 +188,9 @@ perl_xs = rule(
         "typemaps": attr.label_list(
             doc = "Typemap files used by xsubpp when translating XS. Paths are resolved relative to each .xs file's directory.",
             allow_files = True,
+        ),
+        "_macos_constraint": attr.label(
+            default = Label("@platforms//os:macos"),
         ),
     },
     implementation = _perl_xs_implementation,

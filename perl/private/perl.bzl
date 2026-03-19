@@ -3,7 +3,7 @@
 load("@bazel_skylib//lib:paths.bzl", "paths")
 load(":providers.bzl", "PerlInfo")
 
-_PERL_FILE_TYPES = [".pl", ".pm", ".t", ".so", ".ix", ".al", ""]
+_PERL_FILE_TYPES = [".pl", ".pm", ".t", ".so", ".bundle", ".ix", ".al", ""]
 
 _COMMON_PERL_ATTRS = {
     "data": attr.label_list(
