@@ -12,13 +12,15 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+load("@bazel_skylib//rules:copy_file.bzl", "copy_file")
+load("@bazel_skylib//rules:write_file.bzl", "write_file")
 load("@rules_perl//perl:perl.bzl", "perl_library", "perl_xs")
 
 perl_library(
     name = "FCGI",
     srcs = [
         "lib/FCGI.pm",
-        ":FCGIXS",
+        ":arch/auto/FCGI/FCGI",
     ],
     includes = [
         "arch",
@@ -27,15 +29,14 @@ perl_library(
     visibility = ["//visibility:public"],
 )
 
-genrule(
+copy_file(
     name = "install",
-    srcs = ["FCGI.pm"],
-    outs = ["lib/FCGI.pm"],
-    cmd = "cp $< $@",
+    src = "FCGI.pm",
+    out = "lib/FCGI.pm",
 )
 
 perl_xs(
-    name = "FCGIXS",
+    name = "arch/auto/FCGI/FCGI",
     srcs = ["FCGI.xs"],
     cc_srcs = [
         "fcgiapp.c",
@@ -52,7 +53,6 @@ perl_xs(
         "VERSION=\"0.79\"",
         "XS_VERSION=\"0.79\"",
     ],
-    output_loc = "arch/auto/FCGI/FCGI.so",
     textual_hdrs = [
         "fastcgi.h",
         "fcgi_config.h",
@@ -63,8 +63,8 @@ perl_xs(
     typemaps = ["typemap"],
 )
 
-genrule(
+write_file(
     name = "empty",
-    outs = ["fcgi_config.h"],
-    cmd = "touch $@",
+    out = "fcgi_config.h",
+    content = [],
 )

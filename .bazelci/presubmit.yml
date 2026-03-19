@@ -42,6 +42,13 @@ tasks:
     build_targets:
     - "//..."
 
+  e2e_macos:
+    platform: macos_arm64
+    shell_commands:
+    - cd e2e/smoke
+    build_targets:
+    - "//..."
+
 buildifier:
   version: latest
   warnings: "all"
