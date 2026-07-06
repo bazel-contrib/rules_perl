@@ -2,8 +2,8 @@ load("@bazel_skylib//rules:build_test.bzl", "build_test")
 load("//perl:perl.bzl", "perl_binary")
 load(":transition.bzl", "build_under_platform")
 
-# A target platform with no native perl toolchain (there is no perl runtime for
-# linux/s390x). Before the host-fallback toolchains were registered, resolving a
+# A target platform with no native perl toolchain provided by rules_perl for
+# linux/s390x. Before the host-fallback toolchains were registered, resolving a
 # perl_binary for this platform failed with "No matching toolchains found".
 platform(
     name = "perlless",

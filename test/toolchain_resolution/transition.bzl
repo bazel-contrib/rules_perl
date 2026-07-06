@@ -2,7 +2,7 @@
 platform that has no native perl toolchain."""
 
 def _platform_transition_impl(_settings, attr):
-    return {"//command_line_option:platforms": str(attr.platform)}
+    return {"//command_line_option:platforms": [str(attr.platform)]}
 
 _platform_transition = transition(
     implementation = _platform_transition_impl,
