@@ -29,6 +29,16 @@ def perl_register_toolchains():
             ),
         )
 
+    # Host-fallback toolchains are registered last so they only resolve when no
+    # target-constrained perl toolchain above matches the target platform.
+    for platform in PLATFORMS:
+        native.register_toolchains(
+            "@rules_perl//perl:perl_{os}_{cpu}_toolchain_any_target".format(
+                os = platform.os,
+                cpu = platform.cpu,
+            ),
+        )
+
 def perl_rules_dependencies():
     """Declares external repositories that rules_perl depends on.
 

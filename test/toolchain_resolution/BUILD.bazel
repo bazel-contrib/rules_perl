@@ -1,0 +1,34 @@
+load("@bazel_skylib//rules:build_test.bzl", "build_test")
+load("//perl:perl.bzl", "perl_binary")
+load(":transition.bzl", "build_under_platform")
+
+# A target platform with no native perl toolchain provided by rules_perl for
+# linux/s390x. Before the host-fallback toolchains were registered, resolving a
+# perl_binary for this platform failed with "No matching toolchains found".
+platform(
+    name = "perlless",
+    constraint_values = [
+        "@platforms//os:linux",
+        "@platforms//cpu:s390x",
+    ],
+)
+
+perl_binary(
+    name = "tool",
+    srcs = ["tool.pl"],
+    tags = ["manual"],
+)
+
+build_under_platform(
+    name = "tool_on_perlless",
+    platform = ":perlless",
+    tags = ["manual"],
+    target = ":tool",
+)
+
+# Regression test: a perl_binary used as a build tool must still resolve a perl
+# toolchain (the host fallback) when cross-compiling to a perl-less platform.
+build_test(
+    name = "perlless_toolchain_resolution_test",
+    targets = [":tool_on_perlless"],
+)
