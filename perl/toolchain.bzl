@@ -7,9 +7,18 @@ generated in perl_download in repo.bzl.
 PerlRuntimeInfo = provider(
     doc = "Information about a Perl interpreter, related commands and libraries",
     fields = {
+        "cccdlflags": "list[str]: $Config{cccdlflags}, the flags for compiling position-independent " +
+                      "code for a loadable object (-fPIC where needed).",
+        "ccflags": "list[str]: $Config{ccflags}, the C compiler flags the interpreter was built " +
+                   "with. XS code must be compiled with them: they carry ABI-affecting defines " +
+                   "that are not in config.h.",
         "interpreter": "File: A label which points to the Perl interpreter",
         "perlopt": "list[str]: A list of strings which should be passed to the interpreter",
         "runtime": "depset[File]: A list of labels which points to runtime libraries",
+        "supports_xs": "bool: Whether XS modules can be built for and loaded by the interpreter. " +
+                       "False for fully static builds, whose dlopen is a stub (XS can still " +
+                       "be compiled against their headers and linked in statically), and for " +
+                       "distributions without Config_heavy.pl, whose compile flags are unknown.",
         "xs_headers": "depset[File]: The c library support code for xs modules",
         "xsubpp": "File: A label which points to the xsubpp command",
     },
@@ -79,6 +88,9 @@ def _perl_toolchain_impl(ctx):
                 xs_headers = depset(xs_headers),
                 runtime = depset(ctx.files.runtime),
                 perlopt = ctx.attr.perlopt,
+                ccflags = ctx.attr.ccflags,
+                cccdlflags = ctx.attr.cccdlflags,
+                supports_xs = ctx.attr.supports_xs,
             ),
             make_variables = template_variable_info,
         ),
@@ -88,6 +100,15 @@ def _perl_toolchain_impl(ctx):
 perl_toolchain = rule(
     implementation = _perl_toolchain_impl,
     attrs = {
+        "cccdlflags": attr.string_list(
+            default = [],
+            doc = "$Config{cccdlflags}: flags for compiling a loadable object, e.g. -fPIC.",
+        ),
+        "ccflags": attr.string_list(
+            default = [],
+            doc = "$Config{ccflags}: the C compiler flags the interpreter was built with, " +
+                  "which XS code must also be compiled with.",
+        ),
         "perlopt": attr.string_list(
             default = [],
         ),
@@ -95,6 +116,11 @@ perl_toolchain = rule(
             mandatory = True,
             allow_files = True,
             cfg = "target",
+        ),
+        "supports_xs": attr.bool(
+            default = True,
+            doc = "Whether XS modules can be built for and loaded by the interpreter. " +
+                  "False for fully static builds and for distributions without Config_heavy.pl.",
         ),
         "_windows_constraint": attr.label(default = "@platforms//os:windows"),
     },
