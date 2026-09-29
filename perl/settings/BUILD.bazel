@@ -1,0 +1,23 @@
+# --//perl/settings:distribution picks the vendor of Perl -- upstream Perl or
+# Strawberry Perl -- for a platform. Every toolchain names its distribution in
+# target_settings. The values are documented in README.md, "Distributions".
+
+load("@bazel_skylib//rules:common_settings.bzl", "string_flag")
+load("//perl:platforms.bzl", "DISTRIBUTIONS")
+
+package(default_visibility = ["//visibility:public"])
+
+string_flag(
+    name = "distribution",
+    build_setting_default = "perl",
+    values = DISTRIBUTIONS,
+)
+
+# One config_setting per distribution, for select() and for the toolchains.
+[
+    config_setting(
+        name = "distribution_" + value,
+        flag_values = {":distribution": value},
+    )
+    for value in DISTRIBUTIONS
+]
