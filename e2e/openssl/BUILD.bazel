@@ -1,0 +1,10 @@
+load("@rules_cc//cc:cc_test.bzl", "cc_test")
+
+# Links the libcrypto the openssl module built, whose headers, DER tables and
+# assembly perl generated, and checks that it reports its version and
+# computes a digest.
+cc_test(
+    name = "openssl_test",
+    srcs = ["openssl_test.cc"],
+    deps = ["@openssl//:crypto"],
+)

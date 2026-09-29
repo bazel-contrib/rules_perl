@@ -1,0 +1,16 @@
+# OpenSSL built with this checkout's rules_perl. The openssl module generates
+# OpenSSL's headers, DER tables and assembly with perl_binary and perl_library
+# targets and the perl toolchain, so it exercises them as a consumer would.
+module(
+    name = "rules_perl_openssl_e2e",
+    version = "0.0.0",
+)
+
+bazel_dep(name = "rules_perl", version = "1.1.2")
+local_path_override(
+    module_name = "rules_perl",
+    path = "../..",
+)
+
+bazel_dep(name = "openssl", version = "4.0.1.bcr.1")
+bazel_dep(name = "rules_cc", version = "0.2.17")

@@ -45,6 +45,12 @@ bzl_library(
 )
 
 bzl_library(
+    name = "perl_version_bzl",
+    srcs = ["perl_version.bzl"],
+    visibility = ["//perl:__subpackages__"],
+)
+
+bzl_library(
     name = "perl_xs_bzl",
     srcs = ["perl_xs.bzl"],
     visibility = ["//perl:__subpackages__"],

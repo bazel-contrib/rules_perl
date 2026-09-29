@@ -39,6 +39,9 @@ copy_file(
 # the Win32 layer, what the shipped fcgi_config_x86.h defines (configure is
 # not run there) and the API exported from the DLL; elsewhere the Unix layer
 # with what configure would have found.
+#
+# Needs XS, so skipped, with the library and test, under the default
+# --@rules_perl//perl/settings:xs=false.
 perl_xs(
     name = "arch/auto/FCGI/FCGI",
     srcs = ["FCGI.xs"],
@@ -72,6 +75,10 @@ perl_xs(
         "@rules_cc//cc/compiler:clang-cl": ["-DEFAULTLIB:ws2_32.lib"],
         "@rules_cc//cc/compiler:mingw-gcc": ["-lws2_32"],
         "@rules_cc//cc/compiler:msvc-cl": ["-DEFAULTLIB:ws2_32.lib"],
+        "//conditions:default": [],
+    }),
+    target_compatible_with = select({
+        "@rules_perl//perl/settings:xs_disabled": ["@platforms//:incompatible"],
         "//conditions:default": [],
     }),
     textual_hdrs = [

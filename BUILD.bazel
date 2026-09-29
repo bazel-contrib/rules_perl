@@ -1,3 +1,5 @@
+load("//perl:platforms.bzl", "PLATFORMS")
+
 exports_files([
     "LICENSE.txt",
     "MODULE.bazel",
@@ -12,11 +14,10 @@ exports_files([
     )
     for name in [
         "current_toolchain",
-        "perl_darwin_amd64_toolchain",
-        "perl_darwin_arm64_toolchain",
-        "perl_linux_amd64_toolchain",
-        "perl_linux_arm64_toolchain",
-        "perl_windows_x86_64_toolchain",
         "toolchain_type",
+    ] + [
+        "perl_{}_toolchain".format(platform.legacy_name)
+        for platform in PLATFORMS
+        if platform.legacy_name
     ]
 ]
