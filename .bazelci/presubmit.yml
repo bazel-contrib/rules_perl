@@ -10,10 +10,51 @@ matrix:
 
 tasks:
 
+  # --@rules_perl//perl/settings:xs=true: the XS-capable perl everywhere, so
+  # perl_xs stays covered. The default (static perl on Linux, XS skipped) is
+  # covered by default_ubuntu2204 and the e2e tasks.
   verify_targets:
     name: Verify targets
     platform: ${{ platform }}
     bazel: ${{ bazel }}
+    build_flags:
+    - "--@rules_perl//perl/settings:xs=true"
+    test_flags:
+    - "--@rules_perl//perl/settings:xs=true"
+    build_targets:
+    - "//..."
+    test_targets:
+    - "//..."
+  windows_arm64:
+    build_flags:
+    - "--@rules_perl//perl/settings:xs=true"
+    test_flags:
+    - "--@rules_perl//perl/settings:xs=true"
+    build_targets:
+    - "//..."
+    test_targets:
+    - "//..."
+
+  # The default flags. Only on Linux do they change the perl.
+  default_ubuntu2204:
+    name: Default flags (static perl)
+    platform: ubuntu2204
+    build_targets:
+    - "//..."
+    test_targets:
+    - "//..."
+
+  # The same Windows build with Strawberry Perl instead of upstream Perl, so
+  # the non-default distribution stays exercised.
+  windows_strawberry:
+    name: Windows (Strawberry Perl)
+    platform: windows
+    build_flags:
+    - "--@rules_perl//perl/settings:distribution=strawberry"
+    - "--@rules_perl//perl/settings:xs=true"
+    test_flags:
+    - "--@rules_perl//perl/settings:distribution=strawberry"
+    - "--@rules_perl//perl/settings:xs=true"
     build_targets:
     - "//..."
     test_targets:
@@ -24,10 +65,12 @@ tasks:
     platform: ubuntu2204
     build_flags:
     - "--experimental_output_paths=strip"
+    - "--@rules_perl//perl/settings:xs=true"
     build_targets:
     - "//..."
     test_flags:
     - "--experimental_output_paths=strip"
+    - "--@rules_perl//perl/settings:xs=true"
     test_targets:
     - "//..."
   path_mapping_macos:
@@ -35,10 +78,12 @@ tasks:
     platform: macos_arm64
     build_flags:
     - "--experimental_output_paths=strip"
+    - "--@rules_perl//perl/settings:xs=true"
     build_targets:
     - "//..."
     test_flags:
     - "--experimental_output_paths=strip"
+    - "--@rules_perl//perl/settings:xs=true"
     test_targets:
     - "//..."
 
