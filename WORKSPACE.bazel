@@ -1,7 +1,7 @@
 workspace(name = "rules_perl")
 
 load("@rules_perl//perl:deps.bzl", "perl_register_toolchains", "perl_rules_dependencies", "perl_rules_dev_dependencies")
-load("//perl:platforms.bzl", "PLATFORMS")
+load("//perl:platforms.bzl", "perl_toolchain_labels")
 
 perl_rules_dependencies()
 
@@ -12,15 +12,12 @@ perl_register_toolchains()
 # reason the invocation of native.register_toolchains in
 # perl_register_toolchains() doesn't seem to work unless called from a workspace
 # other than rules_perl.
-[
-    register_toolchains(
-        "@rules_perl//perl:perl_{os}_{cpu}_toolchain".format(
-            cpu = platform.cpu,
-            os = platform.os,
-        ),
-    )
-    for platform in PLATFORMS
-]
+register_toolchains(*perl_toolchain_labels("toolchain"))
+
+register_toolchains(*perl_toolchain_labels("toolchain_exec"))
+
+# Host-fallback toolchains last, so they only resolve when nothing above matches.
+register_toolchains(*perl_toolchain_labels("toolchain_any_target"))
 
 # Testing only, do not add to your WORKSPACE
 perl_rules_dev_dependencies()

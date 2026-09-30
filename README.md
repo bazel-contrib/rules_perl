@@ -2,7 +2,7 @@
 
 # Perl Rules
 
-The Perl Toolchain utilizes the [relocatable perl](https://github.com/skaji/relocatable-perl) project.
+The Perl Toolchain utilizes the [portable-perl](https://github.com/UebelAndre/portable-perl) project.
 
 ## Getting Started
 
@@ -37,15 +37,42 @@ perl_binary(
 
 Please see `example` folder for more examples of how to include Perl scripts.
 
+## Toolchains
+
+The toolchains are upstream Perl, built from source with ithreads, that runs
+from wherever Bazel unpacks it:
+
+| OS | CPUs | Builds |
+| --- | --- | --- |
+| Linux | x86_64, aarch64 | `gnu` (glibc ≥ 2.17; default), `musl`, `musl-static` |
+| macOS | x86_64, aarch64 | one |
+| Windows | x86_64, aarch64 | `msvc` (default), `gnu` (mingw-w64 on the UCRT; x86_64 only) |
+
+`--@rules_perl//perl/settings:distribution` picks the vendor: `perl` (default)
+or `strawberry`, [Strawberry Perl](https://strawberryperl.com/) on Windows x86_64.
+
+The non-default builds are registered but, until platform constraints for the
+C library exist ([platforms_contrib](https://github.com/bazel-contrib/platforms_contrib)
+is not yet released), toolchain resolution does not reach them. A root module
+can register one ahead of rules_perl's:
+
+```python
+register_toolchains("@rules_perl//perl:perl_x86_64_linux_musl_static_toolchain")
+```
+
+Two constraints to know: `musl-static` cannot load XS modules built after it,
+and XS must be built with the compiler family its perl was built with (`msvc`
+or `gnu` on Windows). The binaries are GitHub releases of
+[UebelAndre/portable-perl](https://github.com/UebelAndre/portable-perl).
+
 ## Mac Support
 
-Currently, simple perl programs and Pure Perl modules work.
-
-Modules that require compiling are not yet supported.
+Simple perl programs and pure-Perl modules work. Modules that require compiling
+are not yet supported.
 
 ## Windows Support
 
-This repository provides a hermetic [Strawberry Perl](https://strawberryperl.com/) bazel toolchain for Windows. Usage of the toolchain in `perl_xs` rules is not yet supported.
+Usage of the Windows toolchains in `perl_xs` rules is not yet supported.
 
 ## Using Perl Modules
 

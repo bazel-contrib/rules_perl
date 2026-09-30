@@ -27,29 +27,20 @@ toolchain_type(
         # (:toolchain_impl), built from that distribution's own %Config; the
         # toolchain() targets here express its constraints. They should be
         # registered by calling register_toolchains in a WORKSPACE file.
+        # target_settings names the distribution; see //perl/settings.
         toolchain(
-            name = "perl_{os}_{cpu}_toolchain".format(
-                cpu = platform.cpu,
-                os = platform.os,
-            ),
+            name = "perl_{}_toolchain".format(platform.name),
             target_compatible_with = platform.target_compatible_with,
-            toolchain = "@perl_{os}_{cpu}//:toolchain_impl".format(
-                cpu = platform.cpu,
-                os = platform.os,
-            ),
+            target_settings = ["//perl/settings:distribution_" + platform.distribution],
+            toolchain = "@perl_{}//:toolchain_impl".format(platform.name),
             toolchain_type = ":toolchain_type",
             visibility = ["//visibility:public"],
         ),
         toolchain(
-            name = "perl_{os}_{cpu}_toolchain_exec".format(
-                cpu = platform.cpu,
-                os = platform.os,
-            ),
+            name = "perl_{}_toolchain_exec".format(platform.name),
             exec_compatible_with = platform.target_compatible_with,
-            toolchain = "@perl_{os}_{cpu}//:toolchain_impl".format(
-                cpu = platform.cpu,
-                os = platform.os,
-            ),
+            target_settings = ["//perl/settings:distribution_" + platform.distribution],
+            toolchain = "@perl_{}//:toolchain_impl".format(platform.name),
             toolchain_type = ":exec_toolchain_type",
             visibility = ["//visibility:public"],
         ),
@@ -63,20 +54,38 @@ toolchain_type(
         # such as an embedded or RTOS cross-compile. This restores the pre-1.0
         # behaviour where perl toolchains carried no target constraint.
         toolchain(
-            name = "perl_{os}_{cpu}_toolchain_any_target".format(
-                cpu = platform.cpu,
-                os = platform.os,
-            ),
+            name = "perl_{}_toolchain_any_target".format(platform.name),
             exec_compatible_with = platform.target_compatible_with,
-            toolchain = "@perl_{os}_{cpu}//:toolchain_impl".format(
-                cpu = platform.cpu,
-                os = platform.os,
-            ),
+            target_settings = ["//perl/settings:distribution_" + platform.distribution],
+            toolchain = "@perl_{}//:toolchain_impl".format(platform.name),
             toolchain_type = ":toolchain_type",
             visibility = ["//visibility:public"],
         ),
     )
     for platform in PLATFORMS
+]
+
+# The pre-1.2 names (perl_<os>_<cpu>_toolchain...) of each platform's default
+# build, kept as aliases so existing registrations keep resolving.
+[
+    alias(
+        name = "perl_{}_{}".format(
+            platform.legacy_name,
+            kind,
+        ),
+        actual = ":perl_{}_{}".format(
+            platform.name,
+            kind,
+        ),
+        visibility = ["//visibility:public"],
+    )
+    for platform in PLATFORMS
+    if platform.legacy_name
+    for kind in [
+        "toolchain",
+        "toolchain_exec",
+        "toolchain_any_target",
+    ]
 ]
 
 # This rule exists so that the current perl toolchain can be used in the `toolchains` attribute of

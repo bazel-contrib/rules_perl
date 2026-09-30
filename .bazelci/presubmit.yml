@@ -16,6 +16,25 @@ tasks:
     - "//..."
     test_targets:
     - "//..."
+  windows_arm64:
+    build_targets:
+    - "//..."
+    test_targets:
+    - "//..."
+
+  # The same Windows build with Strawberry Perl instead of upstream Perl, so
+  # the non-default distribution stays exercised.
+  windows_strawberry:
+    name: Windows (Strawberry Perl)
+    platform: windows
+    build_flags:
+    - "--@rules_perl//perl/settings:distribution=strawberry"
+    test_flags:
+    - "--@rules_perl//perl/settings:distribution=strawberry"
+    build_targets:
+    - "//..."
+    test_targets:
+    - "//..."
 
   cpan_compile_ubuntu2204:
     name: CPAN Compile

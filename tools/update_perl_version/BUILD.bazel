@@ -1,0 +1,6 @@
+load("//perl:perl_binary.bzl", "perl_binary")
+
+perl_binary(
+    name = "update_perl_version",
+    srcs = ["update_perl_version.pl"],
+)

@@ -3,10 +3,10 @@
 
 load(
     "//perl:platforms.bzl",
+    "PERL_VERSION",
     "PLATFORMS",
-    "UNIX_VERSION",
 )
 
-unix_version = UNIX_VERSION
+unix_version = PERL_VERSION
 
 platforms = PLATFORMS
