@@ -1,5 +1,5 @@
 load(":platforms.bzl", "PLATFORMS")
-load(":toolchain.bzl", "current_exec_perl_toolchain", "current_perl_toolchain", "perl_toolchain")
+load(":toolchain.bzl", "current_exec_perl_toolchain", "current_perl_toolchain")
 
 alias(
     name = "binary_wrapper.tpl",
@@ -23,30 +23,17 @@ toolchain_type(
 
 [
     (
-        # toolchain_impl gathers information about the Perl toolchain.
-        # See the PerlToolchain provider.
-        perl_toolchain(
-            name = "perl_{os}_{cpu}_toolchain_impl".format(
-                cpu = platform.cpu,
-                os = platform.os,
-            ),
-            runtime = ["@perl_{os}_{cpu}//:runtime".format(
-                cpu = platform.cpu,
-                os = platform.os,
-            )],
-            visibility = ["//visibility:public"],
-        ),
-
-        # toolchain is a Bazel toolchain that expresses execution and target
-        # constraints for toolchain_impl. This target should be registered by
-        # calling register_toolchains in a WORKSPACE file.
+        # Each distribution's repository carries the perl_toolchain
+        # (:toolchain_impl), built from that distribution's own %Config; the
+        # toolchain() targets here express its constraints. They should be
+        # registered by calling register_toolchains in a WORKSPACE file.
         toolchain(
             name = "perl_{os}_{cpu}_toolchain".format(
                 cpu = platform.cpu,
                 os = platform.os,
             ),
             target_compatible_with = platform.target_compatible_with,
-            toolchain = ":perl_{os}_{cpu}_toolchain_impl".format(
+            toolchain = "@perl_{os}_{cpu}//:toolchain_impl".format(
                 cpu = platform.cpu,
                 os = platform.os,
             ),
@@ -59,7 +46,7 @@ toolchain_type(
                 os = platform.os,
             ),
             exec_compatible_with = platform.target_compatible_with,
-            toolchain = ":perl_{os}_{cpu}_toolchain_impl".format(
+            toolchain = "@perl_{os}_{cpu}//:toolchain_impl".format(
                 cpu = platform.cpu,
                 os = platform.os,
             ),
@@ -81,7 +68,7 @@ toolchain_type(
                 os = platform.os,
             ),
             exec_compatible_with = platform.target_compatible_with,
-            toolchain = ":perl_{os}_{cpu}_toolchain_impl".format(
+            toolchain = "@perl_{os}_{cpu}//:toolchain_impl".format(
                 cpu = platform.cpu,
                 os = platform.os,
             ),
