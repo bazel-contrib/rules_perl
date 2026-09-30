@@ -5,14 +5,6 @@ load("@bazel_skylib//lib:paths.bzl", "paths")
 load("@rules_cc//cc:defs.bzl", "CcInfo", "cc_common")
 load("@rules_cc//cc:find_cc_toolchain.bzl", "find_cc_toolchain")
 
-_PERL_XS_COPTS = [
-    "-fwrapv",
-    "-fPIC",
-    "-fno-strict-aliasing",
-    "-D_LARGEFILE_SOURCE",
-    "-D_FILE_OFFSET_BITS=64",
-]
-
 _MACOS_LINKOPTS = [
     "-undefined",
     "dynamic_lookup",
@@ -50,7 +42,12 @@ def _perl_xs_cc_lib(ctx, toolchain, srcs):
         additional_inputs = textual_hdrs,
         private_hdrs = xs_headers.to_list(),
         includes = includes,
-        user_compile_flags = ctx.attr.copts + _PERL_XS_COPTS,
+        # The interpreter's own flags first, as MakeMaker does: ccflags carries
+        # ABI-affecting defines that config.h does not (the locale model on
+        # macOS, for one), and an object compiled without them fails perl's
+        # load-time handshake ("loadable library and perl binaries are
+        # mismatched"). cccdlflags is -fPIC where the platform needs it.
+        user_compile_flags = toolchain.ccflags + toolchain.cccdlflags + ctx.attr.copts,
         compilation_contexts = [],
     )
 
@@ -79,6 +76,11 @@ def _perl_xs_implementation(ctx):
     toolchain = ctx.toolchains["@rules_perl//perl:toolchain_type"].perl_runtime
     exec_toolchain = ctx.toolchains["@rules_perl//perl:exec_toolchain_type"].perl_runtime
     xsubpp = exec_toolchain.xsubpp
+
+    if not toolchain.supports_xs:
+        fail((
+            "{}: the resolved perl toolchain does not support XS"
+        ).format(ctx.label))
 
     toolchain_files = exec_toolchain.runtime
 
