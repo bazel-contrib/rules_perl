@@ -17,6 +17,8 @@ exports_files([
         "perl_linux_amd64_toolchain",
         "perl_linux_arm64_toolchain",
         "perl_windows_x86_64_toolchain",
+        # Emulated x86_64-under-arm64 stopgap; see the comment in perl/platforms.bzl.
+        "perl_windows_arm64_toolchain",
         "toolchain_type",
     ]
 ]

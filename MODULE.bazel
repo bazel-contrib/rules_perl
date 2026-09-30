@@ -20,6 +20,8 @@ use_repo(
     "perl_linux_amd64",
     "perl_linux_arm64",
     "perl_windows_x86_64",
+    # Emulated x86_64-under-arm64 stopgap; see the comment in perl/platforms.bzl.
+    "perl_windows_arm64",
 )
 
 register_toolchains(
@@ -33,6 +35,12 @@ register_toolchains(
     "@rules_perl//perl:perl_linux_arm64_toolchain",
     "@rules_perl//perl:perl_windows_x86_64_toolchain_exec",
     "@rules_perl//perl:perl_windows_x86_64_toolchain",
+    # Emulated x86_64-under-arm64 stopgap; see the comment in perl/platforms.bzl.
+    # Registered after perl_windows_x86_64_toolchain above so a real Windows
+    # arm64 toolchain, if one is added later, only needs to be listed before
+    # this one to take priority.
+    "@rules_perl//perl:perl_windows_arm64_toolchain_exec",
+    "@rules_perl//perl:perl_windows_arm64_toolchain",
     # Host-fallback toolchains are registered last so they only resolve when no
     # target-constrained perl toolchain above matches the target platform.
     "@rules_perl//perl:perl_darwin_amd64_toolchain_any_target",
@@ -40,6 +48,7 @@ register_toolchains(
     "@rules_perl//perl:perl_linux_amd64_toolchain_any_target",
     "@rules_perl//perl:perl_linux_arm64_toolchain_any_target",
     "@rules_perl//perl:perl_windows_x86_64_toolchain_any_target",
+    "@rules_perl//perl:perl_windows_arm64_toolchain_any_target",
 )
 
 cpan = use_extension("@rules_perl//perl/cpan:extensions.bzl", "cpan")

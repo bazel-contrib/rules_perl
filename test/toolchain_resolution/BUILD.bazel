@@ -32,3 +32,29 @@ build_test(
     name = "perlless_toolchain_resolution_test",
     targets = [":tool_on_perlless"],
 )
+
+# windows/arm64 has no native Strawberry Perl build upstream (see the comment
+# on the windows/arm64 entry in //perl:platforms.bzl), so its toolchain is the
+# windows/x86_64 archive running under Windows on Arm's x86_64 emulation.
+platform(
+    name = "windows_arm64",
+    constraint_values = [
+        "@platforms//os:windows",
+        "@platforms//cpu:arm64",
+    ],
+)
+
+build_under_platform(
+    name = "tool_on_windows_arm64",
+    platform = ":windows_arm64",
+    tags = ["manual"],
+    target = ":tool",
+)
+
+# Regression test for https://github.com/bazel-contrib/rules_perl/issues/116:
+# a perl_binary must resolve a (emulated) perl toolchain when targeting
+# windows/arm64, rather than failing with "No matching toolchains found".
+build_test(
+    name = "windows_arm64_toolchain_resolution_test",
+    targets = [":tool_on_windows_arm64"],
+)
