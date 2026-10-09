@@ -1,17 +1,19 @@
 ---
+matrix:
+  platform:
+  - ubuntu2204
+  - macos_arm64
+  - windows
+  bazel:
+  - latest
+  - last_rc
+
 tasks:
 
-  ubuntu2204:
-    build_targets:
-    - "//..."
-    test_targets:
-    - "//..."
-  macos_arm64:
-    build_targets:
-    - "//..."
-    test_targets:
-    - "//..."
-  windows:
+  verify_targets:
+    name: Verify targets
+    platform: ${{ platform }}
+    bazel: ${{ bazel }}
     build_targets:
     - "//..."
     test_targets:
