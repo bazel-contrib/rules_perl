@@ -60,10 +60,18 @@ def perl_rules_dependencies():
 
     _maybe(
         http_archive,
+        name = "rules_batch",
+        sha256 = "cdba9e05571090a41a5e8dc7fe436e161663815eb459df5489377bce7fe112dc",
+        url = "https://github.com/periareon/rules_batch/releases/download/0.1.1/rules_batch-0.1.1.tar.gz",
+    )
+
+    # TODO: Update to a release once https://github.com/bazel-contrib/rules_shell/pull/49 is released.
+    _maybe(
+        http_archive,
         name = "rules_shell",
-        sha256 = "3e114424a5c7e4fd43e0133cc6ecdfe54e45ae8affa14fadd839f29901424043",
-        strip_prefix = "rules_shell-0.4.0",
-        url = "https://github.com/bazelbuild/rules_shell/releases/download/v0.4.0/rules_shell-v0.4.0.tar.gz",
+        sha256 = "768ae30295f8c96642b95522c9bd1e9601b63c075f37ce94924e61b9cde625ed",
+        strip_prefix = "rules_shell-2c61ea5634c067acb973a9f9c1b730fdf98b40be",
+        url = "https://github.com/bazel-contrib/rules_shell/archive/2c61ea5634c067acb973a9f9c1b730fdf98b40be.tar.gz",
     )
 
 def _maybe(rule, name, **kwargs):

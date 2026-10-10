@@ -12,3 +12,13 @@ alias(
     }),
     visibility = ["//visibility:public"],
 )
+
+# The runfiles library used by the launcher generated from `binary_wrapper.tpl`.
+alias(
+    name = "runfiles",
+    actual = select({
+        "@platforms//os:windows": "@rules_batch//batch/runfiles",
+        "//conditions:default": "@rules_shell//shell/runfiles",
+    }),
+    visibility = ["//visibility:public"],
+)

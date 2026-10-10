@@ -8,3 +8,11 @@ local_path_override(
     module_name = "rules_perl",
     path = "../..",
 )
+
+# TODO: Remove once https://github.com/bazel-contrib/rules_shell/pull/49 is released.
+bazel_dep(name = "rules_shell", version = "0.6.1")
+git_override(
+    module_name = "rules_shell",
+    commit = "2c61ea5634c067acb973a9f9c1b730fdf98b40be",
+    remote = "https://github.com/bazel-contrib/rules_shell.git",
+)
