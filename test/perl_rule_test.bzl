@@ -21,6 +21,8 @@ def _rule_test_impl(ctx):
     env = analysistest.begin(ctx)
     target = analysistest.target_under_test(env)
     prefix = target.label.package + "/" if target.label.package else ""
+    if target.label.repo_name:
+        prefix = "../" + target.label.repo_name + "/" + prefix
     generated = sorted([
         f.short_path.removeprefix(prefix)
         for f in target[DefaultInfo].files.to_list()
