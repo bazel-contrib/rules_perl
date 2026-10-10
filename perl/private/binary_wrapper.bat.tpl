@@ -3,74 +3,52 @@
 SETLOCAL ENABLEEXTENSIONS
 SETLOCAL ENABLEDELAYEDEXPANSION
 
-@REM Usage of rlocation function:
-@REM
-@REM        call :rlocation <runfile_path> <abs_path>
-@REM
-@REM        The rlocation function maps the given <runfile_path> to its absolute
-@REM        path and stores the result in a variable named <abs_path>. This
-@REM        function fails if the <runfile_path> doesn't exist in mainifest file.
-:: Start of rlocation
-goto :rlocation_end
-:rlocation
-if "%~2" equ "" (
-    echo>&2 ERROR: Expected two arguments for rlocation function.
-    exit 1
+@REM --- begin runfiles.bat initialization v3 ---
+set "_rf=batch/runfiles/runfiles.bat"
+if not defined RUNFILES_DIR if exist "%~f0.runfiles\" set "RUNFILES_DIR=%~f0.runfiles"
+set "_rf_mf="
+if defined RUNFILES_MANIFEST_FILE if exist "!RUNFILES_MANIFEST_FILE!" set "_rf_mf=!RUNFILES_MANIFEST_FILE!"
+if not defined _rf_mf if defined RUNFILES_DIR for %%m in ("!RUNFILES_DIR!\MANIFEST" "!RUNFILES_DIR!_manifest") do if not defined _rf_mf if exist "%%~m" set "_rf_mf=%%~m"
+if not defined _rf_mf for %%m in ("%~f0.runfiles_manifest" "%~f0.exe.runfiles_manifest") do if not defined _rf_mf if exist "%%~m" set "_rf_mf=%%~m"
+if defined _rf_mf (set "_rf_mf=!_rf_mf:/=\!" & set "RUNFILES_MANIFEST_FILE=!_rf_mf!")
+@REM Map the apparent repo name rules_batch to its canonical runfiles directory.
+set "_rf_rm="
+if defined RUNFILES_DIR if exist "!RUNFILES_DIR!\_repo_mapping" set "_rf_rm=!RUNFILES_DIR!\_repo_mapping"
+if not defined _rf_rm if defined _rf_mf for /F "usebackq tokens=1,*" %%i in (`%SYSTEMROOT%\system32\findstr.exe /b /l /c:"_repo_mapping " "!_rf_mf!" 2^>nul`) do set "_rf_rm=%%j"
+set "_rf_c="
+if defined _rf_rm for /F "usebackq delims=" %%L in ("!_rf_rm:/=\!") do if not defined _rf_c (
+    set "_rf_l=%%L"
+    if not "!_rf_l:,rules_batch,=!"=="!_rf_l!" (set "_rf_c=!_rf_l:*,=!" & set "_rf_c=!_rf_c:*,=!")
 )
-if exist "%RUNFILES_DIR%" (
-    set RUNFILES_MANIFEST_FILE=%RUNFILES_DIR%_manifest
-)
-if "%RUNFILES_MANIFEST_FILE%" equ "" (
-    set RUNFILES_MANIFEST_FILE=%~f0.runfiles\MANIFEST
-)
-if not exist "%RUNFILES_MANIFEST_FILE%" (
-    set RUNFILES_MANIFEST_FILE=%~f0.runfiles_manifest
-)
-set MF=%RUNFILES_MANIFEST_FILE:/=\%
-if not exist "%MF%" (
-    echo>&2 ERROR: Manifest file %MF% does not exist.
-    exit 1
-)
-set runfile_path=%~1
-for /F "tokens=2* usebackq" %%i in (`%SYSTEMROOT%\system32\findstr.exe /l /c:"!runfile_path! " "%MF%"`) do (
-    set abs_path=%%i
-)
-if "!abs_path!" equ "" (
-    echo>&2 ERROR: !runfile_path! not found in runfiles manifest
-    exit 1
-)
-set %~2=!abs_path!
-exit /b 0
-:rlocation_end
+if not defined _rf_c set "_rf_c=rules_batch"
+set "_rf=!_rf_c!/!_rf!"
+set "RLOCATION="
+if defined RUNFILES_DIR if exist "!RUNFILES_DIR!\!_rf:/=\!" set "RLOCATION=!RUNFILES_DIR!\!_rf:/=\!"
+if not defined RLOCATION if defined _rf_mf for /F "usebackq tokens=1,*" %%i in (`%SYSTEMROOT%\system32\findstr.exe /b /l /c:"!_rf! " "!_rf_mf!" 2^>nul`) do if not defined RLOCATION set "RLOCATION=%%j"
+if not defined RLOCATION (echo>&2 ERROR: cannot find !_rf! in runfiles & exit /b 1)
+set "RLOCATION=!RLOCATION:/=\!"
+set "_rf=" & set "_rf_mf=" & set "_rf_rm=" & set "_rf_c=" & set "_rf_l="
+@REM --- end runfiles.bat initialization v3 ---
 
+call "%RLOCATION%" "{interpreter}" INTERPRETER
+if errorlevel 1 exit /b 1
+call "%RLOCATION%" "{entrypoint}" ENTRYPOINT
+if errorlevel 1 exit /b 1
+call "%RLOCATION%" "{config}" CONFIG
+if errorlevel 1 exit /b 1
+call "%RLOCATION%" "{main}" MAIN
+if errorlevel 1 exit /b 1
 
-@REM Function to replace forward slashes with backslashes.
-goto :slocation_end
-:slocation
-set "input=%~1"
-set "varName=%~2"
-set "output="
+call "%RLOCATION%" runfiles_export_envvars
+if errorlevel 1 exit /b 1
 
-@REM Replace forward slashes with backslashes
-set "output=%input:/=\%"
+@REM `entrypoint.pl` trusts `RUNFILES_DIR` when set, but on Windows it is often a
+@REM directory containing only the manifest. Unset it so the manifest is used.
+if defined RUNFILES_MANIFEST_FILE set "RUNFILES_DIR="
 
-@REM Assign the sanitized path to the specified variable
-set "%varName%=%output%"
-exit /b 0
-:slocation_end
-
-
-call :rlocation "{interpreter}" INTERPRETER
-call :rlocation "{entrypoint}" ENTRYPOINT
-call :rlocation "{config}" CONFIG
-call :rlocation "{main}" MAIN
-
-@REM Unset runfiles dir so windows consistently works with and without it.
-set RUNFILES_DIR=
-
-%INTERPRETER% ^
-    %ENTRYPOINT% ^
-    %CONFIG% ^
-    %MAIN% ^
+"%INTERPRETER%" ^
+    "%ENTRYPOINT%" ^
+    "%CONFIG%" ^
+    "%MAIN%" ^
     "--" ^
     %*
