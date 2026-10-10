@@ -14,34 +14,55 @@
 
 """Tests for perl rules."""
 
-load("@bazel_tools//tools/build_rules:test_rules.bzl", "rule_test")
+load("@bazel_skylib//lib:unittest.bzl", "analysistest", "asserts")
+
+def _rule_test_impl(ctx):
+    """Check that a rule generates the desired default outputs."""
+    env = analysistest.begin(ctx)
+    target = analysistest.target_under_test(env)
+    prefix = target.label.package + "/" if target.label.package else ""
+    if target.label.repo_name:
+        prefix = "../" + target.label.repo_name + "/" + prefix
+    generated = sorted([
+        f.short_path.removeprefix(prefix)
+        for f in target[DefaultInfo].files.to_list()
+    ])
+    asserts.equals(env, sorted(ctx.attr.generates), generated)
+    return analysistest.end(env)
+
+_rule_test = analysistest.make(
+    _rule_test_impl,
+    attrs = {
+        "generates": attr.string_list(),
+    },
+)
 
 def _perl_library_test(package):
-    rule_test(
+    _rule_test(
         name = "hello_lib_rule_test",
         generates = [],
-        rule = package + "/fibonacci:fibonacci",
+        target_under_test = package + "/fibonacci:fibonacci",
     )
 
 def _perl_binary_test(package):
-    rule_test(
+    _rule_test(
         name = "hello_world_rule_test",
         generates = select({
             "@platforms//os:windows": ["hello_world.bat"],
             "//conditions:default": ["hello_world"],
         }),
-        rule = package + "/hello_world:hello_world",
+        target_under_test = package + "/hello_world:hello_world",
     )
 
 def _perl_test_test(package):
     """Issue rule tests for perl_test."""
-    rule_test(
+    _rule_test(
         name = "fibonacci_rule_test",
         generates = select({
             "@platforms//os:windows": ["fibonacci_test.bat"],
             "//conditions:default": ["fibonacci_test"],
         }),
-        rule = package + "/fibonacci:fibonacci_test",
+        target_under_test = package + "/fibonacci:fibonacci_test",
     )
 
 def perl_rule_test(package):
