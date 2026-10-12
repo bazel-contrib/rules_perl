@@ -17,6 +17,29 @@ tasks:
     test_targets:
     - "//..."
 
+  path_mapping_ubuntu2204:
+    name: Path Mapping
+    platform: ubuntu2204
+    build_flags:
+    - "--experimental_output_paths=strip"
+    build_targets:
+    - "//..."
+    test_flags:
+    - "--experimental_output_paths=strip"
+    test_targets:
+    - "//..."
+  path_mapping_macos:
+    name: Path Mapping
+    platform: macos_arm64
+    build_flags:
+    - "--experimental_output_paths=strip"
+    build_targets:
+    - "//..."
+    test_flags:
+    - "--experimental_output_paths=strip"
+    test_targets:
+    - "//..."
+
   cpan_compile_ubuntu2204:
     name: CPAN Compile
     platform: ubuntu2204

@@ -14,6 +14,9 @@ build --nolegacy_external_runfiles
 # https://github.com/bazelbuild/bazel/issues/23043.
 build --incompatible_autoload_externally=
 
+# https://github.com/bazelbuild/bazel/issues/17134
+build --incompatible_auto_exec_groups
+
 ###############################################################################
 ## Custom user flags
 ##
