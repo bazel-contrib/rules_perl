@@ -47,6 +47,8 @@ Modules that require compiling are not yet supported.
 
 This repository provides a hermetic [Strawberry Perl](https://strawberryperl.com/) bazel toolchain for Windows. Usage of the toolchain in `perl_xs` rules is not yet supported.
 
+Windows arm64 has no native Strawberry Perl build upstream ([Perl-Dist-Strawberry#218](https://github.com/StrawberryPerl/Perl-Dist-Strawberry/issues/218)). Until one exists, the `windows`/`arm64` toolchain reuses the `windows`/`x86_64` Strawberry Perl archive and relies on Windows on Arm's x86_64 emulation to run it (see [#116](https://github.com/bazel-contrib/rules_perl/issues/116)). This requires **Windows 11 on Arm or later** — Windows 10 on Arm only emulates 32-bit x86, not x64 — and the "Turn off x64 emulation on Arm" policy must not be set on the machine.
+
 ## Using Perl Modules
 
 Perl modules from [CPAN](https://www.cpan.org/) can be generated using the `cpan_compiler` rule in

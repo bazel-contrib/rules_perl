@@ -62,4 +62,35 @@ PLATFORMS = [
             "@platforms//cpu:x86_64",
         ],
     ),
+
+    # Strawberry Perl has no native Windows arm64 build yet:
+    # https://github.com/StrawberryPerl/Perl-Dist-Strawberry/issues/218.
+    #
+    # As a stopgap (see https://github.com/bazel-contrib/rules_perl/issues/116),
+    # this entry reuses the x86_64 Strawberry Perl archive above but declares
+    # itself compatible with windows/arm64, relying on Windows on Arm's x86_64
+    # emulation to run it. Perl is a plain interpreter with no CPU-specific
+    # codegen, so it runs fine under that emulation layer -- PROVIDED the
+    # emulation is actually available:
+    #   - Requires Windows 11 on Arm or later. Windows 10 on Arm only emulates
+    #     32-bit x86, not x64, so perl.exe will fail to launch there.
+    #   - Enterprise-managed devices can disable x64 emulation via the
+    #     "Turn off x64 emulation on Arm" policy (MDM/group policy). If perl
+    #     fails to run despite this toolchain resolving, check that policy.
+    # Drop this entry (or point it at a native archive) once Strawberry Perl
+    # ships an arm64 build.
+    struct(
+        os = "windows",
+        cpu = "arm64",
+        urls = [
+            "https://github.com/StrawberryPerl/Perl-Dist-Strawberry/releases/download/SP_54001_64bit_UCRT/strawberry-perl-5.40.0.1-64bit-portable.zip",
+            "https://mirror.bazel.build/github.com/StrawberryPerl/Perl-Dist-Strawberry/releases/download/SP_54001_64bit_UCRT/strawberry-perl-5.40.0.1-64bit-portable.zip",
+        ],
+        sha256 = "754f3e2a8e473dc68d1540c7802fb166a025f35ef18960c4564a31f8b5933907",
+        strip_prefix = "",
+        target_compatible_with = [
+            "@platforms//os:windows",
+            "@platforms//cpu:arm64",
+        ],
+    ),
 ]
