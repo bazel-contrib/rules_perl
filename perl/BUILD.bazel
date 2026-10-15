@@ -1,5 +1,20 @@
+load("@bazel_skylib//:bzl_library.bzl", "bzl_library")
 load(":platforms.bzl", "PLATFORMS")
 load(":toolchain.bzl", "current_exec_perl_toolchain", "current_perl_toolchain")
+
+exports_files([
+    "defs.bzl",
+    "deps.bzl",
+    "extensions.bzl",
+    "perl.bzl",
+    "perl_binary.bzl",
+    "perl_info.bzl",
+    "perl_library.bzl",
+    "perl_test.bzl",
+    "platforms.bzl",
+    "repo.bzl",
+    "toolchain.bzl",
+])
 
 alias(
     name = "binary_wrapper.tpl",
@@ -92,5 +107,94 @@ current_perl_toolchain(
 
 current_exec_perl_toolchain(
     name = "current_exec_toolchain",
+    visibility = ["//visibility:public"],
+)
+
+# One `bzl_library` per public `.bzl` so that `//docs` (and downstream
+# consumers writing their own Stardoc) can see the full transitive load graph.
+
+bzl_library(
+    name = "defs_bzl",
+    srcs = ["defs.bzl"],
+    visibility = ["//visibility:public"],
+    deps = [
+        "//perl/private:perl_bzl",
+        "//perl/private:perl_xs_bzl",
+        "//perl/private:providers_bzl",
+    ],
+)
+
+bzl_library(
+    name = "deps_bzl",
+    srcs = ["deps.bzl"],
+    visibility = ["//visibility:public"],
+    deps = [
+        ":platforms_bzl",
+        ":repo_bzl",
+        "@bazel_tools//tools:bzl_srcs",
+    ],
+)
+
+bzl_library(
+    name = "extensions_bzl",
+    srcs = ["extensions.bzl"],
+    visibility = ["//visibility:public"],
+    deps = [":deps_bzl"],
+)
+
+bzl_library(
+    name = "perl_bzl",
+    srcs = ["perl.bzl"],
+    visibility = ["//visibility:public"],
+    deps = [
+        "//perl/private:perl_bzl",
+        "//perl/private:perl_xs_bzl",
+        "//perl/private:providers_bzl",
+    ],
+)
+
+bzl_library(
+    name = "perl_binary_bzl",
+    srcs = ["perl_binary.bzl"],
+    visibility = ["//visibility:public"],
+    deps = ["//perl/private:perl_bzl"],
+)
+
+bzl_library(
+    name = "perl_info_bzl",
+    srcs = ["perl_info.bzl"],
+    visibility = ["//visibility:public"],
+    deps = ["//perl/private:providers_bzl"],
+)
+
+bzl_library(
+    name = "perl_library_bzl",
+    srcs = ["perl_library.bzl"],
+    visibility = ["//visibility:public"],
+    deps = ["//perl/private:perl_bzl"],
+)
+
+bzl_library(
+    name = "perl_test_bzl",
+    srcs = ["perl_test.bzl"],
+    visibility = ["//visibility:public"],
+    deps = ["//perl/private:perl_bzl"],
+)
+
+bzl_library(
+    name = "platforms_bzl",
+    srcs = ["platforms.bzl"],
+    visibility = ["//visibility:public"],
+)
+
+bzl_library(
+    name = "repo_bzl",
+    srcs = ["repo.bzl"],
+    visibility = ["//visibility:public"],
+)
+
+bzl_library(
+    name = "toolchain_bzl",
+    srcs = ["toolchain.bzl"],
     visibility = ["//visibility:public"],
 )
