@@ -1,3 +1,5 @@
+load("@bazel_skylib//:bzl_library.bzl", "bzl_library")
+
 exports_files([
     "binary_wrapper.bat.tpl",
     "binary_wrapper.sh.tpl",
@@ -11,4 +13,32 @@ alias(
         "//conditions:default": "binary_wrapper.sh.tpl",
     }),
     visibility = ["//visibility:public"],
+)
+
+bzl_library(
+    name = "perl_bzl",
+    srcs = ["perl.bzl"],
+    visibility = ["//perl:__subpackages__"],
+    deps = [
+        ":providers_bzl",
+        "@bazel_skylib//lib:paths",
+    ],
+)
+
+bzl_library(
+    name = "perl_xs_bzl",
+    srcs = ["perl_xs.bzl"],
+    visibility = ["//perl:__subpackages__"],
+    deps = [
+        "@bazel_skylib//lib:new_sets",
+        "@bazel_skylib//lib:paths",
+        "@rules_cc//cc:defs_bzl",
+        "@rules_cc//cc:find_cc_toolchain_bzl",
+    ],
+)
+
+bzl_library(
+    name = "providers_bzl",
+    srcs = ["providers.bzl"],
+    visibility = ["//perl:__subpackages__"],
 )
