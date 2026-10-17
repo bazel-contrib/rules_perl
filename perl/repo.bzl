@@ -28,10 +28,16 @@ def _config_flags(config_sh, key):
     return [flag for flag in _config_value(config_sh, key).split(" ") if flag]
 
 def _perl_download_impl(ctx):
+    if not ctx.attr.integrity and not ctx.attr.sha256:
+        fail("perl_download '{}': one of 'integrity' or 'sha256' is required".format(ctx.name))
+    if ctx.attr.integrity and ctx.attr.sha256:
+        fail("perl_download '{}': set 'integrity' or 'sha256', not both".format(ctx.name))
+
     ctx.report_progress("Downloading perl")
 
     ctx.download_and_extract(
         ctx.attr.urls,
+        integrity = ctx.attr.integrity,
         sha256 = ctx.attr.sha256,
         stripPrefix = ctx.attr.strip_prefix,
     )
@@ -65,9 +71,11 @@ def _perl_download_impl(ctx):
 perl_download = repository_rule(
     implementation = _perl_download_impl,
     attrs = {
+        "integrity": attr.string(
+            doc = "Expected checksum of the downloaded archive in Subresource Integrity format, e.g. `sha256-<base64>`. Preferred over `sha256`.",
+        ),
         "sha256": attr.string(
-            mandatory = True,
-            doc = "Expected SHA-256 sum of the downloaded archive",
+            doc = "Expected SHA-256 sum of the downloaded archive, hex encoded. Deprecated; use `integrity`.",
         ),
         # TODO - This only works for perl from a download
         # perl built in a tree or system perl would hate this

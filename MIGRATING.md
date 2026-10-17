@@ -2,6 +2,26 @@
 
 ## 1.2
 
+The toolchains now download upstream Perl, built from source, instead of
+relocatable-perl (Unix) and Strawberry Perl (Windows), and cover eleven
+platform/type combinations instead of five.
+
+- Repository and toolchain names follow the release's platform names:
+  `@perl_linux_amd64` is now `@perl_x86_64_linux_gnu`,
+  `@perl_darwin_arm64` is `@perl_aarch64_macos`, `@perl_windows_x86_64` is
+  `@perl_x86_64_windows_msvc`, and so on. The old `//:perl_<os>_<cpu>_toolchain`
+  aliases still resolve, to the default distribution for that platform.
+- Every toolchain names its distribution, and
+  `--@rules_perl//perl/settings:distribution` chooses between vendors:
+  `perl` (upstream Perl, the default) or `strawberry`. Strawberry Perl is no
+  longer the Windows default.
+- Upstream Perl also comes as `musl` and `musl-static` builds on Linux and a
+  mingw-w64 build on Windows. They are registered but, until platform
+  constraints for the C library exist, not reached by toolchain resolution;
+  a root module can register the one it wants ahead of rules_perl's (see the
+  README).
+- ithreads are now enabled on every platform (previously only on Windows), so
+  `%Config` is uniform across platforms.
 - `perl_xs` compiles with the toolchain's own `$Config{ccflags}` and
   `$Config{cccdlflags}`, as MakeMaker does, instead of a fixed flag list. Those
   flags carry ABI-affecting defines that are not in `config.h` (the locale
