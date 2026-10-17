@@ -39,13 +39,15 @@ Please see `example` folder for more examples of how to include Perl scripts.
 
 ## Mac Support
 
-Currently, simple perl programs and Pure Perl modules work.
-
-Modules that require compiling are not yet supported.
+Pure-Perl modules and, with `perl_xs`, XS modules both build on macOS.
 
 ## Windows Support
 
-This repository provides a hermetic [Strawberry Perl](https://strawberryperl.com/) bazel toolchain for Windows. Usage of the toolchain in `perl_xs` rules is not yet supported.
+This repository provides a hermetic [Strawberry Perl](https://strawberryperl.com/) bazel toolchain for Windows.
+
+`perl_xs` compiles with the resolved C toolchain, MSVC (Bazel's default) or
+MinGW gcc, and links against the import library of whichever Windows perl is
+selected. See the `perl_xs` documentation.
 
 ## Using Perl Modules
 

@@ -8,8 +8,16 @@
 # Usage: xsubpp.pl [--typemap <file>]... --output <file.c> <file.xs>
 use strict;
 use warnings;
-use ExtUtils::ParseXS;
 use File::Spec;
+
+# That chdir also breaks a relative @INC. A relocatable perl invoked by a
+# relative path, as Bazel invokes it, keeps $^X and so @INC relative when it
+# cannot read /proc/self/exe (the static Linux build has no procselfexe), and
+# the modules ParseXS loads lazily, such as ExtUtils::Typemaps, are then not
+# found. So @INC is made absolute first.
+BEGIN { @INC = map { ref($_) ? $_ : File::Spec->rel2abs($_) } @INC }
+
+use ExtUtils::ParseXS;
 use Getopt::Long;
 
 sub main {

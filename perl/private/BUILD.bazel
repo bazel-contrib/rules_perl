@@ -16,6 +16,12 @@ alias(
 )
 
 perl_tool(
+    name = "xs_def",
+    main = "xs_def.pl",
+    visibility = ["//visibility:public"],
+)
+
+perl_tool(
     name = "xsubpp",
     main = "xsubpp.pl",
     visibility = ["//visibility:public"],

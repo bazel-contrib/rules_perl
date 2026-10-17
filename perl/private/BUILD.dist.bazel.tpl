@@ -17,14 +17,17 @@ filegroup(
     ),
 )
 
-# The compile flags come from this distribution's own %Config; see
-# perl_download in @rules_perl//perl:repo.bzl. manual: reached through the
-# toolchain() targets in @rules_perl//perl during resolution, never by
-# wildcard.
+# The compile flags, loadable-object extension and import library come from
+# this distribution's own %Config; see perl_download in
+# @rules_perl//perl:repo.bzl. manual: reached through the toolchain() targets
+# in @rules_perl//perl during resolution, never by wildcard.
 perl_toolchain(
     name = "toolchain_impl",
+    cc = {cc},
     cccdlflags = {cccdlflags},
     ccflags = {ccflags},
+    dlext = {dlext},
+    libperl = {libperl},
     runtime = [":runtime"],
     supports_xs = {supports_xs},
     tags = ["manual"],
