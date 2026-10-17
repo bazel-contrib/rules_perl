@@ -1,3 +1,5 @@
+load(":perl_tool.bzl", "perl_tool")
+
 exports_files([
     "binary_wrapper.bat.tpl",
     "binary_wrapper.sh.tpl",
@@ -10,5 +12,11 @@ alias(
         "@platforms//os:windows": "binary_wrapper.bat.tpl",
         "//conditions:default": "binary_wrapper.sh.tpl",
     }),
+    visibility = ["//visibility:public"],
+)
+
+perl_tool(
+    name = "xsubpp",
+    main = "xsubpp.pl",
     visibility = ["//visibility:public"],
 )

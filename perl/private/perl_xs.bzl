@@ -4,6 +4,7 @@ load("@bazel_skylib//lib:new_sets.bzl", "sets")
 load("@bazel_skylib//lib:paths.bzl", "paths")
 load("@rules_cc//cc:defs.bzl", "CcInfo", "cc_common")
 load("@rules_cc//cc:find_cc_toolchain.bzl", "find_cc_toolchain")
+load(":perl_tool.bzl", "PerlToolInfo")
 
 _MACOS_LINKOPTS = [
     "-undefined",
@@ -74,15 +75,13 @@ def _perl_xs_cc_lib(ctx, toolchain, srcs):
 
 def _perl_xs_implementation(ctx):
     toolchain = ctx.toolchains["@rules_perl//perl:toolchain_type"].perl_runtime
-    exec_toolchain = ctx.toolchains["@rules_perl//perl:exec_toolchain_type"].perl_runtime
-    xsubpp = exec_toolchain.xsubpp
 
     if not toolchain.supports_xs:
         fail((
             "{}: the resolved perl toolchain does not support XS"
         ).format(ctx.label))
 
-    toolchain_files = exec_toolchain.runtime
+    xsubpp = ctx.attr._xsubpp[PerlToolInfo]
 
     gen = []
     cc_infos = []
@@ -92,22 +91,22 @@ def _perl_xs_implementation(ctx):
         o_packagepath = paths.join("_objs/execroot/", c_execpath)
         out = ctx.actions.declare_file(o_packagepath)
 
-        # typemap paths are resolved relative to their src.
-        src_dir = paths.dirname(src.path)
-        args_typemaps_relative = []
-        for typemap in ctx.files.typemaps:
-            # Calculate the relative path from the src directory to the typemap path
-            relative_typemap_path = paths.relativize(typemap.path, src_dir)
-            args_typemaps_relative += ["-typemap", relative_typemap_path]
+        args = ctx.actions.args()
+        args.add(xsubpp.main)
+        args.add_all(ctx.files.typemaps, before_each = "--typemap")
+        args.add("--output", out)
+        args.add(src)
 
         ctx.actions.run(
             mnemonic = "PerlTranslitterate",
             outputs = [out],
             inputs = [src] + ctx.files.typemaps,
-            arguments = args_typemaps_relative + ["-output", out.path, src.path],
+            arguments = [args],
             progress_message = "Translitterating %s to %s" % (src.short_path, out.short_path),
-            executable = xsubpp,
-            tools = toolchain_files,
+            executable = xsubpp.interpreter,
+            tools = xsubpp.tools,
+            execution_requirements = {"supports-path-mapping": "1"},
+            toolchain = None,
         )
 
         gen.append(out)
@@ -130,17 +129,9 @@ def _perl_xs_implementation(ctx):
     else:
         output = ctx.actions.declare_file(ctx.label.name + ext)
 
-    ctx.actions.run(
-        outputs = [output],
-        inputs = [dyn_lib],
-        executable = exec_toolchain.interpreter,
-        arguments = [
-            "-e",
-            "use File::Copy qw(copy); copy($ARGV[0], $ARGV[1]) or die $!;",
-            dyn_lib.path,
-            output.path,
-        ],
-        mnemonic = "PerlCopySo",
+    ctx.actions.symlink(
+        output = output,
+        target_file = dyn_lib,
     )
 
     return [
@@ -188,17 +179,21 @@ perl_xs = rule(
             allow_files = True,
         ),
         "typemaps": attr.label_list(
-            doc = "Typemap files used by xsubpp when translating XS. Paths are resolved relative to each .xs file's directory.",
+            doc = "Typemap files used by xsubpp when translating XS.",
             allow_files = True,
         ),
         "_macos_constraint": attr.label(
             default = Label("@platforms//os:macos"),
         ),
+        "_xsubpp": attr.label(
+            cfg = "exec",
+            providers = [PerlToolInfo],
+            default = Label("//perl/private:xsubpp"),
+        ),
     },
     implementation = _perl_xs_implementation,
     fragments = ["cpp"],
     toolchains = [
-        "@rules_perl//perl:exec_toolchain_type",
         "@rules_perl//perl:toolchain_type",
         "@bazel_tools//tools/cpp:toolchain_type",
     ],
