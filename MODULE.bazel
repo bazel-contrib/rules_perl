@@ -8,9 +8,17 @@ module(
 )
 
 bazel_dep(name = "platforms", version = "1.0.0")
+bazel_dep(name = "rules_batch", version = "0.1.1")
 bazel_dep(name = "bazel_skylib", version = "1.8.2")
 bazel_dep(name = "rules_cc", version = "0.2.4")
 bazel_dep(name = "rules_shell", version = "0.6.1")
+
+# TODO: Remove once https://github.com/bazel-contrib/rules_shell/pull/49 is released.
+git_override(
+    module_name = "rules_shell",
+    commit = "2c61ea5634c067acb973a9f9c1b730fdf98b40be",
+    remote = "https://github.com/bazel-contrib/rules_shell.git",
+)
 
 repos = use_extension("@rules_perl//perl:extensions.bzl", "perl_repositories")
 use_repo(

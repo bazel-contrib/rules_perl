@@ -3,6 +3,18 @@
 load("@bazel_skylib//lib:paths.bzl", "paths")
 load(":providers.bzl", "PerlInfo")
 
+def _posix_runfiles_transition_impl(_settings, _attr):
+    return {"@rules_shell//shell/settings:experimental_use_shell_runfiles": True}
+
+# Forces `@rules_shell//shell/runfiles` to provide the pure-POSIX `runfiles.sh`
+# so the launcher has no dependency on bash, grep, or other host tools. This
+# has no effect on Windows where `@rules_batch//batch/runfiles` is used.
+_posix_runfiles_transition = transition(
+    implementation = _posix_runfiles_transition_impl,
+    inputs = [],
+    outputs = ["@rules_shell//shell/settings:experimental_use_shell_runfiles"],
+)
+
 _PERL_FILE_TYPES = [".pl", ".pm", ".t", ".so", ".bundle", ".ix", ".al", ""]
 
 _COMMON_PERL_ATTRS = {
@@ -40,9 +52,10 @@ _EXECUTABLE_PERL_ATTRS = _COMMON_PERL_ATTRS | {
         doc = "List of arguments to pass to the Perl interpreter (e.g., ['-T'] for taint mode) in addition to the arguments passed by the toolchain.",
         default = [],
     ),
-    "_bash_runfiles": attr.label(
-        cfg = "target",
-        default = Label("@bazel_tools//tools/bash/runfiles"),
+    "_runfiles": attr.label(
+        doc = "The runfiles library used by the launcher.",
+        cfg = _posix_runfiles_transition,
+        default = Label("//perl/private:runfiles"),
     ),
     "_entrypoint": attr.label(
         doc = "The executable entrypoint.",
@@ -91,8 +104,8 @@ def _transitive_deps(ctx, extra_files = [], extra_deps = []):
         transitive_files = depset(transitive = deps.files),
         collect_default = True,
     )
-    if hasattr(ctx.attr, "_bash_runfiles"):
-        files = files.merge(ctx.attr._bash_runfiles.default_runfiles)
+    if hasattr(ctx.attr, "_runfiles"):
+        files = files.merge(ctx.attr._runfiles[0].default_runfiles)
     return struct(
         srcs = depset(
             direct = ctx.files.srcs,
