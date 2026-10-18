@@ -1,0 +1,33 @@
+load("@stardoc//stardoc:stardoc.bzl", "stardoc")
+
+# One Stardoc target per public `.bzl` in //perl. The outputs are not checked
+# in; these targets exist so `bazel build //...` exercises the `bzl_library`
+# tree and fails when a load is missing from it or a docstring is malformed.
+_PUBLIC_FILES = [
+    "defs",
+    "deps",
+    "extensions",
+    "perl",
+    "perl_binary",
+    "perl_info",
+    "perl_library",
+    "perl_test",
+    "platforms",
+    "repo",
+    "toolchain",
+]
+
+[
+    stardoc(
+        name = name,
+        out = "{}.md".format(name),
+        input = "//perl:{}.bzl".format(name),
+        deps = ["//perl:{}_bzl".format(name)],
+    )
+    for name in _PUBLIC_FILES
+]
+
+filegroup(
+    name = "docs",
+    srcs = [":{}".format(name) for name in _PUBLIC_FILES],
+)
