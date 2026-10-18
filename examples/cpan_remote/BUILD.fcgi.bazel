@@ -35,24 +35,45 @@ copy_file(
     out = "lib/FCGI.pm",
 )
 
+# The OS layer and its configuration as Makefile.PL picks them: on Windows
+# the Win32 layer, what the shipped fcgi_config_x86.h defines (configure is
+# not run there) and the API exported from the DLL; elsewhere the Unix layer
+# with what configure would have found.
 perl_xs(
     name = "arch/auto/FCGI/FCGI",
     srcs = ["FCGI.xs"],
-    cc_srcs = [
-        "fcgiapp.c",
-        "os_unix.c",
-    ],
+    cc_srcs = ["fcgiapp.c"] + select({
+        "@platforms//os:windows": ["os_win32.c"],
+        "//conditions:default": ["os_unix.c"],
+    }),
     defines = [
-        "HAVE_LIMITS_H",
-        "HAVE_NETDB_H",
-        "HAVE_NETINET_IN_H",
-        "HAVE_SYS_SOCKET_H",
-        "HAVE_SYS_TIME_H",
-        "HAVE_SYS_TYPES_H",
-        "HAVE_UNISTD_H",
         "VERSION=\"0.79\"",
         "XS_VERSION=\"0.79\"",
-    ],
+    ] + select({
+        "@platforms//os:windows": [
+            "DLLAPI=__declspec(dllexport)",
+            "HAVE_FPOS",
+            "HAVE_LIMITS_H",
+            "HAVE_STREAMBUF_CHAR_TYPE",
+            "HAVE_STRERROR",
+        ],
+        "//conditions:default": [
+            "HAVE_LIMITS_H",
+            "HAVE_NETDB_H",
+            "HAVE_NETINET_IN_H",
+            "HAVE_SYS_SOCKET_H",
+            "HAVE_SYS_TIME_H",
+            "HAVE_SYS_TYPES_H",
+            "HAVE_UNISTD_H",
+        ],
+    }),
+    # Winsock, in each linker's spelling.
+    linkopts = select({
+        "@rules_cc//cc/compiler:clang-cl": ["-DEFAULTLIB:ws2_32.lib"],
+        "@rules_cc//cc/compiler:mingw-gcc": ["-lws2_32"],
+        "@rules_cc//cc/compiler:msvc-cl": ["-DEFAULTLIB:ws2_32.lib"],
+        "//conditions:default": [],
+    }),
     textual_hdrs = [
         "fastcgi.h",
         "fcgi_config.h",

@@ -49,6 +49,15 @@ def _perl_download_impl(ctx):
     config_heavy = _find_file(ctx.path("."), "Config_heavy.pl", max_depth = 6)
     config_sh = ctx.read(config_heavy) if config_heavy else ""
 
+    # Only a perl whose symbols live in a shared library has an import
+    # library for XS objects to link against (Strawberry Perl's
+    # libperl540.a, for perl540.dll). The libperl.a of a static build is the
+    # whole interpreter, which a loadable object must not carry a second
+    # copy of, so it is not offered.
+    libperl = ""
+    if _config_value(config_sh, "useshrplib") == "true":
+        libperl = _config_value(config_sh, "libperl")
+
     ctx.report_progress("Creating Perl toolchain files")
     ctx.template(
         "BUILD.bazel",
@@ -56,6 +65,13 @@ def _perl_download_impl(ctx):
         substitutions = {
             "{cccdlflags}": repr(_config_flags(config_sh, "cccdlflags")),
             "{ccflags}": repr(_config_flags(config_sh, "ccflags")),
+            # The compiler those flags are for: perl_xs needs to know when the
+            # resolved C toolchain speaks a different dialect.
+            "{cc}": repr(_config_value(config_sh, "cc")),
+            # The extension DynaLoader looks for: so, bundle, or Strawberry
+            # Perl's xs.dll.
+            "{dlext}": repr(_config_value(config_sh, "dlext")),
+            "{libperl}": repr(libperl),
             # A perl without dynamic loading (the fully static builds) cannot
             # load XS built after it.
             "{supports_xs}": repr(_config_value(config_sh, "usedl") == "define"),

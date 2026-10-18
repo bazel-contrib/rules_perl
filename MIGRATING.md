@@ -1,5 +1,13 @@
 # Migrating
 
+## 1.4
+
+- `perl_xs` builds on Windows. The extension is named with the toolchain's
+  `$Config{dlext}` -- `.xs.dll` for Strawberry Perl -- instead of a fixed
+  `.so` or `.bundle`, and `perl_library` and friends accept `.dll` sources.
+  `PerlRuntimeInfo` gains `cc`, `dlext` and `libperl`, read from
+  `Config_heavy.pl` like `ccflags`.
+
 ## 1.2
 
 - `perl_xs` compiles with the toolchain's own `$Config{ccflags}` and

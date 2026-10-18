@@ -7,12 +7,22 @@ generated in perl_download in repo.bzl.
 PerlRuntimeInfo = provider(
     doc = "Information about a Perl interpreter, related commands and libraries",
     fields = {
+        "cc": "string: $Config{cc}, the C compiler the interpreter was built with (`gcc`, `cl`, " +
+              "`cc`), whose dialect `ccflags` is in. Empty when the toolchain does not say.",
         "cccdlflags": "list[str]: $Config{cccdlflags}, the flags for compiling position-independent " +
                       "code for a loadable object (-fPIC where needed).",
         "ccflags": "list[str]: $Config{ccflags}, the C compiler flags the interpreter was built " +
                    "with. XS code must be compiled with them: they carry ABI-affecting defines " +
                    "that are not in config.h.",
+        "dlext": "string: $Config{dlext}, the extension DynaLoader looks for on a loadable " +
+                 "object, without the dot: `so` on Linux, `bundle` on macOS, `xs.dll` for " +
+                 "Strawberry Perl. Empty when the toolchain does not say.",
         "interpreter": "File: A label which points to the Perl interpreter",
+        "libperl": "File|None: The import library for perl's own shared library " +
+                   "(`libperl540.a` beside Strawberry Perl's `perl540.dll`). A Windows DLL " +
+                   "must resolve every symbol when it is linked, so XS objects there link " +
+                   "against it. None for a perl with a static libperl, and on the platforms " +
+                   "where the loading interpreter supplies perl's symbols instead.",
         "perlopt": "list[str]: A list of strings which should be passed to the interpreter",
         "runtime": "depset[File]: A list of labels which points to runtime libraries",
         "supports_xs": "bool: Whether XS modules can be built for and loaded by the interpreter. " +
@@ -50,6 +60,7 @@ def _perl_toolchain_impl(ctx):
     # Find important files and paths.
     interpreter_cmd = None
     xsubpp_cmd = None
+    libperl = None
     xs_headers = []
     for file in ctx.files.runtime:
         if interpreter_cmd == None and _is_tool(file, "perl"):
@@ -58,6 +69,10 @@ def _perl_toolchain_impl(ctx):
 
         if xsubpp_cmd == None and _is_tool(file, "xsubpp"):
             xsubpp_cmd = file
+            continue
+
+        if ctx.attr.libperl and libperl == None and file.path.endswith("/CORE/" + ctx.attr.libperl):
+            libperl = file
             continue
 
         if _is_xs_header(file):
@@ -69,6 +84,9 @@ def _perl_toolchain_impl(ctx):
 
     if xsubpp_cmd == None:
         fail("Failed to find perl xsubpp.")
+
+    if ctx.attr.libperl and libperl == None:
+        fail("Failed to find {} in the perl runtime's CORE directory.".format(ctx.attr.libperl))
 
     interpreter_cmd_path = interpreter_cmd.path
     if ctx.target_platform_has_constraint(ctx.attr._windows_constraint[platform_common.ConstraintValueInfo]):
@@ -88,8 +106,11 @@ def _perl_toolchain_impl(ctx):
                 xs_headers = depset(xs_headers),
                 runtime = depset(ctx.files.runtime),
                 perlopt = ctx.attr.perlopt,
+                cc = ctx.attr.cc,
                 ccflags = ctx.attr.ccflags,
                 cccdlflags = ctx.attr.cccdlflags,
+                dlext = ctx.attr.dlext,
+                libperl = libperl,
                 supports_xs = ctx.attr.supports_xs,
             ),
             make_variables = template_variable_info,
@@ -100,6 +121,11 @@ def _perl_toolchain_impl(ctx):
 perl_toolchain = rule(
     implementation = _perl_toolchain_impl,
     attrs = {
+        "cc": attr.string(
+            default = "",
+            doc = "$Config{cc}: the C compiler the interpreter was built with, e.g. `gcc` or " +
+                  "`cl`. On Windows `perl_xs` compares it with the resolved C toolchain's compiler.",
+        ),
         "cccdlflags": attr.string_list(
             default = [],
             doc = "$Config{cccdlflags}: flags for compiling a loadable object, e.g. -fPIC.",
@@ -108,6 +134,18 @@ perl_toolchain = rule(
             default = [],
             doc = "$Config{ccflags}: the C compiler flags the interpreter was built with, " +
                   "which XS code must also be compiled with.",
+        ),
+        "dlext": attr.string(
+            default = "",
+            doc = "$Config{dlext}: the extension of a loadable object, without the dot. " +
+                  "When empty, `perl_xs` uses the platform's usual one.",
+        ),
+        "libperl": attr.string(
+            default = "",
+            doc = "$Config{libperl} for a perl whose symbols live in a shared library " +
+                  "(`$Config{useshrplib}`): the file name, under `CORE`, of its import " +
+                  "library, which XS objects on Windows link against. Leave empty for a " +
+                  "perl with a static libperl.",
         ),
         "perlopt": attr.string_list(
             default = [],

@@ -16,28 +16,31 @@ def perl_repos():
             urls = platform.urls,
         )
 
+def _toolchain_labels(kind):
+    """Labels of every platform's toolchain of one kind, in PLATFORMS order."""
+    return [
+        "@rules_perl//perl:perl_{os}_{cpu}_{kind}".format(
+            os = platform.os,
+            cpu = platform.cpu,
+            kind = kind,
+        )
+        for platform in PLATFORMS
+    ]
+
 # buildifier: disable=unnamed-macro
 def perl_register_toolchains():
     """Register the relocatable perl toolchains."""
     perl_repos()
 
-    for platform in PLATFORMS:
-        native.register_toolchains(
-            "@rules_perl//perl:perl_{os}_{cpu}_toolchain".format(
-                os = platform.os,
-                cpu = platform.cpu,
-            ),
-        )
+    # Target toolchains: the perl a target is built for.
+    native.register_toolchains(*_toolchain_labels("toolchain"))
+
+    # Exec toolchains: the perl that runs build actions such as xsubpp.
+    native.register_toolchains(*_toolchain_labels("toolchain_exec"))
 
     # Host-fallback toolchains are registered last so they only resolve when no
     # target-constrained perl toolchain above matches the target platform.
-    for platform in PLATFORMS:
-        native.register_toolchains(
-            "@rules_perl//perl:perl_{os}_{cpu}_toolchain_any_target".format(
-                os = platform.os,
-                cpu = platform.cpu,
-            ),
-        )
+    native.register_toolchains(*_toolchain_labels("toolchain_any_target"))
 
 def perl_rules_dependencies():
     """Declares external repositories that rules_perl depends on.
