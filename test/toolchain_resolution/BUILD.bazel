@@ -1,5 +1,6 @@
 load("@bazel_skylib//rules:build_test.bzl", "build_test")
 load("//perl:perl.bzl", "perl_binary")
+load(":resolved_perl.bzl", "resolved_perl")
 load(":transition.bzl", "build_under_platform")
 
 # A target platform with no native perl toolchain provided by rules_perl for
@@ -31,4 +32,37 @@ build_under_platform(
 build_test(
     name = "perlless_toolchain_resolution_test",
     targets = [":tool_on_perlless"],
+)
+
+# --//perl/settings:xs picks between the dynamically linked perl and the fully
+# static one, where there is one. On Linux the static build must win only with
+# the flag off; elsewhere the flag must change nothing.
+resolved_perl(
+    name = "perl_with_xs",
+    expect = select({
+        "@platforms//os:linux": "linux_gnu",
+        "@platforms//os:macos": "macos",
+        "@platforms//os:windows": "windows",
+    }),
+    tags = ["manual"],
+    xs = True,
+)
+
+resolved_perl(
+    name = "perl_without_xs",
+    expect = select({
+        "@platforms//os:linux": "linux_musl_static",
+        "@platforms//os:macos": "macos",
+        "@platforms//os:windows": "windows",
+    }),
+    tags = ["manual"],
+    xs = False,
+)
+
+build_test(
+    name = "xs_toolchain_resolution_test",
+    targets = [
+        ":perl_with_xs",
+        ":perl_without_xs",
+    ],
 )

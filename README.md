@@ -2,7 +2,7 @@
 
 # Perl Rules
 
-The Perl Toolchain utilizes the [relocatable perl](https://github.com/skaji/relocatable-perl) project.
+The Perl Toolchain utilizes the [portable-perl](https://github.com/UebelAndre/portable-perl) project.
 
 ## Getting Started
 
@@ -37,13 +37,58 @@ perl_binary(
 
 Please see `example` folder for more examples of how to include Perl scripts.
 
+## Toolchains
+
+The toolchains are upstream Perl, built from source with ithreads, that runs
+from wherever Bazel unpacks it:
+
+| OS | CPUs | Builds |
+| --- | --- | --- |
+| Linux | x86_64, aarch64 | `musl-static` (default), `gnu` (glibc ≥ 2.17), `musl` |
+| macOS | x86_64, aarch64 | one |
+| Windows | x86_64, aarch64 | `msvc` (default), `gnu` (mingw-w64 on the UCRT; x86_64 only) |
+
+`--@rules_perl//perl/settings:distribution` picks the vendor: `perl` (default)
+or `strawberry`, [Strawberry Perl](https://strawberryperl.com/) on Windows x86_64.
+
+`--@rules_perl//perl/settings:xs` says whether the build needs a perl that can
+load XS modules, and on Linux picks the build. Off, the default, resolves
+`musl-static`, which is statically linked and so runs on any Linux whatever its
+C library (NixOS included, where the `gnu` build's loader is not at `/lib64`),
+but cannot load XS. A build with `perl_xs` turns it on in `.bazelrc`, which
+resolves the `gnu` build:
+
+```
+common --@rules_perl//perl/settings:xs=true
+```
+
+A target that needs XS can mark itself incompatible with the flag off, so that
+a wildcard build that leaves it off skips it, and everything depending on it:
+
+```python
+target_compatible_with = select({
+    "@rules_perl//perl/settings:xs_disabled": ["@platforms//:incompatible"],
+    "//conditions:default": [],
+}),
+```
+
+The `musl` build needs the host's musl loader, so until platform constraints
+for the C library exist ([platforms_contrib](https://github.com/bazel-contrib/platforms_contrib)
+is not yet released) toolchain resolution does not reach it, nor the Windows
+`gnu` build. A root module can register one ahead of rules_perl's:
+
+```python
+register_toolchains("@rules_perl//perl:perl_x86_64_linux_musl_toolchain")
+```
+
+The binaries are GitHub releases of
+[UebelAndre/portable-perl](https://github.com/UebelAndre/portable-perl).
+
 ## Mac Support
 
 Pure-Perl modules and, with `perl_xs`, XS modules both build on macOS.
 
 ## Windows Support
-
-This repository provides a hermetic [Strawberry Perl](https://strawberryperl.com/) bazel toolchain for Windows.
 
 `perl_xs` compiles with the resolved C toolchain, MSVC (Bazel's default) or
 MinGW gcc, and links against the import library of whichever Windows perl is
