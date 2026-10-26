@@ -4,13 +4,27 @@ Perl rules
 
 module(
     name = "rules_perl",
-    version = "1.4.0",
+    version = "1.5.0",
 )
 
 bazel_dep(name = "platforms", version = "1.0.0")
 bazel_dep(name = "bazel_skylib", version = "1.8.2")
 bazel_dep(name = "rules_cc", version = "0.2.9")
 bazel_dep(name = "rules_shell", version = "0.6.1")
+
+# Stardoc is used by //docs to regression test the `bzl_library` tree.
+bazel_dep(name = "stardoc", version = "0.8.1", dev_dependency = True)
+
+# Stardoc pulls in protobuf, whose Starlark actions do not yet declare their
+# toolchains and so fail analysis under `--incompatible_auto_exec_groups`.
+# Patch the affected actions until the upstream fix is released:
+# https://github.com/protocolbuffers/protobuf/pull/30568
+single_version_override(
+    module_name = "protobuf",
+    patch_strip = 1,
+    patches = ["//tools/patches:protobuf-auto-exec-groups.patch"],
+    version = "33.4",
+)
 
 repos = use_extension("@rules_perl//perl:extensions.bzl", "perl_repositories")
 use_repo(
