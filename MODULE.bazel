@@ -79,23 +79,6 @@ register_toolchains(
     "@rules_perl//perl:perl_x86_64_windows_strawberry_toolchain_exec",
 )
 
-# Host-fallback toolchains are registered last so they only resolve when no
-# target-constrained perl toolchain above matches the target platform.
-register_toolchains(
-    "@rules_perl//perl:perl_x86_64_linux_musl_static_toolchain_any_target",
-    "@rules_perl//perl:perl_aarch64_linux_musl_static_toolchain_any_target",
-    "@rules_perl//perl:perl_x86_64_linux_gnu_toolchain_any_target",
-    "@rules_perl//perl:perl_aarch64_linux_gnu_toolchain_any_target",
-    "@rules_perl//perl:perl_x86_64_linux_musl_toolchain_any_target",
-    "@rules_perl//perl:perl_aarch64_linux_musl_toolchain_any_target",
-    "@rules_perl//perl:perl_x86_64_macos_toolchain_any_target",
-    "@rules_perl//perl:perl_aarch64_macos_toolchain_any_target",
-    "@rules_perl//perl:perl_x86_64_windows_msvc_toolchain_any_target",
-    "@rules_perl//perl:perl_aarch64_windows_msvc_toolchain_any_target",
-    "@rules_perl//perl:perl_x86_64_windows_gnu_toolchain_any_target",
-    "@rules_perl//perl:perl_x86_64_windows_strawberry_toolchain_any_target",
-)
-
 cpan = use_extension("@rules_perl//perl/cpan:extensions.bzl", "cpan")
 cpan.install(
     name = "cpan_compiler_deps",

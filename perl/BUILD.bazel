@@ -58,23 +58,6 @@ toolchain_type(
             toolchain_type = ":exec_toolchain_type",
             visibility = ["//visibility:public"],
         ),
-
-        # Host-fallback toolchain: constrained on the execution platform only,
-        # with no target constraint. When these are registered after the
-        # target-constrained toolchains above, a native perl still wins whenever
-        # the target platform has one. But a perl_binary used purely as a
-        # build-time tool (for example lcov's report generators) still resolves
-        # against the host perl when the target platform has no native perl,
-        # such as an embedded or RTOS cross-compile. This restores the pre-1.0
-        # behaviour where perl toolchains carried no target constraint.
-        toolchain(
-            name = "perl_{}_toolchain_any_target".format(platform.name),
-            exec_compatible_with = platform.target_compatible_with,
-            target_settings = platform.target_settings,
-            toolchain = "@perl_{}//:toolchain_impl".format(platform.name),
-            toolchain_type = ":toolchain_type",
-            visibility = ["//visibility:public"],
-        ),
     )
     for platform in PLATFORMS
 ]

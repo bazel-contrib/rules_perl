@@ -16,8 +16,5 @@ register_toolchains(*perl_toolchain_labels("toolchain"))
 
 register_toolchains(*perl_toolchain_labels("toolchain_exec"))
 
-# Host-fallback toolchains last, so they only resolve when nothing above matches.
-register_toolchains(*perl_toolchain_labels("toolchain_any_target"))
-
 # Testing only, do not add to your WORKSPACE
 perl_rules_dev_dependencies()

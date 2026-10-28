@@ -122,7 +122,7 @@ def perl_toolchain_labels(kind):
     """Labels of every toolchain of one kind, in registration order.
 
     Args:
-        kind: `toolchain`, `toolchain_exec` or `toolchain_any_target`.
+        kind: `toolchain` or `toolchain_exec`.
 
     Returns:
         A list of labels under `@rules_perl//perl`.

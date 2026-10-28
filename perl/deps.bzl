@@ -27,10 +27,6 @@ def perl_register_toolchains():
     # Exec toolchains: the perl that runs build actions such as xsubpp.
     native.register_toolchains(*perl_toolchain_labels("toolchain_exec"))
 
-    # Host-fallback toolchains are registered last so they only resolve when no
-    # target-constrained perl toolchain above matches the target platform.
-    native.register_toolchains(*perl_toolchain_labels("toolchain_any_target"))
-
 def perl_rules_dependencies():
     """Declares external repositories that rules_perl depends on.
 
