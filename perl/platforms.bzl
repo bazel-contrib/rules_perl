@@ -14,7 +14,7 @@ PERL_VERSION = _PERL_VERSION
 # Legacy support
 UNIX_VERSION = _PERL_VERSION
 
-def _distribution(name, distribution, urls, integrity, strip_prefix, target_compatible_with, legacy_name = None, target_settings = []):
+def _distribution(name, distribution, urls, integrity, strip_prefix, target_compatible_with, target_settings = []):
     """One prebuilt Perl. Defines the schema every entry in PLATFORMS follows."""
     return struct(
         name = name,
@@ -23,12 +23,11 @@ def _distribution(name, distribution, urls, integrity, strip_prefix, target_comp
         integrity = integrity,
         strip_prefix = strip_prefix,
         target_compatible_with = target_compatible_with,
-        legacy_name = legacy_name,
         # The config_settings that must hold for the toolchain to resolve.
         target_settings = ["//perl/settings:distribution_" + distribution] + target_settings,
     )
 
-def _perl(platform, legacy_name = None, xs = None):
+def _perl(platform, xs = None):
     """Upstream Perl for one release platform triple, from the pinned build.
 
     The triple's first two components are `@platforms` CPU and OS names, so the
@@ -36,7 +35,6 @@ def _perl(platform, legacy_name = None, xs = None):
 
     Args:
         platform: The release platform triple, e.g. `x86_64-linux-gnu`.
-        legacy_name: The pre-1.5 name of the toolchain, for the aliases.
         xs: `True` to resolve only with `--//perl/settings:xs` on, `False` only
             with it off, `None` either way.
 
@@ -54,7 +52,6 @@ def _perl(platform, legacy_name = None, xs = None):
         integrity = _PERL_INTEGRITY.get(platform, ""),
         strip_prefix = archive,
         target_compatible_with = ["@platforms//os:" + os, "@platforms//cpu:" + cpu],
-        legacy_name = legacy_name,
         target_settings = {
             True: ["//perl/settings:xs_enabled"],
             False: ["//perl/settings:xs_disabled"],
@@ -81,8 +78,8 @@ PLATFORMS = [
     # Linux, glibc >= 2.17, dynamically linked: --//perl/settings:xs on.
     # TODO(platforms_contrib): constrain on
     # @platforms_contrib//os/linux/libc/glibc:at_least_2.17_available.
-    _perl("x86_64-linux-gnu", legacy_name = "linux_amd64", xs = True),
-    _perl("aarch64-linux-gnu", legacy_name = "linux_arm64", xs = True),
+    _perl("x86_64-linux-gnu", xs = True),
+    _perl("aarch64-linux-gnu", xs = True),
 
     # Linux, musl, dynamically linked. Needs the host's musl loader, so not
     # reached by resolution until a constraint says the host has one: with the
@@ -92,11 +89,11 @@ PLATFORMS = [
     _perl("aarch64-linux-musl"),
 
     # macOS.
-    _perl("x86_64-macos", legacy_name = "darwin_amd64"),
-    _perl("aarch64-macos", legacy_name = "darwin_arm64"),
+    _perl("x86_64-macos"),
+    _perl("aarch64-macos"),
 
     # Windows, built with Visual C++. The default, and the only build on ARM64.
-    _perl("x86_64-windows-msvc", legacy_name = "windows_x86_64"),
+    _perl("x86_64-windows-msvc"),
     _perl("aarch64-windows-msvc"),
 
     # Windows, built with mingw-w64 GCC on the UCRT (Strawberry's ABI).

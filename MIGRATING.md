@@ -1,6 +1,6 @@
 # Migrating
 
-## 1.5
+## 2.0
 
 The toolchains now download upstream Perl, built from source, instead of
 relocatable-perl (Unix) and Strawberry Perl (Windows), and cover eleven
@@ -9,8 +9,11 @@ platform/type combinations instead of five.
 - Repository and toolchain names follow the release's platform names:
   `@perl_linux_amd64` is now `@perl_x86_64_linux_gnu`,
   `@perl_darwin_arm64` is `@perl_aarch64_macos`, `@perl_windows_x86_64` is
-  `@perl_x86_64_windows_msvc`, and so on. The old `//:perl_<os>_<cpu>_toolchain`
-  aliases still resolve, to the default distribution for that platform.
+  `@perl_x86_64_windows_msvc`, and so on. **The old
+  `//:perl_<os>_<cpu>_toolchain` names are gone**; a `register_toolchains` of
+  one fails with "no such target", so switch to the new names. There are no
+  aliases: on Linux the old names cannot mean one build anymore, since which
+  perl resolves now depends on `--@rules_perl//perl/settings:xs` (see below).
 - Every toolchain names its distribution, and
   `--@rules_perl//perl/settings:distribution` chooses between vendors:
   `perl` (upstream Perl, the default) or `strawberry`. Strawberry Perl is no
