@@ -30,7 +30,7 @@ _LIBRARY_PERL_ATTRS = _COMMON_PERL_ATTRS | {
 
 _EXECUTABLE_PERL_ATTRS = _COMMON_PERL_ATTRS | {
     "env": attr.string_dict(
-        doc = "Dictionary of strings; values are subject to `$(location)` and \"Make variable\" substitution.",
+        doc = "Dictionary of strings; values are subject to location and \"Make variable\" substitution.",
     ),
     "main": attr.label(
         doc = "The name of the source file that is the main entry point of the application.",
