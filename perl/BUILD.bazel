@@ -79,29 +79,6 @@ toolchain_type(
     for platform in PLATFORMS
 ]
 
-# The pre-1.5 names (perl_<os>_<cpu>_toolchain...) of each platform's default
-# build, kept as aliases so existing registrations keep resolving.
-[
-    alias(
-        name = "perl_{}_{}".format(
-            platform.legacy_name,
-            kind,
-        ),
-        actual = ":perl_{}_{}".format(
-            platform.name,
-            kind,
-        ),
-        visibility = ["//visibility:public"],
-    )
-    for platform in PLATFORMS
-    if platform.legacy_name
-    for kind in [
-        "toolchain",
-        "toolchain_exec",
-        "toolchain_any_target",
-    ]
-]
-
 # This rule exists so that the current perl toolchain can be used in the `toolchains` attribute of
 # other rules, such as genrule. It allows exposing a perl_toolchain after toolchain resolution has
 # happened, to a rule which expects a concrete implementation of a toolchain, rather than a
