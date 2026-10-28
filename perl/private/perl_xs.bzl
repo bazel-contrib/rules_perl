@@ -191,9 +191,14 @@ def _perl_xs_cc_lib(ctx, toolchain, srcs, is_windows, is_macos):
 def _perl_xs_implementation(ctx):
     toolchain = ctx.toolchains["@rules_perl//perl:toolchain_type"].perl_runtime
 
+    # Left to the target to avoid by marking itself incompatible (see the rule
+    # doc); a private dependency on an incompatible target could do that for
+    # every perl_xs, but whether to skip or fail is the build's call.
     if not toolchain.supports_xs:
         fail((
-            "{}: the resolved perl toolchain does not support XS"
+            "{}: the resolved perl toolchain cannot load XS (a fully static perl, or one " +
+            "without Config_heavy.pl). On Linux set --@rules_perl//perl/settings:xs=true; " +
+            "see perl_xs for skipping XS targets under the default."
         ).format(ctx.label))
 
     is_windows = _has_constraint(ctx, ctx.attr._windows_constraint)
@@ -273,6 +278,18 @@ perl_xs = rule(
     as MakeMaker arranges. The C toolchain may be MSVC (`cl.exe`, Bazel's default)
     or MinGW gcc whichever of the two the perl was built with; across families the
     interpreter's compile flags are reduced to their defines.
+
+    By default (`--@rules_perl//perl/settings:xs=false`) Linux resolves a static
+    perl that cannot load XS; a build with XS sets the flag on. A target that
+    needs XS can be skipped by wildcard builds that leave it off by marking it,
+    and so everything that depends on it, incompatible:
+
+    ```python
+    target_compatible_with = select({
+        "@rules_perl//perl/settings:xs_disabled": ["@platforms//:incompatible"],
+        "//conditions:default": [],
+    }),
+    ```
     """,
     attrs = {
         "cc_srcs": attr.label_list(

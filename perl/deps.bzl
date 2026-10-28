@@ -2,7 +2,7 @@
 
 load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
 load("//perl:repo.bzl", _perl_download = "perl_download")
-load(":platforms.bzl", "PLATFORMS")
+load(":platforms.bzl", "PLATFORMS", "perl_toolchain_labels")
 
 perl_download = _perl_download
 
@@ -10,37 +10,22 @@ perl_download = _perl_download
 def perl_repos():
     for platform in PLATFORMS:
         perl_download(
-            name = "perl_%s_%s" % (platform.os, platform.cpu),
+            name = "perl_%s" % platform.name,
             strip_prefix = platform.strip_prefix,
-            sha256 = platform.sha256,
+            integrity = platform.integrity,
             urls = platform.urls,
         )
 
-def _toolchain_labels(kind):
-    """Labels of every platform's toolchain of one kind, in PLATFORMS order."""
-    return [
-        "@rules_perl//perl:perl_{os}_{cpu}_{kind}".format(
-            os = platform.os,
-            cpu = platform.cpu,
-            kind = kind,
-        )
-        for platform in PLATFORMS
-    ]
-
 # buildifier: disable=unnamed-macro
 def perl_register_toolchains():
-    """Register the relocatable perl toolchains."""
+    """Register the perl toolchains."""
     perl_repos()
 
     # Target toolchains: the perl a target is built for.
-    native.register_toolchains(*_toolchain_labels("toolchain"))
+    native.register_toolchains(*perl_toolchain_labels("toolchain"))
 
     # Exec toolchains: the perl that runs build actions such as xsubpp.
-    native.register_toolchains(*_toolchain_labels("toolchain_exec"))
-
-    # Host-fallback toolchains are registered last so they only resolve when no
-    # target-constrained perl toolchain above matches the target platform.
-    native.register_toolchains(*_toolchain_labels("toolchain_any_target"))
+    native.register_toolchains(*perl_toolchain_labels("toolchain_exec"))
 
 def perl_rules_dependencies():
     """Declares external repositories that rules_perl depends on.

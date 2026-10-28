@@ -1,0 +1,7 @@
+# The same flags the rules are built and tested with.
+import %workspace%/../../.bazelrc
+
+# The openssl module ships pregenerated sources and uses them by default. Turn
+# them off so that its perl code generation, under this checkout's perl
+# toolchain, is what builds OpenSSL here.
+common --@openssl//:use-pregenerated=False

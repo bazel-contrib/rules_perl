@@ -4,7 +4,7 @@ Perl rules
 
 module(
     name = "rules_perl",
-    version = "1.5.0",
+    version = "2.0.0",
 )
 
 bazel_dep(name = "platforms", version = "1.0.0")
@@ -29,39 +29,54 @@ single_version_override(
 repos = use_extension("@rules_perl//perl:extensions.bzl", "perl_repositories")
 use_repo(
     repos,
-    "perl_darwin_amd64",
-    "perl_darwin_arm64",
-    "perl_linux_amd64",
-    "perl_linux_arm64",
-    "perl_windows_x86_64",
+    "perl_aarch64_linux_gnu",
+    "perl_aarch64_linux_musl",
+    "perl_aarch64_linux_musl_static",
+    "perl_aarch64_macos",
+    "perl_aarch64_windows_msvc",
+    "perl_x86_64_linux_gnu",
+    "perl_x86_64_linux_musl",
+    "perl_x86_64_linux_musl_static",
+    "perl_x86_64_macos",
+    "perl_x86_64_windows_gnu",
+    "perl_x86_64_windows_msvc",
+    "perl_x86_64_windows_strawberry",
 )
+
+# Same order as //perl:platforms.bzl; among toolchains whose constraints and
+# settings all match, the first registered wins, so each platform's default
+# build comes first.
 
 # Target toolchains: the perl a target is built for.
 register_toolchains(
-    "@rules_perl//perl:perl_darwin_amd64_toolchain",
-    "@rules_perl//perl:perl_darwin_arm64_toolchain",
-    "@rules_perl//perl:perl_linux_amd64_toolchain",
-    "@rules_perl//perl:perl_linux_arm64_toolchain",
-    "@rules_perl//perl:perl_windows_x86_64_toolchain",
+    "@rules_perl//perl:perl_x86_64_linux_musl_static_toolchain",
+    "@rules_perl//perl:perl_aarch64_linux_musl_static_toolchain",
+    "@rules_perl//perl:perl_x86_64_linux_gnu_toolchain",
+    "@rules_perl//perl:perl_aarch64_linux_gnu_toolchain",
+    "@rules_perl//perl:perl_x86_64_linux_musl_toolchain",
+    "@rules_perl//perl:perl_aarch64_linux_musl_toolchain",
+    "@rules_perl//perl:perl_x86_64_macos_toolchain",
+    "@rules_perl//perl:perl_aarch64_macos_toolchain",
+    "@rules_perl//perl:perl_x86_64_windows_msvc_toolchain",
+    "@rules_perl//perl:perl_aarch64_windows_msvc_toolchain",
+    "@rules_perl//perl:perl_x86_64_windows_gnu_toolchain",
+    "@rules_perl//perl:perl_x86_64_windows_strawberry_toolchain",
 )
 
 # Exec toolchains: the perl that runs build actions such as xsubpp.
 register_toolchains(
-    "@rules_perl//perl:perl_darwin_amd64_toolchain_exec",
-    "@rules_perl//perl:perl_darwin_arm64_toolchain_exec",
-    "@rules_perl//perl:perl_linux_amd64_toolchain_exec",
-    "@rules_perl//perl:perl_linux_arm64_toolchain_exec",
-    "@rules_perl//perl:perl_windows_x86_64_toolchain_exec",
-)
-
-# Host-fallback toolchains are registered last so they only resolve when no
-# target-constrained perl toolchain above matches the target platform.
-register_toolchains(
-    "@rules_perl//perl:perl_darwin_amd64_toolchain_any_target",
-    "@rules_perl//perl:perl_darwin_arm64_toolchain_any_target",
-    "@rules_perl//perl:perl_linux_amd64_toolchain_any_target",
-    "@rules_perl//perl:perl_linux_arm64_toolchain_any_target",
-    "@rules_perl//perl:perl_windows_x86_64_toolchain_any_target",
+    "@rules_perl//perl:perl_x86_64_linux_musl_static_toolchain_exec",
+    "@rules_perl//perl:perl_aarch64_linux_musl_static_toolchain_exec",
+    "@rules_perl//perl:perl_x86_64_linux_gnu_toolchain_exec",
+    "@rules_perl//perl:perl_aarch64_linux_gnu_toolchain_exec",
+    "@rules_perl//perl:perl_x86_64_linux_musl_toolchain_exec",
+    "@rules_perl//perl:perl_aarch64_linux_musl_toolchain_exec",
+    "@rules_perl//perl:perl_x86_64_macos_toolchain_exec",
+    "@rules_perl//perl:perl_aarch64_macos_toolchain_exec",
+    "@rules_perl//perl:perl_x86_64_windows_msvc_toolchain_exec",
+    "@rules_perl//perl:perl_aarch64_windows_msvc_toolchain_exec",
+    "@rules_perl//perl:perl_x86_64_windows_gnu_toolchain_exec",
+    "@rules_perl//perl:perl_x86_64_windows_strawberry_toolchain_exec",
 )
 
 cpan = use_extension("@rules_perl//perl/cpan:extensions.bzl", "cpan")
