@@ -14,10 +14,14 @@
 
 use strict;
 use warnings;
+use Runfiles;
 use Test::More;
 
-my $file = $ENV{'COVERAGE_INDEX_HTML'};
-ok(defined $file, 'COVERAGE_INDEX_HTML is set');
+my $rlocationpath = $ENV{'COVERAGE_INDEX_HTML'};
+ok(defined $rlocationpath, 'COVERAGE_INDEX_HTML is set');
+
+my $file = Runfiles->create()->rlocation($rlocationpath);
+ok(defined $file, "index.html is in the runfiles at $rlocationpath");
 
 if (defined $file) {
     open my $fh, '<', $file or die "Could not open file '$file': $!\n";
