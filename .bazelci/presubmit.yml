@@ -139,6 +139,16 @@ tasks:
     build_targets:
     - "//..."
 
+  # The cpan extension reading a cpanfile.snapshot, which needs a Bazel with
+  # module extension facts: the newest Bazel only.
+  e2e_cpan_snapshot:
+    name: e2e CPAN snapshot
+    platform: ${{ e2e_platform }}
+    bazel: latest
+    working_directory: e2e/cpan_snapshot
+    test_targets:
+    - "//..."
+
   # OpenSSL from the Bazel Central Registry, whose build generates code with
   # perl_binary and the perl toolchain; e2e/openssl/.bazelrc turns off the
   # pregenerated sources it ships so that perl does the work. Run on the oldest

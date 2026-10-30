@@ -1,0 +1,21 @@
+# The cpan extension reading a cpanfile.snapshot directly: the hashes of the
+# archives, which the snapshot lacks, are fetched once and kept in this
+# module's MODULE.bazel.lock as facts. Needs a Bazel with module extension
+# facts, so this e2e runs on the newest Bazel only.
+module(
+    name = "rules_perl_cpan_snapshot_e2e",
+    version = "0.0.0",
+)
+
+bazel_dep(name = "rules_perl", version = "2.0.0")
+local_path_override(
+    module_name = "rules_perl",
+    path = "../..",
+)
+
+cpan = use_extension("@rules_perl//perl/cpan:extensions.bzl", "cpan")
+cpan.install(
+    name = "snapshot_deps",
+    lock = "//:cpanfile.snapshot",
+)
+use_repo(cpan, "snapshot_deps")

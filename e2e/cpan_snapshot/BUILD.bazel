@@ -1,0 +1,10 @@
+load("@rules_perl//perl:perl_test.bzl", "perl_test")
+
+perl_test(
+    name = "snapshot_test",
+    srcs = ["snapshot_test.t"],
+    deps = [
+        "@snapshot_deps//Capture-Tiny",
+        "@snapshot_deps//Try-Tiny",
+    ],
+)
