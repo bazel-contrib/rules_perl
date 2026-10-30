@@ -93,5 +93,8 @@ dev_repos = use_extension("@rules_perl//perl:extensions.bzl", "perl_dev_reposito
 use_repo(
     dev_repos,
     "fcgi",
-    "genhtml",
 )
+
+# lcov's genhtml, a Perl tool with CPAN dependencies, is run by
+# //examples/genhtml and //test/data_dep. The module builds it with rules_perl.
+bazel_dep(name = "lcov", version = "2.6", dev_dependency = True)

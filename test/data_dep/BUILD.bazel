@@ -1,31 +1,34 @@
+load("@bazel_skylib//rules:write_file.bzl", "write_file")
 load("@rules_shell//shell:sh_binary.bzl", "sh_binary")
 
-genrule(
+# A shell program that runs a perl_binary it has as a data dependency, found
+# by its rootpath. The scripts are written with write_file rather than a
+# genrule so that no shell is needed to produce them on any platform.
+write_file(
     name = "gen_program_sh",
-    srcs = ["@genhtml//:genhtml_bin"],
-    outs = ["program.sh"],
-    cmd = """\
-cat <<"EOF" >$@
-#!/bin/bash
-set -euxo pipefail
-genhtml='$(rootpath @genhtml//:genhtml_bin)'
-test "$$("$$genhtml" --version)" == "genhtml: LCOV version 1.0"
-EOF
-""",
+    out = "program.sh",
+    content = [
+        "#!/bin/bash",
+        "set -euxo pipefail",
+        "genhtml=\"$1\"",
+        "test \"$(\"$genhtml\" --version)\" == \"genhtml: LCOV version 2.6-0\"",
+        "",
+    ],
 )
 
 sh_binary(
     name = "program_bin",
     srcs = ["program.sh"],
-    data = ["@genhtml//:genhtml_bin"],
+    args = ["$(rootpath @lcov//:genhtml)"],
+    data = ["@lcov//:genhtml"],
 )
 
-genrule(
+write_file(
     name = "gen_program_test_sh",
-    srcs = [":program_bin"],
-    outs = ["program_test.sh"],
-    cmd = """\
-echo '#!/bin/sh' >$@
-echo 'exec env --ignore-environment test/data_dep/program_bin' >>$@
-""",
+    out = "program_test.sh",
+    content = [
+        "#!/bin/sh",
+        "exec env --ignore-environment test/data_dep/program_bin",
+        "",
+    ],
 )
