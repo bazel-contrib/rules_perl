@@ -33,6 +33,18 @@ platform/type combinations instead of five.
   rules_perl's (see the README).
 - ithreads are now enabled on every platform (previously only on Windows), so
   `%Config` is uniform across platforms.
+- `cpan.install` accepts a `cpanfile.snapshot` as its `lock`, on a Bazel
+  with module extension facts: the hashes the snapshot lacks are fetched once
+  and kept in `MODULE.bazel.lock`. The JSON lock from `cpan_compiler` still
+  works everywhere and remains the form for modules whose consumers must not
+  fetch anything unpinned.
+- The `cpan` extension lays out its hubs as a package per distribution:
+  `@<hub>//DateTime` is the library and `@<hub>//App-cloc:bin_cloc` a binary
+  from `bins`. The root-package spellings, `@<hub>//:DateTime` and
+  `@<hub>//:App-cloc_bin_cloc`, remain as deprecated aliases. Each archive is
+  now downloaded once into a repository shared by every hub that pins it, so
+  **the per-hub `@<hub>__<distribution>` repositories are gone**; depend on
+  the hub.
 
 ## 1.4
 

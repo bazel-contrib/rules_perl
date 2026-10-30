@@ -106,7 +106,29 @@ selected. See the `perl_xs` documentation.
 Perl modules from [CPAN](https://www.cpan.org/) can be generated using the `cpan_compiler` rule in
 conjunction with the `cpan` module extension.
 
-### Current Steps
+### From a `cpanfile.snapshot`
+
+On a Bazel whose module extensions have facts, the extension reads Carton's
+`cpanfile.snapshot` directly:
+
+```python
+cpan = use_extension("@rules_perl//perl/cpan:extensions.bzl", "cpan")
+cpan.install(
+    name = "cpan",
+    lock = "//:cpanfile.snapshot",
+)
+use_repo(cpan, "cpan")
+```
+
+The snapshot names every archive but has no hashes of them, so the first
+evaluation fetches each archive once for its hash and remembers it in
+`MODULE.bazel.lock` as a fact; later evaluations, and builds from the
+repository cache, need nothing more. Check the lockfile in. A module whose
+consumers must not fetch anything unpinned, one published to a registry for
+instance, should ship the JSON lock below instead, and a Bazel without facts
+can only read that.
+
+### From a compiled lock
 
 1. Create a `cpanfile` per the [Carton](https://metacpan.org/pod/Carton) documentation.
 2. Create an empty `*.json` will need to be created for Bazel to use a lockfile (e.g. `cpanfile.snapshot.lock.json`)
@@ -141,7 +163,12 @@ conjunction with the `cpan` module extension.
 ### Dependencies
 
 Once the `cpan` module extension is defined, dependencies will be available through the name given to the module.
-Using the example in the steps above, dependencies can be accessed through `@cpan//...`. (e.g. `@cpan//:DateTime`).
+Using the example in the steps above, each distribution is a package of `@cpan` (e.g. `@cpan//DateTime`), and a
+binary from `bins` a target in it (`bins = {"App-cloc": ["bin/cloc"]}` gives `@cpan//App-cloc:bin_cloc`).
+`@cpan//:DateTime` and `@cpan//:App-cloc_bin_cloc`, the previous spellings, still resolve but are deprecated.
+
+Each distinct archive is downloaded once and shared by every hub that pins it, across modules; a hub only
+decides which dependencies each distribution sees.
 
 Note that [`xs`](https://perldoc.perl.org/perlxs) dependencies are currently not supported by the `cpan` extension module.
 
