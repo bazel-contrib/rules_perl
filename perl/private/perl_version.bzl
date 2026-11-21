@@ -5,21 +5,21 @@ do not edit by hand. See CONTRIBUTING.md.
 # Where the release archives are downloaded from.
 PERL_RELEASES_URL = "https://github.com/bazel-contrib/portable-perl/releases/download"
 
-PERL_BUILD = "20260929"
+PERL_BUILD = "20261121"
 
 PERL_VERSION = "5.44.0"
 
 # Release platform name -> integrity of perl-<PERL_VERSION>-<platform>.tar.xz.
 PERL_INTEGRITY = {
-    "aarch64-linux-gnu": "sha256-Kl91TsCoItX5Wp3VoyqsszFvrGSn0uVD57Strr+b8Es=",
-    "aarch64-linux-musl": "sha256-t8hgfgL2M0sT3CEdTTtreWEvDb53TxBWa0Nx9PhUTGI=",
-    "aarch64-linux-musl-static": "sha256-MS2ewgGV0CYkJaL62EglE1BayW+myxaRtwpjDevS+uI=",
-    "aarch64-macos": "sha256-+qFWzaMcV1PQKrCwRrK1VQq+OV46ms9DGlWS0MeDPF0=",
-    "aarch64-windows-msvc": "sha256-vH9ilFw7WU4+gueQTpsTX4x+xSpLHdTHoUbfRp47lJI=",
-    "x86_64-linux-gnu": "sha256-yaoQckCTJyYU9cCXkPH3NaX8LvwuKroiuMX7rLqR4pk=",
-    "x86_64-linux-musl": "sha256-KugjyEsCFM8pW6XxqTu5V7qUhAVb4rdVmud96WKElgM=",
-    "x86_64-linux-musl-static": "sha256-Ye5bNrI+debOBDn5N82P+FUBNvutrXzz3L2TbxIPwDk=",
-    "x86_64-macos": "sha256-m6jQIVBr5g0IshZPQYMSh7dYfsFwQDu+nKVAQvWfG5w=",
-    "x86_64-windows-gnu": "sha256-LLLgbdKBzMFPL4FFlmSS7yiEXddFZoUgMQ9CSeA74YA=",
-    "x86_64-windows-msvc": "sha256-IMzzUf3Nv7sUVFjjQMJRyShYkKzDpGdaAjpU82R+6M4=",
+    "aarch64-linux-gnu": "sha256-5auGp2mNPDkLqw4ZznKwcckAIt+ezu1PwrGhv3nuL+4=",
+    "aarch64-linux-musl": "sha256-T3aCDnIOR2S9YB/+CoyYNZmR0hqV0ERN8FzB1A05uds=",
+    "aarch64-linux-musl-static": "sha256-ylk4o3M12f/af58p05sfjLcL0DliKiFpt781GfyDbno=",
+    "aarch64-macos": "sha256-Jo/gNZ9waFD5T/fOaWu2cRtYv/5dnAPKKQaArbUd0Jc=",
+    "aarch64-windows-msvc": "sha256-8oOAZXkn+GlwFW9gBt4zofZZNIKGBR2LobzhmD2kdHE=",
+    "x86_64-linux-gnu": "sha256-ntvtZdWPZbGUyKxgxCeIp6aa6+1aMnHGUrDDXb5fcsA=",
+    "x86_64-linux-musl": "sha256-w5GeIuM099e81Jj5IQo7LoxPfXrIEzLzMSoYAJ6zHlQ=",
+    "x86_64-linux-musl-static": "sha256-V20rL6Uw6RkShzQac/05GfUOh89+2xd8aQT6VofFRK8=",
+    "x86_64-macos": "sha256-jLutyVXO1y912fEOS3HLW2/5oOc7/nK7dJPIsGsztiM=",
+    "x86_64-windows-gnu": "sha256-7ALv9cuoQM1c70Mw490Xi+Z9pCQTnHLMWuDXVkgVeAE=",
+    "x86_64-windows-msvc": "sha256-S6FNcgkGELP5B0d/VEP/K9NL+QHaP/b5VtzsIFmUm58=",
 }
