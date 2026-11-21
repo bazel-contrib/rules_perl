@@ -17,6 +17,17 @@ use File::Spec;
 # found. So @INC is made absolute first.
 BEGIN { @INC = map { ref($_) ? $_ : File::Spec->rel2abs($_) } @INC }
 
+# ParseXS calls Cwd::cwd() twice per file, and Cwd binds cwd() to a fork of
+# /bin/pwd whenever that binary existed when Cwd loaded, whatever PATH says.
+# That is a host dependency in every XS action, and a dynamically linked one
+# at that, under a static perl. getcwd() is the syscall and needs nothing, so
+# ParseXS gets that instead; it has to be done before ParseXS imports cwd.
+BEGIN {
+    require Cwd;
+    no warnings 'redefine';
+    *Cwd::cwd = \&Cwd::getcwd;
+}
+
 use ExtUtils::ParseXS;
 use Getopt::Long;
 
