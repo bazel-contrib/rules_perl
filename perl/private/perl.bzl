@@ -40,10 +40,6 @@ _EXECUTABLE_PERL_ATTRS = _COMMON_PERL_ATTRS | {
         doc = "List of arguments to pass to the Perl interpreter (e.g., ['-T'] for taint mode) in addition to the arguments passed by the toolchain.",
         default = [],
     ),
-    "_bash_runfiles": attr.label(
-        cfg = "target",
-        default = Label("@bazel_tools//tools/bash/runfiles"),
-    ),
     "_entrypoint": attr.label(
         doc = "The executable entrypoint.",
         allow_single_file = True,
@@ -53,6 +49,7 @@ _EXECUTABLE_PERL_ATTRS = _COMMON_PERL_ATTRS | {
         default = Label("@platforms//os:windows"),
     ),
     "_wrapper_template": attr.label(
+        doc = "The launcher template, with the runfiles library it sources.",
         allow_single_file = True,
         default = Label("//perl/private:binary_wrapper.tpl"),
     ),
@@ -91,8 +88,6 @@ def _transitive_deps(ctx, extra_files = [], extra_deps = []):
         transitive_files = depset(transitive = deps.files),
         collect_default = True,
     )
-    if hasattr(ctx.attr, "_bash_runfiles"):
-        files = files.merge(ctx.attr._bash_runfiles.default_runfiles)
     return struct(
         srcs = depset(
             direct = ctx.files.srcs,
@@ -231,7 +226,10 @@ def _perl_binary_implementation(ctx):
         DefaultInfo(
             executable = output,
             files = depset([output]),
-            runfiles = transitive_sources.files,
+            runfiles = transitive_sources.files.merge(
+                # The runfiles library of the launcher.
+                ctx.attr._wrapper_template[DefaultInfo].default_runfiles,
+            ),
         ),
         RunEnvironmentInfo(
             environment = _env_vars(ctx),

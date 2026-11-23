@@ -8,9 +8,10 @@ module(
 )
 
 bazel_dep(name = "platforms", version = "1.0.0")
+bazel_dep(name = "rules_batch", version = "0.1.1")
 bazel_dep(name = "bazel_skylib", version = "1.8.2")
 bazel_dep(name = "rules_cc", version = "0.2.9")
-bazel_dep(name = "rules_shell", version = "0.6.1")
+bazel_dep(name = "rules_shell", version = "0.10.0")
 
 # Stardoc is used by //docs to regression test the `bzl_library` tree.
 bazel_dep(name = "stardoc", version = "0.8.1", dev_dependency = True)

@@ -7,11 +7,18 @@ exports_files([
     "entrypoint.pl",
 ])
 
-alias(
+# The launcher template together with the runfiles library it sources: the
+# POSIX library of rules_shell for the sh launcher, rules_batch's for the
+# batch one. perl_binary carries both into the executable's runfiles.
+filegroup(
     name = "binary_wrapper.tpl",
-    actual = select({
-        "@platforms//os:windows": "binary_wrapper.bat.tpl",
-        "//conditions:default": "binary_wrapper.sh.tpl",
+    srcs = select({
+        "@platforms//os:windows": ["binary_wrapper.bat.tpl"],
+        "//conditions:default": ["binary_wrapper.sh.tpl"],
+    }),
+    data = select({
+        "@platforms//os:windows": ["@rules_batch//batch/runfiles"],
+        "//conditions:default": ["@rules_shell//shell/runfiles"],
     }),
     visibility = ["//visibility:public"],
 )
